@@ -3,18 +3,17 @@ package pl.nikowis.ksiazkofilia.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
 public class OfferDTO {
 
-    protected Long id;
-    @NotEmpty
-    protected String title;
-    @NotEmpty
-    protected String author;
-
-    protected Date createdAt;
-    protected Boolean active;
+    private Long id;
+    private String title;
+    private String author;
+    private Date createdAt;
+    private Boolean active;
+    private BigDecimal price;
 
 }

@@ -16,7 +16,7 @@ public class DevCorsConfiguration {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**").allowedOrigins("http://localhost:3001").allowedMethods("*").allowedHeaders("*").allowCredentials(true);
+                registry.addMapping("/**").allowedOrigins("*").allowedMethods("*").allowedHeaders("*").allowCredentials(true);
             }
         };
     }

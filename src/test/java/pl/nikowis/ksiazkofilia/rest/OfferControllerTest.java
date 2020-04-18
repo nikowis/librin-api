@@ -23,6 +23,8 @@ import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
 
+import java.math.BigDecimal;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
@@ -97,6 +99,7 @@ class OfferControllerTest {
         CreateOfferDTO o = new CreateOfferDTO();
         o.setTitle(OFFER_TITLE);
         o.setAuthor(OFFER_AUTHOR);
+        o.setPrice(BigDecimal.ZERO);
 
         mockMvc.perform(post(OfferController.OFFERS_ENDPOINT)
                 .contentType(APPLICATION_JSON_UTF8)
@@ -135,6 +138,8 @@ class OfferControllerTest {
         edit.setTitle(newTitle);
         String newAuthor = "newAuthor";
         edit.setAuthor(newAuthor);
+        BigDecimal newPrice = BigDecimal.ZERO;
+        edit.setPrice(newPrice);
 
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);
@@ -151,7 +156,8 @@ class OfferControllerTest {
                 .andExpect(jsonPath("$.id", is(o.getId().intValue())))
                 .andExpect(jsonPath("$.createdAt", is(notNullValue())))
                 .andExpect(jsonPath("$.title", is(newTitle)))
-                .andExpect(jsonPath("$.author", is(newAuthor)));
+                .andExpect(jsonPath("$.author", is(newAuthor)))
+                .andExpect(jsonPath("$.price", is(newPrice.intValue())));
     }
 
 }
