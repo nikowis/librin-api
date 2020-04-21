@@ -1,13 +1,11 @@
 package pl.nikowis.ksiazkofilia.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -18,10 +16,11 @@ import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.model.Offer;
+import pl.nikowis.ksiazkofilia.model.Offer_;
 import pl.nikowis.ksiazkofilia.model.User;
+import pl.nikowis.ksiazkofilia.model.User_;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
-import pl.nikowis.ksiazkofilia.security.SecurityConstants;
 
 import java.math.BigDecimal;
 
@@ -29,18 +28,17 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @Transactional
 @ActiveProfiles(profiles = Profiles.TEST)
-@Sql(executionPhase= Sql.ExecutionPhase.BEFORE_TEST_METHOD,scripts="classpath:db/testdata.sql")
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:db/testdata.sql")
 class OfferControllerTest {
 
     private static final Long OFFER_ID = 1L;
@@ -63,21 +61,25 @@ class OfferControllerTest {
     private GlobalExceptionHandler globalExceptionHandler;
 
     private final static String LOGIN = "testuser@email.com";
+    private final static String LOGIN2 = "testuser2@email.com";
+    private final static String LOGIN3 = "testuser2@email.com";
 
     private User testUser;
+    private User testUser2;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(offerController)
                 .setControllerAdvice(globalExceptionHandler)
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
         testUser = userRepository.findByLogin(LOGIN);
+        testUser2 = userRepository.findByLogin(LOGIN2);
     }
 
     @Test
     @WithUserDetails(LOGIN)
     public void getOffer() throws Exception {
-
         Offer o = new Offer();
         o.setTitle("Title");
         o.setAuthor("Author");
@@ -92,6 +94,59 @@ class OfferControllerTest {
                 .andExpect(jsonPath("$.title", is(OFFER_TITLE)))
                 .andExpect(jsonPath("$.author", is(OFFER_AUTHOR)));
     }
+
+    @Test
+    @WithUserDetails(LOGIN)
+    public void getAllOffers() throws Exception {
+        Offer o = new Offer();
+        o.setTitle(OFFER_TITLE);
+        o.setAuthor(OFFER_AUTHOR);
+        o.setOwner(testUser);
+        o = offerRepository.save(o);
+
+        Offer o2 = new Offer();
+        o2.setTitle("Title2");
+        o2.setAuthor("Author2");
+        o2.setOwner(testUser2);
+        o2 = offerRepository.save(o2);
+
+        mockMvc.perform(get(OfferController.OFFERS_ENDPOINT))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id", is(o.getId().intValue())))
+                .andExpect(jsonPath("$.content[0].createdAt", is(notNullValue())))
+                .andExpect(jsonPath("$.content[0].title", is(OFFER_TITLE)))
+                .andExpect(jsonPath("$.content[0].author", is(OFFER_AUTHOR)))
+                .andExpect(jsonPath("$.totalElements", is(2)));
+    }
+
+    @Test
+    @WithUserDetails(LOGIN)
+    public void getOnlyMyOffers() throws Exception {
+        Offer o = new Offer();
+        o.setTitle(OFFER_TITLE);
+        o.setAuthor(OFFER_AUTHOR);
+        o.setOwner(testUser);
+        o = offerRepository.save(o);
+
+        Offer o2 = new Offer();
+        o2.setTitle("Title2");
+        o2.setAuthor("Author2");
+        o2.setOwner(testUser2);
+        o2 = offerRepository.save(o2);
+
+        mockMvc.perform(get(OfferController.OFFERS_ENDPOINT)
+                .param(Offer_.OWNER, testUser.getId().toString())
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id", is(o.getId().intValue())))
+                .andExpect(jsonPath("$.content[0].createdAt", is(notNullValue())))
+                .andExpect(jsonPath("$.content[0].title", is(OFFER_TITLE)))
+                .andExpect(jsonPath("$.content[0].author", is(OFFER_AUTHOR)))
+                .andExpect(jsonPath("$.totalElements", is(1)));
+    }
+
 
     @Test
     @WithUserDetails(LOGIN)

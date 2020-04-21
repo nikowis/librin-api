@@ -5,10 +5,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferDTO;
+import pl.nikowis.ksiazkofilia.dto.OfferFilterDTO;
 
 public interface OfferService {
 
-    Page<OfferDTO> getMyOffers(Pageable pageable);
+    Page<OfferDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable);
 
     OfferDTO createOffer(CreateOfferDTO offer);
 

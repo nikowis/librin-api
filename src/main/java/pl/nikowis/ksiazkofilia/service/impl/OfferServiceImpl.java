@@ -11,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferDTO;
+import pl.nikowis.ksiazkofilia.dto.OfferFilterDTO;
 import pl.nikowis.ksiazkofilia.exception.OfferDoesntExistException;
 import pl.nikowis.ksiazkofilia.model.Offer;
+import pl.nikowis.ksiazkofilia.model.OfferSpecification;
 import pl.nikowis.ksiazkofilia.model.UserDetailsImpl;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
@@ -35,8 +37,8 @@ class OfferServiceImpl implements OfferService {
     private MapperFacade mapperFacade;
 
     @Override
-    public Page<OfferDTO> getMyOffers(Pageable pageable) {
-        return offerRepository.findByOwnerId(SecurityUtils.getCurrentUserId(), pageable).map(g -> mapperFacade.map(g, OfferDTO.class));
+    public Page<OfferDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable) {
+        return offerRepository.findAll(new OfferSpecification(filterDTO), pageable).map(g -> mapperFacade.map(g, OfferDTO.class));
     }
 
     @Override

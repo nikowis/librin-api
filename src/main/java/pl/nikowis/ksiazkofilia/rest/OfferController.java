@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferDTO;
+import pl.nikowis.ksiazkofilia.dto.OfferFilterDTO;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
 import pl.nikowis.ksiazkofilia.service.OfferService;
 
@@ -33,8 +34,8 @@ public class OfferController {
     private OfferService offerService;
 
     @GetMapping
-    public Page<OfferDTO> offersList(Pageable pageable) {
-        return offerService.getMyOffers(pageable);
+    public Page<OfferDTO> offersList(OfferFilterDTO filterDTO, Pageable pageable) {
+        return offerService.getOffers(filterDTO, pageable);
     }
 
     @PostMapping
