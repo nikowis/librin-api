@@ -32,7 +32,7 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UserController userController;
+    private UsersController userController;
 
     @MockBean
     private UserRepository userRepository;
@@ -56,7 +56,7 @@ class UserControllerTest {
     @Test
     @WithUserDetails(LOGIN)
     public void getMe() throws Exception {
-        mockMvc.perform(get(UserController.USERS_ENDPOINT))
+        mockMvc.perform(get(UsersController.USERS_ENDPOINT))
                 .andDo(print())
                 .andExpect(status().isOk());
     }

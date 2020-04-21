@@ -16,9 +16,9 @@ import pl.nikowis.ksiazkofilia.service.UserService;
 import pl.nikowis.ksiazkofilia.util.SecurityUtils;
 
 @RestController
-@RequestMapping(path = UserController.USERS_ENDPOINT)
+@RequestMapping(path = UsersController.USERS_ENDPOINT)
 @Secured(SecurityConstants.ROLE_USER)
-public class UserController {
+public class UsersController {
 
     public static final String USERS_ENDPOINT = "/user";
 

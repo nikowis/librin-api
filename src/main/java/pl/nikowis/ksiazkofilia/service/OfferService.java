@@ -18,4 +18,6 @@ public interface OfferService {
     OfferDTO deleteOffer(Long offerDTO);
 
     OfferDTO getOffer(Long offerId);
+
+    OfferDTO getOffer(Long offerId, Long userId);
 }

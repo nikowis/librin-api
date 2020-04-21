@@ -80,4 +80,13 @@ class OfferServiceImpl implements OfferService {
         return mapperFacade.map(offer, OfferDTO.class);
     }
 
+    @Override
+    public OfferDTO getOffer(Long offerId, Long userId) {
+        Offer offer = offerRepository.findByIdAndOwnerId(offerId, userId);
+        if(offer == null) {
+            throw new OfferDoesntExistException();
+        }
+        return mapperFacade.map(offer, OfferDTO.class);
+    }
+
 }

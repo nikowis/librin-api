@@ -18,23 +18,26 @@ import pl.nikowis.ksiazkofilia.dto.OfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferFilterDTO;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
 import pl.nikowis.ksiazkofilia.service.OfferService;
+import pl.nikowis.ksiazkofilia.util.SecurityUtils;
 
 
 @RestController
-@RequestMapping(path = OfferController.OFFERS_ENDPOINT)
+@RequestMapping(path = MyOffersController.MY_OFFERS_ENDPOINT)
 @Secured(SecurityConstants.ROLE_USER)
-public class OfferController {
+public class MyOffersController {
 
-    public static final String OFFERS_ENDPOINT = "/offers";
+    public static final String MY_OFFERS_ENDPOINT = "/myoffers";
     public static final String OFFER_ID_VARIABLE = "offerId";
     public static final String OFFER_PATH = "/{" + OFFER_ID_VARIABLE + "}";
-    public static final String OFFER_ENDPOINT = OFFERS_ENDPOINT + OFFER_PATH;
+    public static final String OFFER_ENDPOINT = MY_OFFERS_ENDPOINT + OFFER_PATH;
 
     @Autowired
     private OfferService offerService;
 
     @GetMapping
     public Page<OfferDTO> offersList(OfferFilterDTO filterDTO, Pageable pageable) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        filterDTO.setOwner(currentUserId);
         return offerService.getOffers(filterDTO, pageable);
     }
 
@@ -45,7 +48,7 @@ public class OfferController {
 
     @GetMapping(path = OFFER_PATH)
     public OfferDTO getOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
-        return offerService.getOffer(offerId);
+        return offerService.getOffer(offerId, SecurityUtils.getCurrentUserId());
     }
 
     @PutMapping(path = OFFER_PATH)

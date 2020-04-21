@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -18,7 +19,6 @@ import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.model.Offer;
 import pl.nikowis.ksiazkofilia.model.Offer_;
 import pl.nikowis.ksiazkofilia.model.User;
-import pl.nikowis.ksiazkofilia.model.User_;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 
@@ -39,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ActiveProfiles(profiles = Profiles.TEST)
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:db/testdata.sql")
-class OfferControllerTest {
+class MyOffersControllerTest {
 
     private static final Long OFFER_ID = 1L;
     public static final String OFFER_TITLE = "Title";
@@ -49,7 +49,7 @@ class OfferControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private OfferController offerController;
+    private MyOffersController offerController;
 
     @Autowired
     private UserRepository userRepository;
@@ -86,38 +86,13 @@ class OfferControllerTest {
         o.setOwner(testUser);
         o = offerRepository.save(o);
 
-        mockMvc.perform(get(OfferController.OFFER_ENDPOINT, o.getId()))
+        mockMvc.perform(get(MyOffersController.OFFER_ENDPOINT, o.getId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(o.getId().intValue())))
                 .andExpect(jsonPath("$.createdAt", is(notNullValue())))
                 .andExpect(jsonPath("$.title", is(OFFER_TITLE)))
                 .andExpect(jsonPath("$.author", is(OFFER_AUTHOR)));
-    }
-
-    @Test
-    @WithUserDetails(LOGIN)
-    public void getAllOffers() throws Exception {
-        Offer o = new Offer();
-        o.setTitle(OFFER_TITLE);
-        o.setAuthor(OFFER_AUTHOR);
-        o.setOwner(testUser);
-        o = offerRepository.save(o);
-
-        Offer o2 = new Offer();
-        o2.setTitle("Title2");
-        o2.setAuthor("Author2");
-        o2.setOwner(testUser2);
-        o2 = offerRepository.save(o2);
-
-        mockMvc.perform(get(OfferController.OFFERS_ENDPOINT))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].id", is(o.getId().intValue())))
-                .andExpect(jsonPath("$.content[0].createdAt", is(notNullValue())))
-                .andExpect(jsonPath("$.content[0].title", is(OFFER_TITLE)))
-                .andExpect(jsonPath("$.content[0].author", is(OFFER_AUTHOR)))
-                .andExpect(jsonPath("$.totalElements", is(2)));
     }
 
     @Test
@@ -135,7 +110,7 @@ class OfferControllerTest {
         o2.setOwner(testUser2);
         o2 = offerRepository.save(o2);
 
-        mockMvc.perform(get(OfferController.OFFERS_ENDPOINT)
+        mockMvc.perform(get(MyOffersController.MY_OFFERS_ENDPOINT)
                 .param(Offer_.OWNER, testUser.getId().toString())
         )
                 .andDo(print())
@@ -156,7 +131,7 @@ class OfferControllerTest {
         o.setAuthor(OFFER_AUTHOR);
         o.setPrice(BigDecimal.ZERO);
 
-        mockMvc.perform(post(OfferController.OFFERS_ENDPOINT)
+        mockMvc.perform(post(MyOffersController.MY_OFFERS_ENDPOINT)
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(new ObjectMapper().writeValueAsString(o)))
                 .andDo(print())
@@ -176,7 +151,7 @@ class OfferControllerTest {
         o.setOwner(testUser);
         o = offerRepository.save(o);
 
-        mockMvc.perform(delete(OfferController.OFFER_ENDPOINT, o.getId()))
+        mockMvc.perform(delete(MyOffersController.OFFER_ENDPOINT, o.getId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(o.getId().intValue())))
@@ -203,7 +178,7 @@ class OfferControllerTest {
         o.setOwner(testUser);
         o = offerRepository.save(o);
 
-        mockMvc.perform(put(OfferController.OFFER_ENDPOINT, o.getId())
+        mockMvc.perform(put(MyOffersController.OFFER_ENDPOINT, o.getId())
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(new ObjectMapper().writeValueAsString(edit)))
                 .andDo(print())

@@ -19,6 +19,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import pl.nikowis.ksiazkofilia.rest.MainController;
+import pl.nikowis.ksiazkofilia.rest.MyOffersController;
+import pl.nikowis.ksiazkofilia.rest.OffersController;
 
 @Configuration
 @EnableWebSecurity
@@ -64,6 +66,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/login").permitAll()
+                .antMatchers(OffersController.OFFERS_ENDPOINT + "/**").permitAll()
                 .antMatchers(MainController.REGISTRATION_ENDPOINT).permitAll()
                 .anyRequest().authenticated()
                 .and().logout().deleteCookies(SecurityConstants.JWT_TOKEN_COOKIE)
