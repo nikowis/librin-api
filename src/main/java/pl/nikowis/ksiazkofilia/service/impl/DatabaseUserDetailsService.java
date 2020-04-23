@@ -15,7 +15,6 @@ import pl.nikowis.ksiazkofilia.service.UserService;
 
 @Service
 @Transactional
-@Profile("!" + Profiles.TEST)
 public class DatabaseUserDetailsService implements UserDetailsService {
 
     @Autowired

@@ -6,13 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.security.test.context.support.WithAnonymousUser;
+
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import pl.nikowis.ksiazkofilia.TestConstants;
 import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
@@ -45,7 +46,6 @@ class MyOffersControllerTest {
     private static final Long OFFER_ID = 1L;
     public static final String OFFER_TITLE = "Title";
     public static final String OFFER_AUTHOR = "Author";
-    public static final long USER_ID = 1L;
 
     private MockMvc mockMvc;
 
@@ -60,11 +60,7 @@ class MyOffersControllerTest {
 
     @Autowired
     private GlobalExceptionHandler globalExceptionHandler;
-
-    private final static String LOGIN = "testuser@email.com";
-    private final static String LOGIN2 = "testuser2@email.com";
-    private final static String LOGIN3 = "testuser2@email.com";
-
+    
     private User testUser;
     private User testUser2;
 
@@ -74,12 +70,12 @@ class MyOffersControllerTest {
                 .setControllerAdvice(globalExceptionHandler)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
-        testUser = userRepository.findByLogin(LOGIN);
-        testUser2 = userRepository.findByLogin(LOGIN2);
+        testUser = userRepository.findByLogin(TestConstants.LOGIN);
+        testUser2 = userRepository.findByLogin(TestConstants.LOGIN2);
     }
 
     @Test
-    @WithUserDetails(LOGIN)
+    @WithUserDetails(TestConstants.LOGIN)
     public void getOffer() throws Exception {
         Offer o = new Offer();
         o.setTitle("Title");
@@ -98,7 +94,7 @@ class MyOffersControllerTest {
     }
 
     @Test
-    @WithUserDetails(LOGIN)
+    @WithUserDetails(TestConstants.LOGIN)
     public void getOnlyMyOffers() throws Exception {
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);
@@ -128,7 +124,7 @@ class MyOffersControllerTest {
 
 
     @Test
-    @WithUserDetails(LOGIN)
+    @WithUserDetails(TestConstants.LOGIN)
     public void createOffer() throws Exception {
         CreateOfferDTO o = new CreateOfferDTO();
         o.setTitle(OFFER_TITLE);
@@ -147,7 +143,7 @@ class MyOffersControllerTest {
     }
 
     @Test
-    @WithUserDetails(LOGIN)
+    @WithUserDetails(TestConstants.LOGIN)
     public void deleteOffer() throws Exception {
         Offer o = new Offer();
         o.setTitle("Title");
@@ -166,7 +162,7 @@ class MyOffersControllerTest {
     }
 
     @Test
-    @WithUserDetails(LOGIN)
+    @WithUserDetails(TestConstants.LOGIN)
     public void editOffer() throws Exception {
         CreateOfferDTO edit = new CreateOfferDTO();
         String newTitle = "newTitle";
@@ -197,7 +193,35 @@ class MyOffersControllerTest {
     }
 
     @Test
-    @WithUserDetails(LOGIN)
+    @WithUserDetails(TestConstants.LOGIN)
+    public void cantEditSoldOffer() throws Exception {
+        CreateOfferDTO edit = new CreateOfferDTO();
+        String newTitle = "newTitle";
+        edit.setTitle(newTitle);
+        String newAuthor = "newAuthor";
+        edit.setAuthor(newAuthor);
+        BigDecimal newPrice = BigDecimal.ZERO;
+        edit.setPrice(newPrice);
+
+        Offer o = new Offer();
+        o.setTitle(OFFER_TITLE);
+        o.setAuthor(OFFER_AUTHOR);
+        o.setId(OFFER_ID);
+        o.setOwner(testUser);
+        o.setStatus(OfferStatus.SOLD);
+        o = offerRepository.save(o);
+
+        mockMvc.perform(put(MyOffersController.OFFER_ENDPOINT, o.getId())
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(new ObjectMapper().writeValueAsString(edit)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors[0].defaultMessage", is(notNullValue())));
+    }
+
+
+    @Test
+    @WithUserDetails(TestConstants.LOGIN)
     public void changeOfferStatus() throws Exception {
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);

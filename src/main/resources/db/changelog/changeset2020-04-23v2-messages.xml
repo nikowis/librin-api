@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changeset2020-04-23v2-messages" author="nikowis">
+        <sql>
+            CREATE TABLE "conversation" (
+                id serial PRIMARY KEY
+                , offer_id INTEGER NOT NULL
+                , customer_id INTEGER NOT NULL
+                , created_at TIMESTAMP NOT NULL
+                , updated_at TIMESTAMP
+                , FOREIGN KEY (offer_id) REFERENCES "offer" (id)
+                , FOREIGN KEY (customer_id) REFERENCES "user" (id)
+            );
+
+            CREATE TABLE "message" (
+                id serial PRIMARY KEY
+                , conversation_id INTEGER NOT NULL
+                , content varchar(1024)
+                , created_at TIMESTAMP NOT NULL
+                , updatedAt TIMESTAMP
+                , created_by INTEGER NOT NULL
+                , FOREIGN KEY (conversation_id) REFERENCES "conversation" (id)
+                , FOREIGN KEY (created_by) REFERENCES "user" (id)
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>

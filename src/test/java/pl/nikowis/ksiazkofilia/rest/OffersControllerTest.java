@@ -11,6 +11,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import pl.nikowis.ksiazkofilia.TestConstants;
 import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
 import pl.nikowis.ksiazkofilia.model.Offer;
@@ -51,10 +52,6 @@ class OffersControllerTest {
     @Autowired
     private GlobalExceptionHandler globalExceptionHandler;
 
-    private final static String LOGIN = "testuser@email.com";
-    private final static String LOGIN2 = "testuser2@email.com";
-    private final static String LOGIN3 = "testuser2@email.com";
-
     private User testUser;
     private User testUser2;
 
@@ -64,8 +61,8 @@ class OffersControllerTest {
                 .setControllerAdvice(globalExceptionHandler)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
-        testUser = userRepository.findByLogin(LOGIN);
-        testUser2 = userRepository.findByLogin(LOGIN2);
+        testUser = userRepository.findByLogin(TestConstants.LOGIN);
+        testUser2 = userRepository.findByLogin(TestConstants.LOGIN2);
     }
 
     @Test

@@ -7,9 +7,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import pl.nikowis.ksiazkofilia.TestConstants;
 import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
 import pl.nikowis.ksiazkofilia.model.User;
@@ -27,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Transactional
 @ActiveProfiles(profiles = Profiles.TEST)
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:db/testdata.sql")
 class UserControllerTest {
 
     private MockMvc mockMvc;
@@ -34,13 +37,8 @@ class UserControllerTest {
     @Autowired
     private UsersController userController;
 
-    @MockBean
-    private UserRepository userRepository;
-
     @Autowired
     private GlobalExceptionHandler globalExceptionHandler;
-
-    private final static String LOGIN = "testuser2@email.com";
 
     @BeforeEach
     void setUp() {
@@ -50,11 +48,10 @@ class UserControllerTest {
 
         User user = new User();
         user.setId(1L);
-        when(userRepository.findById(any(Long.class))).thenReturn(Optional.of(user));
     }
 
     @Test
-    @WithUserDetails(LOGIN)
+    @WithUserDetails(TestConstants.LOGIN)
     public void getMe() throws Exception {
         mockMvc.perform(get(UsersController.USERS_ENDPOINT))
                 .andDo(print())
