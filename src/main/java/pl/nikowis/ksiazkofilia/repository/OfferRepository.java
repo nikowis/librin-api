@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import pl.nikowis.ksiazkofilia.model.Offer;
+import pl.nikowis.ksiazkofilia.model.OfferStatus;
 
 @Repository
 public interface OfferRepository extends JpaRepository<Offer, Long>, JpaSpecificationExecutor<Offer> {
@@ -14,6 +15,6 @@ public interface OfferRepository extends JpaRepository<Offer, Long>, JpaSpecific
 
     Offer findByIdAndOwnerId(Long id, Long ownerId);
 
-    Page<Offer> findByActiveAndOwnerId(Boolean active, Long ownerId, Pageable pageable);
+    Page<Offer> findByStatusAndOwnerId(OfferStatus status, Long ownerId, Pageable pageable);
 
 }

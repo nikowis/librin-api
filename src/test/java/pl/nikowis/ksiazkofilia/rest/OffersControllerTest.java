@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
 import pl.nikowis.ksiazkofilia.model.Offer;
+import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.User;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
@@ -90,12 +91,14 @@ class OffersControllerTest {
         o.setTitle(OFFER_TITLE);
         o.setAuthor(OFFER_AUTHOR);
         o.setOwner(testUser);
+        o.setStatus(OfferStatus.ACTIVE);
         o = offerRepository.save(o);
 
         Offer o2 = new Offer();
         o2.setTitle("Title2");
         o2.setAuthor("Author2");
         o2.setOwner(testUser2);
+        o2.setStatus(OfferStatus.ACTIVE);
         o2 = offerRepository.save(o2);
 
         mockMvc.perform(get(OffersController.OFFERS_ENDPOINT)
@@ -104,11 +107,11 @@ class OffersControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements", is(2)))
                 .andExpect(jsonPath("$.content[0].id", is(o.getId().intValue())))
                 .andExpect(jsonPath("$.content[0].createdAt", is(notNullValue())))
                 .andExpect(jsonPath("$.content[0].title", is(OFFER_TITLE)))
-                .andExpect(jsonPath("$.content[0].author", is(OFFER_AUTHOR)))
-                .andExpect(jsonPath("$.totalElements", is(2)));
+                .andExpect(jsonPath("$.content[0].author", is(OFFER_AUTHOR)));
     }
 
 }

@@ -72,7 +72,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long currentUserId) {
         User user = userRepository.findById(currentUserId).get();
-        user.setActive(false);
+        //todo user states
         user.setLogin(String.valueOf(user.getLogin().hashCode()));
         userRepository.save(user);
     }

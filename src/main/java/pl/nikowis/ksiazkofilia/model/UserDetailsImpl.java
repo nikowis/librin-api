@@ -14,7 +14,6 @@ public class UserDetailsImpl implements UserDetails {
     private Long id;
     private String login;
     private String password;
-    private Boolean active;
     private String role;
 
     @Override
@@ -49,6 +48,6 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return active;
+        return true;
     }
 }

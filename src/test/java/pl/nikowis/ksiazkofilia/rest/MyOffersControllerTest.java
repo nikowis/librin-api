@@ -17,6 +17,7 @@ import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.model.Offer;
+import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.Offer_;
 import pl.nikowis.ksiazkofilia.model.User;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
@@ -84,6 +85,7 @@ class MyOffersControllerTest {
         o.setTitle("Title");
         o.setAuthor("Author");
         o.setOwner(testUser);
+        o.setStatus(OfferStatus.ACTIVE);
         o = offerRepository.save(o);
 
         mockMvc.perform(get(MyOffersController.OFFER_ENDPOINT, o.getId()))
@@ -102,12 +104,14 @@ class MyOffersControllerTest {
         o.setTitle(OFFER_TITLE);
         o.setAuthor(OFFER_AUTHOR);
         o.setOwner(testUser);
+        o.setStatus(OfferStatus.ACTIVE);
         o = offerRepository.save(o);
 
         Offer o2 = new Offer();
         o2.setTitle("Title2");
         o2.setAuthor("Author2");
         o2.setOwner(testUser2);
+        o2.setStatus(OfferStatus.ACTIVE);
         o2 = offerRepository.save(o2);
 
         mockMvc.perform(get(MyOffersController.MY_OFFERS_ENDPOINT)
@@ -149,6 +153,7 @@ class MyOffersControllerTest {
         o.setTitle("Title");
         o.setAuthor("Author");
         o.setOwner(testUser);
+        o.setStatus(OfferStatus.ACTIVE);
         o = offerRepository.save(o);
 
         mockMvc.perform(delete(MyOffersController.OFFER_ENDPOINT, o.getId()))
@@ -176,6 +181,7 @@ class MyOffersControllerTest {
         o.setAuthor(OFFER_AUTHOR);
         o.setId(OFFER_ID);
         o.setOwner(testUser);
+        o.setStatus(OfferStatus.ACTIVE);
         o = offerRepository.save(o);
 
         mockMvc.perform(put(MyOffersController.OFFER_ENDPOINT, o.getId())
@@ -188,6 +194,24 @@ class MyOffersControllerTest {
                 .andExpect(jsonPath("$.title", is(newTitle)))
                 .andExpect(jsonPath("$.author", is(newAuthor)))
                 .andExpect(jsonPath("$.price", is(newPrice.intValue())));
+    }
+
+    @Test
+    @WithUserDetails(LOGIN)
+    public void changeOfferStatus() throws Exception {
+        Offer o = new Offer();
+        o.setTitle(OFFER_TITLE);
+        o.setAuthor(OFFER_AUTHOR);
+        o.setId(OFFER_ID);
+        o.setOwner(testUser);
+        o = offerRepository.save(o);
+
+        mockMvc.perform(put(MyOffersController.OFFER_SOLD_ENDPOINT, o.getId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(o.getId().intValue())))
+                .andExpect(jsonPath("$.createdAt", is(notNullValue())))
+                .andExpect(jsonPath("$.status", is(OfferStatus.SOLD.name())));
     }
 
 }

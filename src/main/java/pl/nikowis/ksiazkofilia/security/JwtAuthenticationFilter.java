@@ -68,7 +68,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         Map<String, Object> claims = new HashMap<>();
         claims.put(SecurityConstants.TOKEN_ROLE_KEY, user.getRole());
         claims.put(SecurityConstants.TOKEN_ID_KEY, user.getId());
-        claims.put(SecurityConstants.TOKEN_ACTIVE_KEY, user.getActive());
         final String token = Jwts.builder().setClaims(claims).setSubject(user.getLogin()).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + SecurityConstants.JWT_TOKEN_VALIDITY * 1000))
                 .signWith(SignatureAlgorithm.HS512, secret).compact();

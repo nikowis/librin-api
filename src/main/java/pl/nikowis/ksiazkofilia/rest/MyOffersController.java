@@ -30,6 +30,8 @@ public class MyOffersController {
     public static final String OFFER_ID_VARIABLE = "offerId";
     public static final String OFFER_PATH = "/{" + OFFER_ID_VARIABLE + "}";
     public static final String OFFER_ENDPOINT = MY_OFFERS_ENDPOINT + OFFER_PATH;
+    public static final String SOLD_PATH = OFFER_PATH + "/sold";
+    public static final String OFFER_SOLD_ENDPOINT = MY_OFFERS_ENDPOINT + SOLD_PATH;
 
     @Autowired
     private OfferService offerService;
@@ -48,12 +50,17 @@ public class MyOffersController {
 
     @GetMapping(path = OFFER_PATH)
     public OfferDTO getOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
-        return offerService.getOffer(offerId, SecurityUtils.getCurrentUserId());
+        return offerService.getOffer(offerId);
     }
 
     @PutMapping(path = OFFER_PATH)
     public OfferDTO updateOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId, @Validated @RequestBody CreateOfferDTO offer) {
         return offerService.updateOffer(offerId, offer);
+    }
+
+    @PutMapping(path = SOLD_PATH)
+    public OfferDTO offerSold(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
+        return offerService.offerSold(offerId);
     }
 
     @DeleteMapping(path = OFFER_PATH)

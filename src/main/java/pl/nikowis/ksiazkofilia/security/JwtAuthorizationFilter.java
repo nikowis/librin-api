@@ -61,10 +61,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
     }
 
     private UsernamePasswordAuthenticationToken getAuthentication(String jwtToken) {
-
         String role, username;
         Long id;
-        Boolean active;
 
         if (isTokenExpired(jwtToken)) {
             return null;
@@ -75,13 +73,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             username = parsedClaims.getBody().getSubject();
             role = (String) parsedClaims.getBody().get(SecurityConstants.TOKEN_ROLE_KEY);
             id = ((Integer) parsedClaims.getBody().get(SecurityConstants.TOKEN_ID_KEY)).longValue();
-            active = (Boolean) parsedClaims.getBody().get(SecurityConstants.TOKEN_ACTIVE_KEY);
 
             if (username != null) {
                 UserDetailsImpl userDetails = new UserDetailsImpl();
                 userDetails.setId(id);
                 userDetails.setLogin(username);
-                userDetails.setActive(active);
                 userDetails.setRole(role);
                 return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
             }
@@ -96,7 +92,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         } catch (IllegalArgumentException exception) {
             LOGGER.warn("Request to parse empty or null JWT : {} failed : {}", jwtToken, exception.getMessage());
         }
-
 
         return null;
     }

@@ -8,5 +8,4 @@ public class UserDTO {
     protected Long id;
     protected String login;
     protected String role;
-    protected Boolean active;
 }

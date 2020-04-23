@@ -12,9 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferFilterDTO;
+import pl.nikowis.ksiazkofilia.exception.OfferCantBeUpdated;
 import pl.nikowis.ksiazkofilia.exception.OfferDoesntExistException;
 import pl.nikowis.ksiazkofilia.model.Offer;
 import pl.nikowis.ksiazkofilia.model.OfferSpecification;
+import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.UserDetailsImpl;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
@@ -54,10 +56,8 @@ class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferDTO updateOffer(Long offerId, CreateOfferDTO offerDTO) {
-        Offer offer = offerRepository.findByIdAndOwnerId(offerId, SecurityUtils.getCurrentUserId());
-        if(offer == null) {
-            throw new OfferDoesntExistException();
-        }
+        Offer offer = getOfferValidateOwner(offerId);
+        validateOfferActive(offer);
         mapperFacade.map(offerDTO, offer);
         Offer saved = offerRepository.save(offer);
         return mapperFacade.map(saved, OfferDTO.class);
@@ -65,13 +65,17 @@ class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferDTO deleteOffer(Long offerDTO) {
-        Offer offer = offerRepository.findByIdAndOwnerId(offerDTO, SecurityUtils.getCurrentUserId());
-        if(offer == null) {
-            throw new OfferDoesntExistException();
+        Offer offer = getOfferValidateOwner(offerDTO);
+        validateOfferActive(offer);
+        offer.setStatus(OfferStatus.DELETED);
+        offer = offerRepository.save(offer);
+        return mapperFacade.map(offer, OfferDTO.class);
+    }
+
+    private void validateOfferActive(Offer offer) {
+        if (!OfferStatus.ACTIVE.equals(offer.getStatus())) {
+            throw new OfferCantBeUpdated();
         }
-        OfferDTO deletedDTO = mapperFacade.map(offer, OfferDTO.class);
-        offerRepository.delete(offer);
-        return deletedDTO;
     }
 
     @Override
@@ -81,12 +85,19 @@ class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public OfferDTO getOffer(Long offerId, Long userId) {
-        Offer offer = offerRepository.findByIdAndOwnerId(offerId, userId);
+    public OfferDTO offerSold(Long offerId) {
+        Offer offer = getOfferValidateOwner(offerId);
+        offer.setStatus(OfferStatus.SOLD);
+        Offer saved = offerRepository.save(offer);
+        return mapperFacade.map(saved, OfferDTO.class);
+    }
+
+    private Offer getOfferValidateOwner(Long offerId) {
+        Offer offer = offerRepository.findByIdAndOwnerId(offerId, SecurityUtils.getCurrentUserId());
         if(offer == null) {
             throw new OfferDoesntExistException();
         }
-        return mapperFacade.map(offer, OfferDTO.class);
+        return offer;
     }
 
 }

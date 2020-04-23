@@ -22,7 +22,6 @@ abstract class BaseEntity {
     protected Date createdAt;
     @Temporal(TemporalType.TIMESTAMP)
     protected Date updatedAt;
-    protected Boolean active = Boolean.TRUE;
 
     @PrePersist
     public void prePersist() {
