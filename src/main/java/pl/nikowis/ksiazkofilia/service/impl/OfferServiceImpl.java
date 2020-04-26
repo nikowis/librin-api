@@ -48,6 +48,7 @@ class OfferServiceImpl implements OfferService {
         UserDetailsImpl currentUserDetails = SecurityUtils.getCurrentUser();
 
         Offer offer = new Offer();
+        offer.setStatus(OfferStatus.ACTIVE);
         mapperFacade.map(dto, offer);
         offer.setOwner(userRepository.findById(currentUserDetails.getId()).get());
         offer = offerRepository.save(offer);

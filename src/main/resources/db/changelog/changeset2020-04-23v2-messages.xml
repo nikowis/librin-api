@@ -23,7 +23,7 @@
                 , conversation_id INTEGER NOT NULL
                 , content varchar(1024) NOT NULL
                 , created_at TIMESTAMP NOT NULL
-                , updatedAt TIMESTAMP
+                , updated_at TIMESTAMP
                 , created_by INTEGER NOT NULL
                 , FOREIGN KEY (conversation_id) REFERENCES "conversation" (id)
                 , FOREIGN KEY (created_by) REFERENCES "user" (id)
