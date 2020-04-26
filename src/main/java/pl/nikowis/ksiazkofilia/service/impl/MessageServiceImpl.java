@@ -2,6 +2,8 @@ package pl.nikowis.ksiazkofilia.service.impl;
 
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.ksiazkofilia.dto.ConversationDTO;
@@ -13,7 +15,6 @@ import pl.nikowis.ksiazkofilia.model.Conversation;
 import pl.nikowis.ksiazkofilia.model.Message;
 import pl.nikowis.ksiazkofilia.model.Offer;
 import pl.nikowis.ksiazkofilia.repository.ConversationRepository;
-import pl.nikowis.ksiazkofilia.repository.MessageRepository;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.service.MessageService;
@@ -68,5 +69,12 @@ public class MessageServiceImpl implements MessageService {
 
         Conversation saved = conversationRepository.save(conversation);
         return mapperFacade.map(saved, ConversationDTO.class);
+    }
+
+    @Override
+    public Page<ConversationDTO> getUserConversations(Pageable pageable) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        Page<Conversation> allByCustomerIdOrOfferOwnerId = conversationRepository.findAllByUserId(currentUserId, pageable);
+        return allByCustomerIdOrOfferOwnerId.map(c -> mapperFacade.map(c, ConversationDTO.class));
     }
 }

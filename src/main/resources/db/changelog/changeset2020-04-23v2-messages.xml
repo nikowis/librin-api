@@ -15,12 +15,13 @@
                 , updated_at TIMESTAMP
                 , FOREIGN KEY (offer_id) REFERENCES "offer" (id)
                 , FOREIGN KEY (customer_id) REFERENCES "user" (id)
+                , UNIQUE (offer_id, customer_id)
             );
 
             CREATE TABLE "message" (
                 id serial PRIMARY KEY
                 , conversation_id INTEGER NOT NULL
-                , content varchar(1024)
+                , content varchar(1024) NOT NULL
                 , created_at TIMESTAMP NOT NULL
                 , updatedAt TIMESTAMP
                 , created_by INTEGER NOT NULL

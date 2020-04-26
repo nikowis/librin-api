@@ -41,6 +41,11 @@ public class MessagesController {
         return messageService.sendMessage(conversationId, messageDTO);
     }
 
+    @GetMapping
+    public Page<ConversationDTO> getUserConversations(Pageable pageable) {
+        return messageService.getUserConversations(pageable);
+    }
+
     @PostMapping
     public ConversationDTO createConversation(@Validated @RequestBody CreateConversationDTO createConversationDTO) {
         return messageService.createConversation(createConversationDTO);

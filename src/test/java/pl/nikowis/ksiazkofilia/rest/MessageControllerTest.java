@@ -20,12 +20,10 @@ import pl.nikowis.ksiazkofilia.dto.SendMessageDTO;
 import pl.nikowis.ksiazkofilia.model.Conversation;
 import pl.nikowis.ksiazkofilia.model.Message;
 import pl.nikowis.ksiazkofilia.model.Offer;
-import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.User;
 import pl.nikowis.ksiazkofilia.repository.ConversationRepository;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
-import pl.nikowis.ksiazkofilia.util.SecurityUtils;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -64,7 +62,10 @@ class MessageControllerTest {
 
     private User testUser;
     private User testUser2;
+    private User testUser3;
     private Offer o;
+    private Offer o2;
+    private Offer o3;
 
     @BeforeEach
     void setUp() {
@@ -74,12 +75,28 @@ class MessageControllerTest {
                 .build();
         testUser = userRepository.findByLogin(TestConstants.LOGIN);
         testUser2 = userRepository.findByLogin(TestConstants.LOGIN2);
+        testUser3 = userRepository.findByLogin(TestConstants.LOGIN3);
 
         o = new Offer();
         o.setTitle("Title");
         o.setAuthor("Author");
         o.setOwner(testUser);
+        o.setOwnerId(testUser.getId());
         o = offerRepository.save(o);
+
+        o2 = new Offer();
+        o2.setTitle("Title2");
+        o2.setAuthor("Author2");
+        o2.setOwner(testUser2);
+        o2.setOwnerId(testUser2.getId());
+        o2 = offerRepository.save(o2);
+
+        o3 = new Offer();
+        o3.setTitle("Title3");
+        o3.setAuthor("Author3");
+        o3.setOwner(testUser3);
+        o3.setOwnerId(testUser3.getId());
+        o3 = offerRepository.save(o3);
     }
 
     @Test
@@ -115,12 +132,13 @@ class MessageControllerTest {
                 .content(new ObjectMapper().writeValueAsString(sendMessageDTO)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(o.getId().intValue())))
+                .andExpect(jsonPath("$.id", is(saved.getId().intValue())))
                 .andExpect(jsonPath("$.createdAt", is(notNullValue())))
                 .andExpect(jsonPath("$.messages[0].content", is(messageContent)));
     }
 
     @Test
+    @WithUserDetails(TestConstants.LOGIN2)
     public void getConversation() throws Exception {
         Conversation conversation = new Conversation();
         conversation.setCustomer(testUser2);
@@ -152,6 +170,34 @@ class MessageControllerTest {
                 .andExpect(jsonPath("$.messages[1].createdBy", is(notNullValue())))
                 .andExpect(jsonPath("$.offer.id", is(o.getId().intValue())))
                 .andExpect(jsonPath("$.offer.price", is(o.getPrice())));
+    }
+
+    @Test
+    @WithUserDetails(TestConstants.LOGIN2)
+    public void getConversations() throws Exception {
+        Conversation conversation = new Conversation();
+        conversation.setCustomer(testUser2);
+        conversation.setOffer(o);
+        Conversation saved = conversationRepository.save(conversation);
+
+        Conversation conversation2 = new Conversation();
+        conversation2.setCustomer(testUser);
+        conversation2.setOffer(o2);
+        Conversation saved2 = conversationRepository.save(conversation2);
+
+        Conversation conversation3 = new Conversation();
+        conversation3.setCustomer(testUser3);
+        conversation3.setOffer(o3);
+        Conversation saved3 = conversationRepository.save(conversation3);
+
+        mockMvc.perform(get(MessagesController.CONVERSATIONS_ENDPOINT))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalElements", is(2)))
+                .andExpect(jsonPath("$.content[0].offer.id", is(o.getId().intValue())))
+                .andExpect(jsonPath("$.content[0].offer.price", is(o.getPrice())))
+                .andExpect(jsonPath("$.content[1].offer.id", is(o2.getId().intValue())))
+                .andExpect(jsonPath("$.content[1].offer.price", is(o2.getPrice())));
     }
 
 }
