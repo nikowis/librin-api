@@ -173,6 +173,33 @@ class MessageControllerTest {
     }
 
     @Test
+    @WithUserDetails(TestConstants.LOGIN3)
+    public void getConversationByUnauthorizedUser() throws Exception {
+        Conversation conversation = new Conversation();
+        conversation.setCustomer(testUser2);
+        conversation.setOffer(o);
+
+        Message message1 = new Message();
+        String messageContent1 = "Hello, how much?";
+        message1.setContent(messageContent1);
+        message1.setCreatedBy(testUser.getId());
+
+        Message message2 = new Message();
+        String messageContent2 = "12 dollars?";
+        message2.setContent(messageContent2);
+        message2.setCreatedBy(testUser2.getId());
+
+        conversation.getMessages().add(message1);
+        conversation.getMessages().add(message2);
+        Conversation saved = conversationRepository.save(conversation);
+
+        mockMvc.perform(get(MessagesController.CONVERSATION_ENDPOINT, saved.getId()))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
     @WithUserDetails(TestConstants.LOGIN2)
     public void getConversations() throws Exception {
         Conversation conversation = new Conversation();
@@ -198,6 +225,26 @@ class MessageControllerTest {
                 .andExpect(jsonPath("$.content[0].offer.price", is(o.getPrice())))
                 .andExpect(jsonPath("$.content[1].offer.id", is(o2.getId().intValue())))
                 .andExpect(jsonPath("$.content[1].offer.price", is(o2.getPrice())));
+    }
+
+    @Test
+    @WithUserDetails(TestConstants.LOGIN2)
+    public void createConversationReturnsExisting() throws Exception {
+        Conversation conversation = new Conversation();
+        conversation.setCustomer(testUser2);
+        conversation.setOffer(o);
+        Conversation saved = conversationRepository.save(conversation);
+
+        CreateConversationDTO createDto = new CreateConversationDTO();
+        createDto.setOfferId(o.getId());
+
+        mockMvc.perform(post(MessagesController.CONVERSATIONS_ENDPOINT)
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(new ObjectMapper().writeValueAsString(createDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(saved.getId().intValue())))
+                .andExpect(jsonPath("$.createdAt", is(notNullValue())));
     }
 
 }

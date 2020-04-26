@@ -20,6 +20,8 @@ import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.service.MessageService;
 import pl.nikowis.ksiazkofilia.util.SecurityUtils;
 
+import java.util.Optional;
+
 @Service
 @Transactional
 public class MessageServiceImpl implements MessageService {
@@ -38,13 +40,13 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public ConversationDTO getConversation(Long conversationId) {
-        Conversation conversation = conversationRepository.findById(conversationId).orElseThrow(ConversationNotFoundException::new);
+        Conversation conversation = conversationRepository.findByIdAndCustomerIdOrOfferOwnerId(conversationId, SecurityUtils.getCurrentUserId()).orElseThrow(ConversationNotFoundException::new);
         return mapperFacade.map(conversation, ConversationDTO.class);
     }
 
     @Override
     public ConversationDTO sendMessage(Long conversationId, SendMessageDTO messageDTO) {
-        Conversation conversation = conversationRepository.findById(conversationId).orElseThrow(ConversationNotFoundException::new);
+        Conversation conversation = conversationRepository.findByIdAndCustomerIdOrOfferOwnerId(conversationId, SecurityUtils.getCurrentUserId()).orElseThrow(ConversationNotFoundException::new);
         Long currentUserId = SecurityUtils.getCurrentUserId();
         if (!currentUserId.equals(conversation.getOffer().getOwnerId()) && !currentUserId.equals(conversation.getCustomer().getId())) {
             throw new ConversationNotFoundException();
@@ -61,10 +63,15 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public ConversationDTO createConversation(CreateConversationDTO createConversationDTO) {
-        Offer offer = offerRepository.findById(createConversationDTO.getOfferId()).orElseThrow(OfferDoesntExistException::new);
+        Long currentUser = SecurityUtils.getCurrentUserId();
+        Optional<Conversation> conv = conversationRepository.findByUserAndOfferId(createConversationDTO.getOfferId(), currentUser);
+        if(conv.isPresent()) {
+            return mapperFacade.map(conv.get(), ConversationDTO.class);
+        }
 
+        Offer offer = offerRepository.findById(createConversationDTO.getOfferId()).orElseThrow(OfferDoesntExistException::new);
         Conversation conversation = new Conversation();
-        conversation.setCustomer(userRepository.findById(SecurityUtils.getCurrentUserId()).get());
+        conversation.setCustomer(userRepository.findById(currentUser).get());
         conversation.setOffer(offer);
 
         Conversation saved = conversationRepository.save(conversation);
@@ -73,8 +80,7 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Page<ConversationDTO> getUserConversations(Pageable pageable) {
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-        Page<Conversation> allByCustomerIdOrOfferOwnerId = conversationRepository.findAllByUserId(currentUserId, pageable);
+        Page<Conversation> allByCustomerIdOrOfferOwnerId = conversationRepository.findAllByUserId(SecurityUtils.getCurrentUserId(), pageable);
         return allByCustomerIdOrOfferOwnerId.map(c -> mapperFacade.map(c, ConversationDTO.class));
     }
 }
