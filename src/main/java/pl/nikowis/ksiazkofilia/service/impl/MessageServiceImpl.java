@@ -20,6 +20,7 @@ import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.service.MessageService;
 import pl.nikowis.ksiazkofilia.util.SecurityUtils;
 
+import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -56,6 +57,7 @@ public class MessageServiceImpl implements MessageService {
         newMessage.setCreatedBy(currentUserId);
         newMessage.setConversation(conversation);
         conversation.getMessages().add(newMessage);
+        conversation.setUpdatedAt(new Date());
         Conversation saved = conversationRepository.save(conversation);
 
         return mapperFacade.map(saved, ConversationDTO.class);

@@ -17,5 +17,6 @@ public class OfferDTO {
     private Date createdAt;
     private BigDecimal price;
     private OfferStatus status;
+    private PublicUserDTO owner;
 
 }
