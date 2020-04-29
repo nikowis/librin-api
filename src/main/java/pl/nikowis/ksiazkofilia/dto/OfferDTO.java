@@ -18,5 +18,6 @@ public class OfferDTO {
     private BigDecimal price;
     private OfferStatus status;
     private PublicUserDTO owner;
+    private AttachmentDTO attachment;
 
 }

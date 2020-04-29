@@ -20,4 +20,6 @@ public class CreateOfferDTO {
     @NotNull
     @Min(0)
     private BigDecimal price;
+
+    private AttachmentDTO attachment;
 }

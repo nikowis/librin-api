@@ -9,15 +9,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import pl.nikowis.ksiazkofilia.dto.AttachmentDTO;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferFilterDTO;
 import pl.nikowis.ksiazkofilia.exception.OfferCantBeUpdated;
 import pl.nikowis.ksiazkofilia.exception.OfferDoesntExistException;
+import pl.nikowis.ksiazkofilia.model.Attachment;
 import pl.nikowis.ksiazkofilia.model.Offer;
 import pl.nikowis.ksiazkofilia.model.OfferSpecification;
 import pl.nikowis.ksiazkofilia.model.OfferStatus;
-import pl.nikowis.ksiazkofilia.model.UserDetailsImpl;
+import pl.nikowis.ksiazkofilia.model.User;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.service.OfferService;
@@ -45,14 +47,32 @@ class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferDTO createOffer(CreateOfferDTO dto) {
-        UserDetailsImpl currentUserDetails = SecurityUtils.getCurrentUser();
+        Long currentUserId = SecurityUtils.getCurrentUserId();
 
         Offer offer = new Offer();
         offer.setStatus(OfferStatus.ACTIVE);
         mapperFacade.map(dto, offer);
-        offer.setOwner(userRepository.findById(currentUserDetails.getId()).get());
+        User currentUser = userRepository.findById(currentUserId).get();
+        offer.setOwner(currentUser);
+
+        createAndAddAttachment(dto, offer, currentUser);
+
         offer = offerRepository.save(offer);
         return mapperFacade.map(offer, OfferDTO.class);
+    }
+
+    private void createAndAddAttachment(CreateOfferDTO dto, Offer offer, User user) {
+        AttachmentDTO file = dto.getAttachment();
+        if(file != null) {
+            Attachment attachment = new Attachment();
+            attachment.setName(file.getName());
+            attachment.setContent(file.getContent());
+            attachment.setOffer(offer);
+            attachment.setOwner(user);
+            attachment.setOwnerId(user.getId());
+            attachment.setSize((long) file.getContent().getBytes().length);
+            offer.setAttachment(attachment);
+        }
     }
 
     @Override
@@ -60,6 +80,7 @@ class OfferServiceImpl implements OfferService {
         Offer offer = getOfferValidateOwner(offerId);
         validateOfferActive(offer);
         mapperFacade.map(offerDTO, offer);
+        createAndAddAttachment(offerDTO, offer, offer.getOwner());
         Offer saved = offerRepository.save(offer);
         return mapperFacade.map(saved, OfferDTO.class);
     }
