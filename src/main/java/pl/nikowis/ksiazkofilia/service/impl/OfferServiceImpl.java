@@ -20,6 +20,7 @@ import pl.nikowis.ksiazkofilia.model.Offer;
 import pl.nikowis.ksiazkofilia.model.OfferSpecification;
 import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.User;
+import pl.nikowis.ksiazkofilia.repository.AttachmentRepository;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.service.OfferService;
@@ -39,6 +40,9 @@ class OfferServiceImpl implements OfferService {
 
     @Autowired
     private MapperFacade mapperFacade;
+
+    @Autowired
+    private AttachmentRepository attachmentRepository;
 
     @Override
     public Page<OfferDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable) {
@@ -80,6 +84,10 @@ class OfferServiceImpl implements OfferService {
         Offer offer = getOfferValidateOwner(offerId);
         validateOfferActive(offer);
         mapperFacade.map(offerDTO, offer);
+        Attachment oldAtt = offer.getAttachment();
+        if(oldAtt != null) {
+            attachmentRepository.delete(oldAtt);
+        }
         createAndAddAttachment(offerDTO, offer, offer.getOwner());
         Offer saved = offerRepository.save(offer);
         return mapperFacade.map(saved, OfferDTO.class);
