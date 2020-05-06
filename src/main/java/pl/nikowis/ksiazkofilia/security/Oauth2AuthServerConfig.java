@@ -51,6 +51,7 @@ public class Oauth2AuthServerConfig extends AuthorizationServerConfigurerAdapter
                 .authorizedGrantTypes("password","authorization_code", "refresh_token")
                 .accessTokenValiditySeconds(tokenValiditySeconds)
                 .refreshTokenValiditySeconds(tokenValiditySeconds)
+
                 .scopes("read");
     }
 
@@ -65,4 +66,5 @@ public class Oauth2AuthServerConfig extends AuthorizationServerConfigurerAdapter
     public TokenStore tokenStore() {
         return new JdbcTokenStore(dataSource);
     }
+
 }
