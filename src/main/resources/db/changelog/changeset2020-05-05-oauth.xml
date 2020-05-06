@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changeset2020-05-05-oauth" author="nikowis">
+        <sql>
+            CREATE TABLE oauth_access_token (
+            token_id VARCHAR(255)
+            , token BYTEA
+            , authentication_id VARCHAR(255) PRIMARY KEY
+            , user_name VARCHAR(255)
+            , client_id VARCHAR(255)
+            , authentication BYTEA
+            , refresh_token VARCHAR(255)
+            );
+
+            CREATE TABLE oauth_refresh_token (
+            token_id VARCHAR(255)
+            , token BYTEA
+            , authentication BYTEA
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>
