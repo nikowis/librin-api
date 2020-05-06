@@ -15,6 +15,7 @@ public class UserDetailsImpl implements UserDetails {
     private String login;
     private String password;
     private String role;
+    private UserStatus status;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -38,7 +39,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return !UserStatus.BLOCKED.equals(status);
     }
 
     @Override

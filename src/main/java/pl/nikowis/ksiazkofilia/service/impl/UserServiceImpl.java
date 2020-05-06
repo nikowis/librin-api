@@ -11,6 +11,7 @@ import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
 import pl.nikowis.ksiazkofilia.exception.UsernameAlreadyExistsException;
 import pl.nikowis.ksiazkofilia.model.User;
+import pl.nikowis.ksiazkofilia.model.UserStatus;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
 import pl.nikowis.ksiazkofilia.service.UserService;
@@ -47,6 +48,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User u = new User();
+        u.setStatus(UserStatus.INACTIVE);
         u.setLogin(userDTO.getLogin());
         u.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
         u.setRole(SecurityConstants.ROLE_USER);

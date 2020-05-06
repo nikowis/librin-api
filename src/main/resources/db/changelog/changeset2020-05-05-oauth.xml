@@ -22,6 +22,8 @@
             , token BYTEA
             , authentication BYTEA
             );
+
+            ALTER TABLE "user" ADD COLUMN "status" varchar(32) NOT NULL DEFAULT 'INACTIVE';
         </sql>
     </changeSet>
 </databaseChangeLog>
