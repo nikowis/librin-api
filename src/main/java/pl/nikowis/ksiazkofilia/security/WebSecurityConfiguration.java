@@ -1,10 +1,8 @@
 package pl.nikowis.ksiazkofilia.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -13,14 +11,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import pl.nikowis.ksiazkofilia.rest.MainController;
-import pl.nikowis.ksiazkofilia.rest.MyOffersController;
-import pl.nikowis.ksiazkofilia.rest.OffersController;
 
 @Configuration
 @EnableWebSecurity
@@ -29,12 +21,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UserDetailsService userDetailsService;
-
-    @Autowired
-    private AuthenticationFailureHandler authenticationFailureHandler;
-
-    @Value("${jwt.secret}")
-    private String secret;
 
     @Bean
     public BCryptPasswordEncoder encoder() {
@@ -59,25 +45,16 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and()
-                .csrf().disable()//todo enable?
+        http
                 .authorizeRequests()
-                .antMatchers("/").permitAll()
-                .antMatchers("/login").permitAll()
-                .antMatchers(OffersController.OFFERS_ENDPOINT + "/**").permitAll()
-                .antMatchers(MainController.REGISTRATION_ENDPOINT).permitAll()
-                .anyRequest().authenticated()
-                .and().logout().deleteCookies(SecurityConstants.JWT_TOKEN_COOKIE)
-                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+                .anyRequest()
+                .denyAll()
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), secret, authenticationFailureHandler))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), secret));
-
-
+                .formLogin()
+                .disable();
     }
 
     @Override

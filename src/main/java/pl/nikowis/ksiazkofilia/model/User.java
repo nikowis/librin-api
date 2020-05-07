@@ -3,6 +3,8 @@ package pl.nikowis.ksiazkofilia.model;
 import lombok.Data;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -24,11 +26,13 @@ public class User extends BaseEntity {
     @Size(min = 2)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    private UserStatus status;
+
     @NotBlank
     private String role;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
     private List<Offer> offers = new ArrayList<>();
-
 
 }
