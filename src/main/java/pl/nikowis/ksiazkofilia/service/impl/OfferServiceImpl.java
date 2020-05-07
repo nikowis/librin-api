@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import pl.nikowis.ksiazkofilia.dto.AttachmentDTO;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferDTO;
@@ -67,7 +66,7 @@ class OfferServiceImpl implements OfferService {
 
     private void createAndAddAttachment(CreateOfferDTO dto, Offer offer, User user) {
         AttachmentDTO file = dto.getAttachment();
-        if(file != null) {
+        if (file != null) {
             Attachment attachment = new Attachment();
             attachment.setName(file.getName());
             attachment.setContent(file.getContent());
@@ -85,7 +84,7 @@ class OfferServiceImpl implements OfferService {
         validateOfferActive(offer);
         mapperFacade.map(offerDTO, offer);
         Attachment oldAtt = offer.getAttachment();
-        if(oldAtt != null) {
+        if (oldAtt != null) {
             attachmentRepository.delete(oldAtt);
         }
         createAndAddAttachment(offerDTO, offer, offer.getOwner());
@@ -124,7 +123,7 @@ class OfferServiceImpl implements OfferService {
 
     private Offer getOfferValidateOwner(Long offerId) {
         Offer offer = offerRepository.findByIdAndOwnerId(offerId, SecurityUtils.getCurrentUserId());
-        if(offer == null) {
+        if (offer == null) {
             throw new OfferDoesntExistException();
         }
         return offer;

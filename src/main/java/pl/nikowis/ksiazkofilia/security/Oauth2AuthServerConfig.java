@@ -52,7 +52,7 @@ public class Oauth2AuthServerConfig extends AuthorizationServerConfigurerAdapter
                 .inMemory()
                 .withClient(WEB_CLIENT_ID)
                 .secret(encoder.encode(WEB_CLIENT_SECRET))
-                .authorizedGrantTypes("password","authorization_code", "refresh_token")
+                .authorizedGrantTypes("password", "authorization_code", "refresh_token")
                 .accessTokenValiditySeconds(tokenValiditySeconds)
                 .refreshTokenValiditySeconds(tokenValiditySeconds)
                 .scopes("read");

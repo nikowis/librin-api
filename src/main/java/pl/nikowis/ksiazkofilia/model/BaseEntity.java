@@ -29,7 +29,7 @@ public abstract class BaseEntity {
         if (createdAt == null) {
             createdAt = new Date();
         }
-        if(updatedAt == null) {
+        if (updatedAt == null) {
             updatedAt = new Date();
         }
     }

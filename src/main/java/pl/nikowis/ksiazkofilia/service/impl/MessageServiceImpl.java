@@ -67,7 +67,7 @@ public class MessageServiceImpl implements MessageService {
     public ConversationDTO createConversation(CreateConversationDTO createConversationDTO) {
         Long currentUser = SecurityUtils.getCurrentUserId();
         Optional<Conversation> conv = conversationRepository.findByUserAndOfferId(createConversationDTO.getOfferId(), currentUser);
-        if(conv.isPresent()) {
+        if (conv.isPresent()) {
             return mapperFacade.map(conv.get(), ConversationDTO.class);
         }
 

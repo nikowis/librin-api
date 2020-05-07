@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO updateUser(Long currentUserId, UpdateUserDTO dto) {
         User user = userRepository.findById(currentUserId).get();
-        if(Strings.isNotBlank(dto.getPassword())) {
+        if (Strings.isNotBlank(dto.getPassword())) {
             user.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
         }
         return mapperFacade.map(user, UserDTO.class);

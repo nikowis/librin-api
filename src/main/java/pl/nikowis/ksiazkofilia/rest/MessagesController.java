@@ -12,10 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.nikowis.ksiazkofilia.dto.ConversationDTO;
 import pl.nikowis.ksiazkofilia.dto.CreateConversationDTO;
-import pl.nikowis.ksiazkofilia.dto.OfferDTO;
-import pl.nikowis.ksiazkofilia.dto.OfferFilterDTO;
 import pl.nikowis.ksiazkofilia.dto.SendMessageDTO;
-import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.service.MessageService;
 
 

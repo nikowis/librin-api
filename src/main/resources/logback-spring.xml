@@ -2,10 +2,10 @@
 <configuration>
 
     <springProfile name="dev,test">
-        <property scope="context" name="logfolder" value="${user.home}/logs" />
+        <property scope="context" name="logfolder" value="${user.home}/logs"/>
     </springProfile>
     <springProfile name="prod">
-        <property scope="context" name="logfolder" value="${user.home}/nikowiscom/ksiazkofilia/logs" />
+        <property scope="context" name="logfolder" value="${user.home}/nikowiscom/ksiazkofilia/logs"/>
     </springProfile>
 
     <appender name="console-appender" class="ch.qos.logback.core.ConsoleAppender">

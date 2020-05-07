@@ -35,5 +35,5 @@ public class OffersController {
     public OfferDTO getOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
         return offerService.getOffer(offerId);
     }
-    
+
 }
