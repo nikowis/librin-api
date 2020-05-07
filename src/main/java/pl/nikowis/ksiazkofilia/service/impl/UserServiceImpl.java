@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
-import pl.nikowis.ksiazkofilia.exception.UsernameAlreadyExistsException;
+import pl.nikowis.ksiazkofilia.exception.EmailAlreadyExistsException;
 import pl.nikowis.ksiazkofilia.model.User;
 import pl.nikowis.ksiazkofilia.model.UserStatus;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
@@ -31,8 +31,8 @@ public class UserServiceImpl implements UserService {
     private MapperFacade mapperFacade;
 
     @Override
-    public User findUserByLogin(String login) {
-        return userRepository.findByLogin(login);
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
@@ -43,13 +43,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO register(RegisterUserDTO userDTO) {
-        if (userRepository.findByLogin(userDTO.getLogin()) != null) {
-            throw new UsernameAlreadyExistsException(new Object[]{userDTO.getLogin()});
+        if (userRepository.findByEmail(userDTO.getEmail()) != null) {
+            throw new EmailAlreadyExistsException(new Object[]{userDTO.getEmail()});
         }
 
-        User u = new User();
+        User u = mapperFacade.map(userDTO, User.class);
+        u.setId(null);
         u.setStatus(UserStatus.INACTIVE);
-        u.setLogin(userDTO.getLogin());
         u.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
         u.setRole(SecurityConstants.ROLE_USER);
         User saved = userRepository.save(u);
@@ -75,7 +75,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long currentUserId) {
         User user = userRepository.findById(currentUserId).get();
         //todo user states
-        user.setLogin(String.valueOf(user.getLogin().hashCode()));
+        user.setEmail(String.valueOf(user.getEmail().hashCode()));
         userRepository.save(user);
     }
 

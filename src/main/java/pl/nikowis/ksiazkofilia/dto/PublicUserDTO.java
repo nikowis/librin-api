@@ -6,5 +6,5 @@ import lombok.Data;
 public class PublicUserDTO {
 
     protected Long id;
-    protected String login;
+    protected String username;
 }

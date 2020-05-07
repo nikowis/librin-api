@@ -23,10 +23,10 @@ public class DatabaseUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User userByLogin = userService.findUserByLogin(username);
-        if (userByLogin == null) {
+        User userByEmail = userService.findUserByEmail(username);
+        if (userByEmail == null) {
             throw new UsernameNotFoundException("Username no found - " + username);
         }
-        return mapperFacade.map(userByLogin, UserDetailsImpl.class);
+        return mapperFacade.map(userByEmail, UserDetailsImpl.class);
     }
 }

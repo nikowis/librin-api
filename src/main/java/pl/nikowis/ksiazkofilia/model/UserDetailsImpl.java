@@ -12,7 +12,7 @@ import java.util.Collection;
 public class UserDetailsImpl implements UserDetails {
 
     private Long id;
-    private String login;
+    private String email;
     private String password;
     private String role;
     private UserStatus status;
@@ -29,7 +29,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return login;
+        return email;
     }
 
     @Override

@@ -34,8 +34,8 @@ public class ConversationRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        testUser = userRepository.findByLogin(TestConstants.LOGIN);
-        testUser2 = userRepository.findByLogin(TestConstants.LOGIN2);
+        testUser = userRepository.findByEmail(TestConstants.EMAIL);
+        testUser2 = userRepository.findByEmail(TestConstants.EMAIL2);
 
         o = new Offer();
         o.setTitle("Title");

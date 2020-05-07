@@ -60,8 +60,8 @@ class OffersControllerTest {
                 .setControllerAdvice(globalExceptionHandler)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
-        testUser = userRepository.findByLogin(TestConstants.LOGIN);
-        testUser2 = userRepository.findByLogin(TestConstants.LOGIN2);
+        testUser = userRepository.findByEmail(TestConstants.EMAIL);
+        testUser2 = userRepository.findByEmail(TestConstants.EMAIL2);
     }
 
     @Test

@@ -6,7 +6,7 @@ import pl.nikowis.ksiazkofilia.dto.UserDTO;
 import pl.nikowis.ksiazkofilia.model.User;
 
 public interface UserService {
-    User findUserByLogin(String login);
+    User findUserByEmail(String email);
 
     User saveUser(User user);
 

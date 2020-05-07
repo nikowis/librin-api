@@ -69,12 +69,12 @@ class MyOffersControllerTest {
                 .setControllerAdvice(globalExceptionHandler)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
-        testUser = userRepository.findByLogin(TestConstants.LOGIN);
-        testUser2 = userRepository.findByLogin(TestConstants.LOGIN2);
+        testUser = userRepository.findByEmail(TestConstants.EMAIL);
+        testUser2 = userRepository.findByEmail(TestConstants.EMAIL2);
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN)
+    @WithUserDetails(TestConstants.EMAIL)
     public void getOffer() throws Exception {
         Offer o = new Offer();
         o.setTitle("Title");
@@ -93,7 +93,7 @@ class MyOffersControllerTest {
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN)
+    @WithUserDetails(TestConstants.EMAIL)
     public void getOnlyMyOffers() throws Exception {
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);
@@ -123,7 +123,7 @@ class MyOffersControllerTest {
 
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN)
+    @WithUserDetails(TestConstants.EMAIL)
     public void createOffer() throws Exception {
         CreateOfferDTO o = new CreateOfferDTO();
         o.setTitle(OFFER_TITLE);
@@ -142,7 +142,7 @@ class MyOffersControllerTest {
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN)
+    @WithUserDetails(TestConstants.EMAIL)
     public void deleteOffer() throws Exception {
         Offer o = new Offer();
         o.setTitle("Title");
@@ -161,7 +161,7 @@ class MyOffersControllerTest {
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN)
+    @WithUserDetails(TestConstants.EMAIL)
     public void editOffer() throws Exception {
         CreateOfferDTO edit = new CreateOfferDTO();
         String newTitle = "newTitle";
@@ -192,7 +192,7 @@ class MyOffersControllerTest {
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN)
+    @WithUserDetails(TestConstants.EMAIL)
     public void cantEditSoldOffer() throws Exception {
         CreateOfferDTO edit = new CreateOfferDTO();
         String newTitle = "newTitle";
@@ -220,7 +220,7 @@ class MyOffersControllerTest {
 
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN)
+    @WithUserDetails(TestConstants.EMAIL)
     public void changeOfferStatus() throws Exception {
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);

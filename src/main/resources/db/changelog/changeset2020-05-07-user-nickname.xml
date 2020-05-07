@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changeset2020-05-07-user-nickname" author="nikowis">
+        <sql>
+            ALTER TABLE "user" RENAME COLUMN "login" TO "email";
+            ALTER TABLE "user" ADD COLUMN "username" varchar(128);
+            UPDATE "user" SET "username"="email";
+            ALTER TABLE "user" ALTER COLUMN "username" SET NOT NULL;
+            ALTER TABLE "user" ADD CONSTRAINT user_username_unique UNIQUE ("username");
+
+            ALTER TABLE "user" ADD COLUMN "first_name" varchar(128);
+            ALTER TABLE "user" ADD COLUMN "last_name" varchar(128);
+            UPDATE "user" SET "first_name"="email";
+            UPDATE "user" SET "last_name"="email";
+            ALTER TABLE "user" ALTER COLUMN "first_name" SET NOT NULL;
+            ALTER TABLE "user" ALTER COLUMN "last_name" SET NOT NULL;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

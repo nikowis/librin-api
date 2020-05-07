@@ -20,7 +20,19 @@ public class User extends BaseEntity {
 
     @NotBlank
     @Size(min = 2, max = 128)
-    private String login;
+    private String email;
+
+    @NotBlank
+    @Size(min = 2, max = 128)
+    private String username;
+
+    @NotBlank
+    @Size(min = 2, max = 128)
+    private String firstName;
+
+    @NotBlank
+    @Size(min = 2, max = 128)
+    private String lastName;
 
     @NotBlank
     @Size(min = 2)

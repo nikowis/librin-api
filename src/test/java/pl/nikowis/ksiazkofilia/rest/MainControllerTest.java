@@ -53,27 +53,33 @@ class MainControllerTest {
     @WithAnonymousUser
     public void registerTest() throws Exception {
         RegisterUserDTO user = new RegisterUserDTO();
-        user.setLogin(TestConstants.LOGIN);
-        user.setPassword(TestConstants.LOGIN);
+        user.setEmail(TestConstants.EMAIL);
+        user.setPassword(TestConstants.EMAIL);
+        user.setFirstName("Marek");
+        user.setLastName("Nowak");
+        user.setUsername("marnow");
 
         mockMvc.perform(post(MainController.REGISTRATION_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(user)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.login").value(TestConstants.LOGIN));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(TestConstants.EMAIL));
     }
 
     @Test
     public void usernameNotAvailableTest() throws Exception {
         User user = new User();
-        user.setLogin(TestConstants.LOGIN);
-        user.setPassword(TestConstants.LOGIN);
+        user.setEmail(TestConstants.EMAIL);
+        user.setPassword(TestConstants.EMAIL);
         user.setRole(SecurityConstants.ROLE_USER);
+        user.setFirstName("Marek");
+        user.setLastName("Nowak");
+        user.setUsername("marnow");
         userRepository.save(user);
 
         RegisterUserDTO registerUserDTO = new RegisterUserDTO();
-        registerUserDTO.setLogin(TestConstants.LOGIN);
-        registerUserDTO.setPassword(TestConstants.LOGIN);
+        registerUserDTO.setEmail(TestConstants.EMAIL);
+        registerUserDTO.setPassword(TestConstants.EMAIL);
 
         mockMvc.perform(post(MainController.REGISTRATION_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(registerUserDTO)))

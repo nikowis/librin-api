@@ -44,7 +44,7 @@ class UserControllerTest {
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN)
+    @WithUserDetails(TestConstants.EMAIL)
     public void getMe() throws Exception {
         mockMvc.perform(get(UsersController.USERS_ENDPOINT))
                 .andDo(print())

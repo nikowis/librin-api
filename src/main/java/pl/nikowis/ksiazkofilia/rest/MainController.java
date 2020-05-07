@@ -30,7 +30,7 @@ public class MainController {
     @Secured(SecurityConstants.ROLE_ADMIN)
     public UserDTO admin() {
         UserDTO userDTO = new UserDTO();
-        userDTO.setLogin("ADMIN");
+        userDTO.setEmail("ADMIN");
         userDTO.setRole(SecurityConstants.ROLE_ADMIN);
         return userDTO;
     }

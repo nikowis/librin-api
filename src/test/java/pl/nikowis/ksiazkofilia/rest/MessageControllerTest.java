@@ -73,9 +73,9 @@ class MessageControllerTest {
                 .setControllerAdvice(globalExceptionHandler)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
-        testUser = userRepository.findByLogin(TestConstants.LOGIN);
-        testUser2 = userRepository.findByLogin(TestConstants.LOGIN2);
-        testUser3 = userRepository.findByLogin(TestConstants.LOGIN3);
+        testUser = userRepository.findByEmail(TestConstants.EMAIL);
+        testUser2 = userRepository.findByEmail(TestConstants.EMAIL2);
+        testUser3 = userRepository.findByEmail(TestConstants.EMAIL3);
 
         o = new Offer();
         o.setTitle("Title");
@@ -100,7 +100,7 @@ class MessageControllerTest {
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN2)
+    @WithUserDetails(TestConstants.EMAIL2)
     public void createConversation() throws Exception {
 
         CreateConversationDTO createDto = new CreateConversationDTO();
@@ -116,7 +116,7 @@ class MessageControllerTest {
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN2)
+    @WithUserDetails(TestConstants.EMAIL2)
     public void sendMessage() throws Exception {
         Conversation conversation = new Conversation();
         conversation.setCustomer(testUser2);
@@ -138,7 +138,7 @@ class MessageControllerTest {
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN2)
+    @WithUserDetails(TestConstants.EMAIL2)
     public void getConversation() throws Exception {
         Conversation conversation = new Conversation();
         conversation.setCustomer(testUser2);
@@ -173,7 +173,7 @@ class MessageControllerTest {
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN3)
+    @WithUserDetails(TestConstants.EMAIL3)
     public void getConversationByUnauthorizedUser() throws Exception {
         Conversation conversation = new Conversation();
         conversation.setCustomer(testUser2);
@@ -200,7 +200,7 @@ class MessageControllerTest {
 
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN2)
+    @WithUserDetails(TestConstants.EMAIL2)
     public void getConversations() throws Exception {
         Conversation conversation = new Conversation();
         conversation.setCustomer(testUser2);
@@ -228,7 +228,7 @@ class MessageControllerTest {
     }
 
     @Test
-    @WithUserDetails(TestConstants.LOGIN2)
+    @WithUserDetails(TestConstants.EMAIL2)
     public void createConversationReturnsExisting() throws Exception {
         Conversation conversation = new Conversation();
         conversation.setCustomer(testUser2);
