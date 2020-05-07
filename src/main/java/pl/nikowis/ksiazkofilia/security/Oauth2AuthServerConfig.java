@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
@@ -31,6 +32,9 @@ public class Oauth2AuthServerConfig extends AuthorizationServerConfigurerAdapter
 
     @Autowired
     private PasswordEncoder encoder;
+
+    @Autowired
+    private WebResponseExceptionTranslator webResponseExceptionTranslator;
 
     @Value("${oauth.token.validity.seconds}")
     private int tokenValiditySeconds;
@@ -56,7 +60,7 @@ public class Oauth2AuthServerConfig extends AuthorizationServerConfigurerAdapter
 
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        endpoints
+        endpoints.exceptionTranslator(webResponseExceptionTranslator)
                 .tokenStore(tokenStore())
                 .authenticationManager(authenticationManager);
     }
