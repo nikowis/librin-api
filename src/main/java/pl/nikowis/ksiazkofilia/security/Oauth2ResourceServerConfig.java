@@ -6,6 +6,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import pl.nikowis.ksiazkofilia.rest.MainController;
 import pl.nikowis.ksiazkofilia.rest.OffersController;
+import pl.nikowis.ksiazkofilia.rest.PolicyController;
 
 @Configuration
 @EnableResourceServer
@@ -20,6 +21,7 @@ public class Oauth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
                 .antMatchers("/email").permitAll()
                 .antMatchers("/oauth/token").permitAll()
                 .antMatchers(OffersController.OFFERS_ENDPOINT + "/**").permitAll()
-                .antMatchers(MainController.REGISTRATION_ENDPOINT).permitAll();
+                .antMatchers(MainController.REGISTRATION_ENDPOINT).permitAll()
+                .antMatchers(PolicyController.POLICIES_ENDPOINT+ "/**").permitAll();
     }
 }

@@ -2,6 +2,7 @@ package pl.nikowis.ksiazkofilia.model;
 
 import lombok.Data;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -43,6 +44,9 @@ public class User extends BaseEntity {
 
     @NotBlank
     private String role;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.ALL})
+    private List<Consent> consents = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
     private List<Offer> offers = new ArrayList<>();

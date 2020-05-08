@@ -1,6 +1,7 @@
 package pl.nikowis.ksiazkofilia.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,14 @@ import pl.nikowis.ksiazkofilia.TestConstants;
 import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
+import pl.nikowis.ksiazkofilia.model.Consent;
+import pl.nikowis.ksiazkofilia.model.PolicyType;
 import pl.nikowis.ksiazkofilia.model.User;
+import pl.nikowis.ksiazkofilia.repository.ConsentRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
+
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -40,6 +46,8 @@ class MainControllerTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ConsentRepository consentRepository;
 
     @BeforeEach
     void setUp() {
@@ -64,7 +72,11 @@ class MainControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(TestConstants.EMAIL));
+
+        User registered = userRepository.findByEmail(TestConstants.EMAIL);
+        Assertions.assertEquals(PolicyType.values().length, registered.getConsents().size());
     }
+
 
     @Test
     public void usernameNotAvailableTest() throws Exception {

@@ -34,7 +34,7 @@ public class GlobalExceptionHandler implements WebResponseExceptionTranslator<OA
 
     @ExceptionHandler({DataIntegrityViolationException.class})
     public final ResponseEntity handleDatabaseException(Exception ex, WebRequest request) {
-        return getResponse(ex, HttpStatus.BAD_REQUEST);
+        return getResponse(ex, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler({BusinessException.class})
