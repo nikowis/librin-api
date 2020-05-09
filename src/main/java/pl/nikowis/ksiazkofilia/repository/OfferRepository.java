@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import pl.nikowis.ksiazkofilia.model.Offer;
 import pl.nikowis.ksiazkofilia.model.OfferStatus;
 
+import java.util.List;
+
 @Repository
 public interface OfferRepository extends JpaRepository<Offer, Long>, JpaSpecificationExecutor<Offer> {
 
@@ -16,5 +18,7 @@ public interface OfferRepository extends JpaRepository<Offer, Long>, JpaSpecific
     Offer findByIdAndOwnerId(Long id, Long ownerId);
 
     Page<Offer> findByStatusAndOwnerId(OfferStatus status, Long ownerId, Pageable pageable);
+
+    List<Offer> findByStatusAndOwnerId(OfferStatus status, Long ownerId);
 
 }

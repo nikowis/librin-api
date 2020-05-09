@@ -13,6 +13,7 @@ public class UserDetailsImpl implements UserDetails {
 
     private Long id;
     private String email;
+    private String username;
     private String password;
     private String role;
     private UserStatus status;
@@ -34,7 +35,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return !UserStatus.DELETED.equals(status);
     }
 
     @Override

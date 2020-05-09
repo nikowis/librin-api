@@ -9,11 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.ksiazkofilia.dto.ConversationDTO;
 import pl.nikowis.ksiazkofilia.dto.CreateConversationDTO;
 import pl.nikowis.ksiazkofilia.dto.SendMessageDTO;
+import pl.nikowis.ksiazkofilia.exception.CantCreateConversationOnNonActiveOfferException;
 import pl.nikowis.ksiazkofilia.exception.ConversationNotFoundException;
 import pl.nikowis.ksiazkofilia.exception.OfferDoesntExistException;
 import pl.nikowis.ksiazkofilia.model.Conversation;
 import pl.nikowis.ksiazkofilia.model.Message;
 import pl.nikowis.ksiazkofilia.model.Offer;
+import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.repository.ConversationRepository;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
@@ -72,6 +74,10 @@ public class MessageServiceImpl implements MessageService {
         }
 
         Offer offer = offerRepository.findById(createConversationDTO.getOfferId()).orElseThrow(OfferDoesntExistException::new);
+        if(!OfferStatus.ACTIVE.equals(offer.getStatus())) {
+            throw new CantCreateConversationOnNonActiveOfferException();
+        }
+
         Conversation conversation = new Conversation();
         conversation.setCustomer(userRepository.findById(currentUser).get());
         conversation.setOffer(offer);

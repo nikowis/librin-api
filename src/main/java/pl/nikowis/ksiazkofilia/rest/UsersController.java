@@ -21,6 +21,10 @@ import pl.nikowis.ksiazkofilia.util.SecurityUtils;
 public class UsersController {
 
     public static final String USERS_ENDPOINT = "/user";
+    public static final String USER_ID_VARIABLE = "userId";
+    public static final String USER_PATH = "/{" + USER_ID_VARIABLE + "}";
+    public static final String USER_ENDPOINT = USERS_ENDPOINT + USER_PATH;
+
 
     @Autowired
     private UserService userService;

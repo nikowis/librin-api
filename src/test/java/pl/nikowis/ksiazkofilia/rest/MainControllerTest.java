@@ -17,14 +17,11 @@ import pl.nikowis.ksiazkofilia.TestConstants;
 import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
-import pl.nikowis.ksiazkofilia.model.Consent;
 import pl.nikowis.ksiazkofilia.model.PolicyType;
 import pl.nikowis.ksiazkofilia.model.User;
 import pl.nikowis.ksiazkofilia.repository.ConsentRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
-
-import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;

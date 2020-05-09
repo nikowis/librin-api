@@ -1,8 +1,8 @@
 package pl.nikowis.ksiazkofilia.exception;
 
-public class EmailAlreadyExistsException extends BusinessException {
+import pl.nikowis.ksiazkofilia.model.User_;
 
-    public static final String EMAIL_FIELD = "email";
+public class EmailAlreadyExistsException extends BusinessException {
 
     public EmailAlreadyExistsException(Object[] args) {
         super(args);
@@ -10,6 +10,6 @@ public class EmailAlreadyExistsException extends BusinessException {
 
     @Override
     public String getFieldName() {
-        return EMAIL_FIELD;
+        return User_.EMAIL;
     }
 }

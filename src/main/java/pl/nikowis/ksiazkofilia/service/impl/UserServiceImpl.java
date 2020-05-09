@@ -12,10 +12,16 @@ import pl.nikowis.ksiazkofilia.dto.UserDTO;
 import pl.nikowis.ksiazkofilia.exception.EmailAlreadyExistsException;
 import pl.nikowis.ksiazkofilia.exception.UsernameAlreadyExistsException;
 import pl.nikowis.ksiazkofilia.model.Consent;
+import pl.nikowis.ksiazkofilia.model.OauthToken;
+import pl.nikowis.ksiazkofilia.model.Offer;
+import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.Policy;
 import pl.nikowis.ksiazkofilia.model.PolicyType;
 import pl.nikowis.ksiazkofilia.model.User;
 import pl.nikowis.ksiazkofilia.model.UserStatus;
+import pl.nikowis.ksiazkofilia.repository.OauthRefreshTokenRepository;
+import pl.nikowis.ksiazkofilia.repository.OauthTokenRepository;
+import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.PolicyRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
@@ -24,6 +30,7 @@ import pl.nikowis.ksiazkofilia.util.SecurityUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -36,10 +43,19 @@ public class UserServiceImpl implements UserService {
     private PolicyRepository policyRepository;
 
     @Autowired
+    private OfferRepository offerRepository;
+
+    @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Autowired
     private MapperFacade mapperFacade;
+
+    @Autowired
+    private OauthTokenRepository oauthTokenRepository;
+
+    @Autowired
+    private OauthRefreshTokenRepository oauthRefreshTokenRepository;
 
     @Override
     public User findUserByEmail(String email) {
@@ -97,7 +113,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long currentUserId) {
         User user = userRepository.findById(currentUserId).get();
-        //todo user states
+
+        List<Offer> offers = offerRepository.findByStatusAndOwnerId(OfferStatus.ACTIVE, user.getId());
+        offers.forEach(o -> o.setStatus(OfferStatus.DELETED));
+        offerRepository.saveAll(offers);
+
+        List<OauthToken> allTokens = oauthTokenRepository.findAllByUserName(user.getEmail());
+        List<String> refreshTokenIds = allTokens.stream().map(OauthToken::getRefreshToken).collect(Collectors.toList());
+
+        oauthRefreshTokenRepository.deleteAlLByTokenIdIn(refreshTokenIds);
+        oauthTokenRepository.deleteAll(allTokens);
+
+        user.setStatus(UserStatus.DELETED);
         user.setEmail(String.valueOf(user.getEmail().hashCode()));
         userRepository.save(user);
     }

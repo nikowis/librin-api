@@ -20,6 +20,7 @@ import pl.nikowis.ksiazkofilia.dto.SendMessageDTO;
 import pl.nikowis.ksiazkofilia.model.Conversation;
 import pl.nikowis.ksiazkofilia.model.Message;
 import pl.nikowis.ksiazkofilia.model.Offer;
+import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.User;
 import pl.nikowis.ksiazkofilia.repository.ConversationRepository;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
@@ -82,6 +83,7 @@ class MessageControllerTest {
         o.setAuthor("Author");
         o.setOwner(testUser);
         o.setOwnerId(testUser.getId());
+        o.setStatus(OfferStatus.ACTIVE);
         o = offerRepository.save(o);
 
         o2 = new Offer();
@@ -89,6 +91,7 @@ class MessageControllerTest {
         o2.setAuthor("Author2");
         o2.setOwner(testUser2);
         o2.setOwnerId(testUser2.getId());
+        o2.setStatus(OfferStatus.ACTIVE);
         o2 = offerRepository.save(o2);
 
         o3 = new Offer();
@@ -96,6 +99,7 @@ class MessageControllerTest {
         o3.setAuthor("Author3");
         o3.setOwner(testUser3);
         o3.setOwnerId(testUser3.getId());
+        o3.setStatus(OfferStatus.ACTIVE);
         o3 = offerRepository.save(o3);
     }
 

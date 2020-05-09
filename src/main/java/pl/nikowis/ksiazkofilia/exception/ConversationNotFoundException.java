@@ -1,11 +1,11 @@
 package pl.nikowis.ksiazkofilia.exception;
 
-public class ConversationNotFoundException extends BusinessException {
+import pl.nikowis.ksiazkofilia.model.Conversation_;
 
-    public static final String ID_FIELD = "id";
+public class ConversationNotFoundException extends BusinessException {
 
     @Override
     public String getFieldName() {
-        return ID_FIELD;
+        return Conversation_.ID;
     }
 }

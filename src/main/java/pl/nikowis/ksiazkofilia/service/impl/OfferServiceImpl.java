@@ -12,7 +12,7 @@ import pl.nikowis.ksiazkofilia.dto.AttachmentDTO;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferFilterDTO;
-import pl.nikowis.ksiazkofilia.exception.OfferCantBeUpdated;
+import pl.nikowis.ksiazkofilia.exception.OfferCantBeUpdatedException;
 import pl.nikowis.ksiazkofilia.exception.OfferDoesntExistException;
 import pl.nikowis.ksiazkofilia.model.Attachment;
 import pl.nikowis.ksiazkofilia.model.Offer;
@@ -103,7 +103,7 @@ class OfferServiceImpl implements OfferService {
 
     private void validateOfferActive(Offer offer) {
         if (!OfferStatus.ACTIVE.equals(offer.getStatus())) {
-            throw new OfferCantBeUpdated();
+            throw new OfferCantBeUpdatedException();
         }
     }
 
