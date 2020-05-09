@@ -1,5 +1,6 @@
 package pl.nikowis.ksiazkofilia.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.ksiazkofilia.TestConstants;
 import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
+import pl.nikowis.ksiazkofilia.dto.DeleteUserDTO;
+import pl.nikowis.ksiazkofilia.model.OauthAccessToken;
 import pl.nikowis.ksiazkofilia.model.OauthRefreshToken;
-import pl.nikowis.ksiazkofilia.model.OauthToken;
 import pl.nikowis.ksiazkofilia.model.Offer;
 import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.User;
@@ -28,6 +30,7 @@ import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -62,8 +65,8 @@ class UserControllerTest {
 
     private User testUser;
     private Offer o;
-    private OauthToken token;
-    private OauthToken refreshToken;
+    private OauthAccessToken token;
+    private OauthAccessToken refreshToken;
 
     @BeforeEach
     void setUp() {
@@ -73,7 +76,7 @@ class UserControllerTest {
                 .build();
         testUser = userRepository.findByEmail(TestConstants.EMAIL);
 
-        OauthToken token = new OauthToken();
+        OauthAccessToken token = new OauthAccessToken();
         token.setRefreshToken(REFRESHTOKEN);
         token.setTokenId("tokenid");
         token.setAuthenticationId("tokenid");
@@ -107,13 +110,18 @@ class UserControllerTest {
     public void deleteUser() throws Exception {
         User byEmail = userRepository.findByEmail(TestConstants.EMAIL);
 
-        mockMvc.perform(delete(UsersController.USERS_ENDPOINT))
+        DeleteUserDTO dto = new DeleteUserDTO();
+        dto.setPassword(TestConstants.PASSWORD_RAW);
+
+        mockMvc.perform(delete(UsersController.USERS_ENDPOINT)
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(new ObjectMapper().writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isOk());
 
         User afterDelete = userRepository.findByUsername(byEmail.getUsername());
         Offer offer = offerRepository.findById(o.getId()).get();
-        List<OauthToken> authTokens = oauthTokenRepository.findAllByUserName(TestConstants.EMAIL);
+        List<OauthAccessToken> authTokens = oauthTokenRepository.findAllByUserName(TestConstants.EMAIL);
         Optional<OauthRefreshToken> refreshToken = oauthRefreshTokenRepository.findById(REFRESHTOKEN);
 
         Assertions.assertNotEquals(TestConstants.EMAIL, afterDelete.getEmail());

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.nikowis.ksiazkofilia.dto.DeleteUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
@@ -40,8 +41,8 @@ public class UsersController {
     }
 
     @DeleteMapping
-    public void deleteUser() {
-        userService.deleteUser(SecurityUtils.getCurrentUserId());
+    public void deleteUser(@Validated @RequestBody DeleteUserDTO dto) {
+        userService.deleteUser(dto, SecurityUtils.getCurrentUserId());
     }
 
 }

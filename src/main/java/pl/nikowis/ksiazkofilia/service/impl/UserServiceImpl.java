@@ -6,13 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.nikowis.ksiazkofilia.dto.DeleteUserDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
 import pl.nikowis.ksiazkofilia.exception.EmailAlreadyExistsException;
+import pl.nikowis.ksiazkofilia.exception.IncorrectPasswordException;
 import pl.nikowis.ksiazkofilia.exception.UsernameAlreadyExistsException;
 import pl.nikowis.ksiazkofilia.model.Consent;
-import pl.nikowis.ksiazkofilia.model.OauthToken;
+import pl.nikowis.ksiazkofilia.model.OauthAccessToken;
 import pl.nikowis.ksiazkofilia.model.Offer;
 import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.Policy;
@@ -111,15 +113,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Long currentUserId) {
+    public void deleteUser(DeleteUserDTO dto, Long currentUserId) {
         User user = userRepository.findById(currentUserId).get();
+
+        if(!bCryptPasswordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            throw new IncorrectPasswordException();
+        }
 
         List<Offer> offers = offerRepository.findByStatusAndOwnerId(OfferStatus.ACTIVE, user.getId());
         offers.forEach(o -> o.setStatus(OfferStatus.DELETED));
         offerRepository.saveAll(offers);
 
-        List<OauthToken> allTokens = oauthTokenRepository.findAllByUserName(user.getEmail());
-        List<String> refreshTokenIds = allTokens.stream().map(OauthToken::getRefreshToken).collect(Collectors.toList());
+        List<OauthAccessToken> allTokens = oauthTokenRepository.findAllByUserName(user.getEmail());
+        List<String> refreshTokenIds = allTokens.stream().map(OauthAccessToken::getRefreshToken).collect(Collectors.toList());
 
         oauthRefreshTokenRepository.deleteAlLByTokenIdIn(refreshTokenIds);
         oauthTokenRepository.deleteAll(allTokens);

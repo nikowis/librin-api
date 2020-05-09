@@ -7,7 +7,7 @@ import javax.persistence.Id;
 
 @Entity
 @Data
-public class OauthToken {
+public class OauthAccessToken {
 
     @Id
     private String authenticationId;

@@ -1,5 +1,6 @@
 package pl.nikowis.ksiazkofilia.service;
 
+import pl.nikowis.ksiazkofilia.dto.DeleteUserDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
@@ -16,5 +17,5 @@ public interface UserService {
 
     UserDTO updateUser(Long currentUserId, UpdateUserDTO user);
 
-    void deleteUser(Long currentUserId);
+    void deleteUser(DeleteUserDTO dto, Long currentUserId);
 }
