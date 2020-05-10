@@ -100,7 +100,7 @@ public class UserServiceImpl implements UserService {
         u.setConsents(consents);
         User saved = userRepository.save(u);
 
-        sendConfirmEmail(saved);
+        sendConfirmEmail(saved, userDTO);
 
         return mapperFacade.map(saved, UserDTO.class);
     }
@@ -117,15 +117,15 @@ public class UserServiceImpl implements UserService {
         return consents;
     }
 
-    private void sendConfirmEmail(User saved) {
+    private void sendConfirmEmail(User saved, RegisterUserDTO dto) {
         Token token = new Token();
         token.setType(TokenType.ACCOUNT_EMAIL_CONFIRMATION);
         token.setExpiresAt(new DateTime().plusYears(9999).toDate());
         token.setUser(saved);
-
         token = tokenRepository.save(token);
+        String confirmUrl = dto.getConfirmEmailBaseUrl() + "/" + token.getId().toString();
 
-        mailService.sendEmailConfirmationMessage(saved.getEmail(), token.getId().toString());
+        mailService.sendEmailConfirmationMessage(saved.getEmail(), confirmUrl);
     }
 
     @Override

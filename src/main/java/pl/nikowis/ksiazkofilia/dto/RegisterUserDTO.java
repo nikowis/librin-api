@@ -34,4 +34,7 @@ public class RegisterUserDTO {
     @NotBlank
     private String password;
 
+    @NotBlank
+    private String confirmEmailBaseUrl;
+
 }
