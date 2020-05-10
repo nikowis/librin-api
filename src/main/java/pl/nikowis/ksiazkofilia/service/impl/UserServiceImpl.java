@@ -2,6 +2,7 @@ package pl.nikowis.ksiazkofilia.service.impl;
 
 import ma.glasnost.orika.MapperFacade;
 import org.apache.logging.log4j.util.Strings;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,18 +20,23 @@ import pl.nikowis.ksiazkofilia.model.Offer;
 import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.Policy;
 import pl.nikowis.ksiazkofilia.model.PolicyType;
+import pl.nikowis.ksiazkofilia.model.Token;
+import pl.nikowis.ksiazkofilia.model.TokenType;
 import pl.nikowis.ksiazkofilia.model.User;
 import pl.nikowis.ksiazkofilia.model.UserStatus;
 import pl.nikowis.ksiazkofilia.repository.OauthRefreshTokenRepository;
 import pl.nikowis.ksiazkofilia.repository.OauthTokenRepository;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.PolicyRepository;
+import pl.nikowis.ksiazkofilia.repository.TokenRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
+import pl.nikowis.ksiazkofilia.service.MailService;
 import pl.nikowis.ksiazkofilia.service.UserService;
 import pl.nikowis.ksiazkofilia.util.SecurityUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,6 +65,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private OauthRefreshTokenRepository oauthRefreshTokenRepository;
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
+    @Autowired
+    private MailService mailService;
+
     @Override
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email);
@@ -84,6 +96,16 @@ public class UserServiceImpl implements UserService {
         u.setStatus(UserStatus.INACTIVE);
         u.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
         u.setRole(SecurityConstants.ROLE_USER);
+        List<Consent> consents = createRegisterConsentList(u);
+        u.setConsents(consents);
+        User saved = userRepository.save(u);
+
+        sendConfirmEmail(saved);
+
+        return mapperFacade.map(saved, UserDTO.class);
+    }
+
+    private List<Consent> createRegisterConsentList(User u) {
         List<Consent> consents = new ArrayList<>();
         for(PolicyType type: PolicyType.values()) {
             Policy policy = policyRepository.findFirstByTypeOrderByVersionDesc(type);
@@ -92,9 +114,18 @@ public class UserServiceImpl implements UserService {
             c.setUser(u);
             consents.add(c);
         }
-        u.setConsents(consents);
-        User saved = userRepository.save(u);
-        return mapperFacade.map(saved, UserDTO.class);
+        return consents;
+    }
+
+    private void sendConfirmEmail(User saved) {
+        Token token = new Token();
+        token.setType(TokenType.ACCOUNT_EMAIL_CONFIRMATION);
+        token.setExpiresAt(new DateTime().plusYears(9999).toDate());
+        token.setUser(saved);
+
+        token = tokenRepository.save(token);
+
+        mailService.sendEmailConfirmationMessage(saved.getEmail(), token.getId().toString());
     }
 
     @Override

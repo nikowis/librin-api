@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changeset2020-05-10-email-confirmation.xml" author="nikowis">
+        <sql>
+            CREATE TABLE "token" (
+            id uuid PRIMARY KEY DEFAULT uuid_generate_v4()
+            , user_id BIGINT NOT NULL
+            , created_at TIMESTAMP NOT NULL
+            , expires_at TIMESTAMP NOT NULL
+            , type VARCHAR(64) NOT NULL
+            , executed BOOLEAN NOT NULL DEFAULT false
+            , FOREIGN KEY (user_id) REFERENCES "user" (id)
+            );
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

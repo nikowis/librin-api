@@ -58,7 +58,7 @@ class MainControllerTest {
     @WithAnonymousUser
     public void registerTest() throws Exception {
         RegisterUserDTO user = new RegisterUserDTO();
-        user.setEmail(TestConstants.EMAIL);
+        user.setEmail("nikowis@gmail.com");
         user.setPassword(TestConstants.EMAIL);
         user.setFirstName("Marek");
         user.setLastName("Nowak");
@@ -68,9 +68,9 @@ class MainControllerTest {
                 .content(new ObjectMapper().writeValueAsString(user)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(TestConstants.EMAIL));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("nikowis@gmail.com"));
 
-        User registered = userRepository.findByEmail(TestConstants.EMAIL);
+        User registered = userRepository.findByEmail("nikowis@gmail.com");
         Assertions.assertEquals(PolicyType.values().length, registered.getConsents().size());
     }
 
