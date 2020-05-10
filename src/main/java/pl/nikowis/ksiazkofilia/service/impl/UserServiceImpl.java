@@ -13,6 +13,8 @@ import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
 import pl.nikowis.ksiazkofilia.exception.EmailAlreadyExistsException;
 import pl.nikowis.ksiazkofilia.exception.IncorrectPasswordException;
+import pl.nikowis.ksiazkofilia.exception.InorrectUserStatusException;
+import pl.nikowis.ksiazkofilia.exception.TokenNotFoundException;
 import pl.nikowis.ksiazkofilia.exception.UsernameAlreadyExistsException;
 import pl.nikowis.ksiazkofilia.model.Consent;
 import pl.nikowis.ksiazkofilia.model.OauthAccessToken;
@@ -38,6 +40,7 @@ import pl.nikowis.ksiazkofilia.util.SecurityUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -164,6 +167,24 @@ public class UserServiceImpl implements UserService {
         user.setStatus(UserStatus.DELETED);
         user.setEmail(String.valueOf(user.getEmail().hashCode()));
         userRepository.save(user);
+    }
+
+    @Override
+    public UserDTO confirmEmail(UUID tokenId) {
+        Token token = tokenRepository.findById(tokenId).orElse(null);
+        if(token == null || token.getExpiresAt().before(new Date()) || token.isExecuted()) {
+            throw new TokenNotFoundException();
+        }
+        User user = token.getUser();
+        if(!UserStatus.INACTIVE.equals(user.getStatus())) {
+            throw new InorrectUserStatusException();
+        }
+        user.setStatus(UserStatus.ACTIVE);
+        user = userRepository.save(user);
+        token.setExecuted(true);
+        tokenRepository.save(token);
+
+        return mapperFacade.map(user, UserDTO.class);
     }
 
 }

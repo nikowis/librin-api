@@ -1,6 +1,7 @@
 package pl.nikowis.ksiazkofilia.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +19,12 @@ import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.model.PolicyType;
+import pl.nikowis.ksiazkofilia.model.Token;
+import pl.nikowis.ksiazkofilia.model.TokenType;
 import pl.nikowis.ksiazkofilia.model.User;
+import pl.nikowis.ksiazkofilia.model.UserStatus;
 import pl.nikowis.ksiazkofilia.repository.ConsentRepository;
+import pl.nikowis.ksiazkofilia.repository.TokenRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
 
@@ -44,7 +49,7 @@ class MainControllerTest {
     private UserRepository userRepository;
 
     @Autowired
-    private ConsentRepository consentRepository;
+    private TokenRepository tokenRepository;
 
     @BeforeEach
     void setUp() {
@@ -57,9 +62,11 @@ class MainControllerTest {
     @Test
     @WithAnonymousUser
     public void registerTest() throws Exception {
+        String registerMail = "testemail5121@email.com";
         RegisterUserDTO user = new RegisterUserDTO();
-        user.setEmail("nikowis@gmail.com");
+        user.setEmail(registerMail);
         user.setPassword(TestConstants.EMAIL);
+        user.setConfirmEmailBaseUrl("baseurl");
         user.setFirstName("Marek");
         user.setLastName("Nowak");
         user.setUsername("marnow");
@@ -68,9 +75,9 @@ class MainControllerTest {
                 .content(new ObjectMapper().writeValueAsString(user)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("nikowis@gmail.com"));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(registerMail));
 
-        User registered = userRepository.findByEmail("nikowis@gmail.com");
+        User registered = userRepository.findByEmail(registerMail);
         Assertions.assertEquals(PolicyType.values().length, registered.getConsents().size());
     }
 
@@ -94,6 +101,57 @@ class MainControllerTest {
                 .content(new ObjectMapper().writeValueAsString(registerUserDTO)))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void userConfirmEmail() throws Exception {
+        User user = new User();
+        user.setEmail(TestConstants.EMAIL);
+        user.setPassword(TestConstants.EMAIL);
+        user.setRole(SecurityConstants.ROLE_USER);
+        user.setFirstName("Marek");
+        user.setLastName("Nowak");
+        user.setUsername("marnow");
+        user.setStatus(UserStatus.INACTIVE);
+        user = userRepository.save(user);
+
+        Token token = new Token();
+        token.setType(TokenType.ACCOUNT_EMAIL_CONFIRMATION);
+        token.setUser(user);
+        token.setExpiresAt(new DateTime().plusDays(1).toDate());
+        token.setExecuted(false);
+        token = tokenRepository.save(token);
+
+        mockMvc.perform(post(MainController.EMAIL_CONFIRM_ENDPOINT, token.getId().toString()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(TestConstants.EMAIL))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(UserStatus.ACTIVE.name()));
+    }
+
+    @Test
+    public void cantConfirmEmailForActiveUser() throws Exception {
+        User user = new User();
+        user.setEmail(TestConstants.EMAIL);
+        user.setPassword(TestConstants.EMAIL);
+        user.setRole(SecurityConstants.ROLE_USER);
+        user.setFirstName("Marek");
+        user.setLastName("Nowak");
+        user.setUsername("marnow");
+        user.setStatus(UserStatus.ACTIVE);
+        user = userRepository.save(user);
+
+        Token token = new Token();
+        token.setType(TokenType.ACCOUNT_EMAIL_CONFIRMATION);
+        token.setUser(user);
+        token.setExpiresAt(new DateTime().plusDays(1).toDate());
+        token.setExecuted(false);
+        token = tokenRepository.save(token);
+
+        mockMvc.perform(post(MainController.EMAIL_CONFIRM_ENDPOINT, token.getId().toString()))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
     }
 
 }

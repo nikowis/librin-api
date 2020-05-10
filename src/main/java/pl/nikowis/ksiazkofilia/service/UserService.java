@@ -6,6 +6,8 @@ import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
 import pl.nikowis.ksiazkofilia.model.User;
 
+import java.util.UUID;
+
 public interface UserService {
     User findUserByEmail(String email);
 
@@ -18,4 +20,6 @@ public interface UserService {
     UserDTO updateUser(Long currentUserId, UpdateUserDTO user);
 
     void deleteUser(DeleteUserDTO dto, Long currentUserId);
+
+    UserDTO confirmEmail(UUID tokenId);
 }
