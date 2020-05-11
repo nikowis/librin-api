@@ -1,6 +1,7 @@
 package pl.nikowis.ksiazkofilia.service;
 
 import pl.nikowis.ksiazkofilia.dto.DeleteUserDTO;
+import pl.nikowis.ksiazkofilia.dto.GenerateResetPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
@@ -22,4 +23,6 @@ public interface UserService {
     void deleteUser(DeleteUserDTO dto, Long currentUserId);
 
     UserDTO confirmEmail(UUID tokenId);
+
+    void generateResetPasswordToken(GenerateResetPasswordDTO dto);
 }

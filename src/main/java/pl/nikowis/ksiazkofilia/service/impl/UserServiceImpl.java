@@ -3,11 +3,14 @@ package pl.nikowis.ksiazkofilia.service.impl;
 import ma.glasnost.orika.MapperFacade;
 import org.apache.logging.log4j.util.Strings;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.ksiazkofilia.dto.DeleteUserDTO;
+import pl.nikowis.ksiazkofilia.dto.GenerateResetPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
@@ -46,6 +49,9 @@ import java.util.stream.Collectors;
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+    public static final int PASSWORD_RESET_TOKEN_VALIDITY = 7;
 
     @Autowired
     private UserRepository userRepository;
@@ -185,6 +191,22 @@ public class UserServiceImpl implements UserService {
         tokenRepository.save(token);
 
         return mapperFacade.map(user, UserDTO.class);
+    }
+
+    @Override
+    public void generateResetPasswordToken(GenerateResetPasswordDTO dto) {
+        User user = userRepository.findByEmail(dto.getEmail());
+        if(user == null) {
+            LOGGER.error("Cant create reset password token for {}, user not found in the database.", dto.getEmail());
+        } else {
+            Token token = new Token();
+            token.setType(TokenType.PASSWORD_RESET);
+            token.setExpiresAt(new DateTime().plusDays(PASSWORD_RESET_TOKEN_VALIDITY).toDate());
+            token.setUser(user);
+            token = tokenRepository.save(token);
+            String confirmUrl = dto.getConfirmEmailBaseUrl() + "/" + token.getId().toString();
+            mailService.sendResetPasswordEmail(user.getEmail(), confirmUrl);
+        }
     }
 
 }

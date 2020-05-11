@@ -7,9 +7,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.ksiazkofilia.TestConstants;
 import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
+import pl.nikowis.ksiazkofilia.dto.GenerateResetPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.model.PolicyType;
 import pl.nikowis.ksiazkofilia.model.Token;
@@ -27,6 +30,7 @@ import pl.nikowis.ksiazkofilia.repository.ConsentRepository;
 import pl.nikowis.ksiazkofilia.repository.TokenRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
+import pl.nikowis.ksiazkofilia.service.MailService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -35,6 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Transactional
 @ActiveProfiles(profiles = Profiles.TEST)
+@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:db/testdata.sql")
 class MainControllerTest {
 
     private MockMvc mockMvc;
@@ -50,6 +55,9 @@ class MainControllerTest {
 
     @Autowired
     private TokenRepository tokenRepository;
+
+    @MockBean
+    private MailService mailService;
 
     @BeforeEach
     void setUp() {
@@ -152,6 +160,20 @@ class MainControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
+    }
+
+    @Test
+    @WithAnonymousUser
+    public void generateResetPswdToken() throws Exception {
+        GenerateResetPasswordDTO dto = new GenerateResetPasswordDTO();
+        dto.setEmail(TestConstants.EMAIL);
+        dto.setConfirmEmailBaseUrl("baseurl");
+        mockMvc.perform(post(MainController.GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        Assertions.assertEquals(1, tokenRepository.findAll().size());
     }
 
 }
