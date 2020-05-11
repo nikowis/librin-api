@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.ksiazkofilia.TestConstants;
 import pl.nikowis.ksiazkofilia.config.GlobalExceptionHandler;
 import pl.nikowis.ksiazkofilia.config.Profiles;
+import pl.nikowis.ksiazkofilia.dto.ChangeUserPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.GenerateResetPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.model.PolicyType;
@@ -26,13 +27,13 @@ import pl.nikowis.ksiazkofilia.model.Token;
 import pl.nikowis.ksiazkofilia.model.TokenType;
 import pl.nikowis.ksiazkofilia.model.User;
 import pl.nikowis.ksiazkofilia.model.UserStatus;
-import pl.nikowis.ksiazkofilia.repository.ConsentRepository;
 import pl.nikowis.ksiazkofilia.repository.TokenRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
 import pl.nikowis.ksiazkofilia.service.MailService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -113,13 +114,7 @@ class MainControllerTest {
 
     @Test
     public void userConfirmEmail() throws Exception {
-        User user = new User();
-        user.setEmail(TestConstants.EMAIL);
-        user.setPassword(TestConstants.EMAIL);
-        user.setRole(SecurityConstants.ROLE_USER);
-        user.setFirstName("Marek");
-        user.setLastName("Nowak");
-        user.setUsername("marnow");
+        User user = userRepository.findByEmail(TestConstants.EMAIL);
         user.setStatus(UserStatus.INACTIVE);
         user = userRepository.save(user);
 
@@ -130,11 +125,12 @@ class MainControllerTest {
         token.setExecuted(false);
         token = tokenRepository.save(token);
 
-        mockMvc.perform(post(MainController.EMAIL_CONFIRM_ENDPOINT, token.getId().toString()))
+        mockMvc.perform(put(MainController.EMAIL_CONFIRM_ENDPOINT, token.getId().toString()))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(TestConstants.EMAIL))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value(UserStatus.ACTIVE.name()));
+                .andExpect(status().isOk());
+
+        User saved = userRepository.findByEmail(TestConstants.EMAIL);
+        Assertions.assertEquals(UserStatus.ACTIVE, saved.getStatus());
     }
 
     @Test
@@ -156,7 +152,7 @@ class MainControllerTest {
         token.setExecuted(false);
         token = tokenRepository.save(token);
 
-        mockMvc.perform(post(MainController.EMAIL_CONFIRM_ENDPOINT, token.getId().toString()))
+        mockMvc.perform(put(MainController.EMAIL_CONFIRM_ENDPOINT, token.getId().toString()))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
 
@@ -167,7 +163,7 @@ class MainControllerTest {
     public void generateResetPswdToken() throws Exception {
         GenerateResetPasswordDTO dto = new GenerateResetPasswordDTO();
         dto.setEmail(TestConstants.EMAIL);
-        dto.setConfirmEmailBaseUrl("baseurl");
+        dto.setChangePasswordBaseUrl("baseurl");
         mockMvc.perform(post(MainController.GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(dto)))
                 .andDo(print())
@@ -176,4 +172,27 @@ class MainControllerTest {
         Assertions.assertEquals(1, tokenRepository.findAll().size());
     }
 
+    @Test
+    @WithAnonymousUser
+    public void changePassword() throws Exception {
+        User user = userRepository.findByEmail(TestConstants.EMAIL);
+        String oldPassword = user.getPassword();
+        Token token = new Token();
+        token.setType(TokenType.PASSWORD_RESET);
+        token.setExpiresAt(new DateTime().plusDays(1).toDate());
+        token.setUser(user);
+        token = tokenRepository.save(token);
+
+        ChangeUserPasswordDTO dto = new ChangeUserPasswordDTO();
+        dto.setPassword(TestConstants.EMAIL);
+        mockMvc.perform(put(MainController.CHANGE_PASSWORD_ENDPOINT, token.getId()).contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        User changedUser = userRepository.findByEmail(TestConstants.EMAIL);
+        token = tokenRepository.findByIdAndType(token.getId(), TokenType.PASSWORD_RESET);
+
+        Assertions.assertNotEquals(oldPassword, changedUser.getPassword());
+    }
 }

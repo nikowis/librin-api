@@ -8,14 +8,10 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data
-public class GenerateResetPasswordDTO {
+public class ChangeUserPasswordDTO {
 
+    @Size(min = 2, max = 32)
     @NotBlank
-    @Size(min = 2, max = 256)
-    @Email
-    private String email;
-
-    @NotBlank
-    private String changePasswordBaseUrl;
+    private String password;
 
 }

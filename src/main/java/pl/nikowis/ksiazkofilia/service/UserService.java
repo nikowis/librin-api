@@ -1,5 +1,6 @@
 package pl.nikowis.ksiazkofilia.service;
 
+import pl.nikowis.ksiazkofilia.dto.ChangeUserPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.DeleteUserDTO;
 import pl.nikowis.ksiazkofilia.dto.GenerateResetPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
@@ -12,8 +13,6 @@ import java.util.UUID;
 public interface UserService {
     User findUserByEmail(String email);
 
-    User saveUser(User user);
-
     UserDTO register(RegisterUserDTO userDTO);
 
     UserDTO getCurrentUser();
@@ -22,7 +21,9 @@ public interface UserService {
 
     void deleteUser(DeleteUserDTO dto, Long currentUserId);
 
-    UserDTO confirmEmail(UUID tokenId);
+    void confirmEmail(UUID tokenId);
 
     void generateResetPasswordToken(GenerateResetPasswordDTO dto);
+
+    void changePassword(UUID tokenId, ChangeUserPasswordDTO userDTO);
 }

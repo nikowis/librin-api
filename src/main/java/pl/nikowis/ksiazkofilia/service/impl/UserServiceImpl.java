@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.nikowis.ksiazkofilia.dto.ChangeUserPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.DeleteUserDTO;
 import pl.nikowis.ksiazkofilia.dto.GenerateResetPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
@@ -83,12 +84,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email);
-    }
-
-    @Override
-    public User saveUser(User user) {
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
     }
 
     @Override
@@ -176,8 +171,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO confirmEmail(UUID tokenId) {
-        Token token = tokenRepository.findById(tokenId).orElse(null);
+    public void confirmEmail(UUID tokenId) {
+        Token token = tokenRepository.findByIdAndType(tokenId, TokenType.ACCOUNT_EMAIL_CONFIRMATION);
         if(token == null || token.getExpiresAt().before(new Date()) || token.isExecuted()) {
             throw new TokenNotFoundException();
         }
@@ -190,7 +185,6 @@ public class UserServiceImpl implements UserService {
         token.setExecuted(true);
         tokenRepository.save(token);
 
-        return mapperFacade.map(user, UserDTO.class);
     }
 
     @Override
@@ -204,9 +198,25 @@ public class UserServiceImpl implements UserService {
             token.setExpiresAt(new DateTime().plusDays(PASSWORD_RESET_TOKEN_VALIDITY).toDate());
             token.setUser(user);
             token = tokenRepository.save(token);
-            String confirmUrl = dto.getConfirmEmailBaseUrl() + "/" + token.getId().toString();
+            String confirmUrl = dto.getChangePasswordBaseUrl() + "/" + token.getId().toString();
             mailService.sendResetPasswordEmail(user.getEmail(), confirmUrl);
         }
+    }
+
+    @Override
+    public void changePassword(UUID tokenId, ChangeUserPasswordDTO userDTO) {
+        Token token = tokenRepository.findByIdAndType(tokenId, TokenType.PASSWORD_RESET);
+        if(token == null || token.getExpiresAt().before(new Date()) || token.isExecuted()) {
+            throw new TokenNotFoundException();
+        }
+        User user = token.getUser();
+        if(UserStatus.DELETED.equals(user.getStatus())) {
+            throw new InorrectUserStatusException();
+        }
+        user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
+        user = userRepository.save(user);
+        token.setExecuted(true);
+        tokenRepository.save(token);
     }
 
 }

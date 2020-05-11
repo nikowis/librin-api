@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import pl.nikowis.ksiazkofilia.dto.ChangeUserPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.dto.GenerateResetPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
@@ -25,6 +27,8 @@ public class MainController {
 
     public static final String GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT = "/generateresetpswdtoken";
 
+    public static final String CHANGE_PASSWORD_BASE = "/changepassword";
+    public static final String CHANGE_PASSWORD_ENDPOINT = CHANGE_PASSWORD_BASE + TOKEN_PATH;
     @Autowired
     private UserService userService;
 
@@ -33,14 +37,19 @@ public class MainController {
         return userService.register(userDTO);
     }
 
-    @PostMapping(EMAIL_CONFIRM_ENDPOINT)
-    public UserDTO confirmEmail(@PathVariable("tokenId") UUID tokenId) {
-        return userService.confirmEmail(tokenId);
+    @PutMapping(EMAIL_CONFIRM_ENDPOINT)
+    public void confirmEmail(@PathVariable("tokenId") UUID tokenId) {
+        userService.confirmEmail(tokenId);
     }
 
     @PostMapping(GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT)
-    public void resetPswd(@Validated @RequestBody GenerateResetPasswordDTO dto) {
+    public void generateResetPasswordToken(@Validated @RequestBody GenerateResetPasswordDTO dto) {
         userService.generateResetPasswordToken(dto);
+    }
+
+    @PutMapping(CHANGE_PASSWORD_ENDPOINT)
+    public void changePassword(@PathVariable("tokenId") UUID tokenId, @Validated @RequestBody ChangeUserPasswordDTO userDTO) {
+        userService.changePassword(tokenId, userDTO);
     }
 
 }
