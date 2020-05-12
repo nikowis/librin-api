@@ -46,7 +46,7 @@ class UserControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UsersController userController;
+    private ProfileController userController;
 
     @Autowired
     private GlobalExceptionHandler globalExceptionHandler;
@@ -100,7 +100,7 @@ class UserControllerTest {
     @Test
     @WithUserDetails(TestConstants.EMAIL)
     public void getMe() throws Exception {
-        mockMvc.perform(get(UsersController.USERS_ENDPOINT))
+        mockMvc.perform(get(ProfileController.USERS_ENDPOINT))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -113,7 +113,7 @@ class UserControllerTest {
         DeleteUserDTO dto = new DeleteUserDTO();
         dto.setPassword(TestConstants.PASSWORD_RAW);
 
-        mockMvc.perform(delete(UsersController.USERS_ENDPOINT)
+        mockMvc.perform(delete(ProfileController.USERS_ENDPOINT)
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(new ObjectMapper().writeValueAsString(dto)))
                 .andDo(print())

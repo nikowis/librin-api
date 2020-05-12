@@ -10,9 +10,13 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+
+import static pl.nikowis.ksiazkofilia.security.SecurityConstants.NAME_REGEX;
+import static pl.nikowis.ksiazkofilia.security.SecurityConstants.PSWD_REGEX;
 
 @Entity
 @Table(name = "[user]")
@@ -25,18 +29,20 @@ public class User extends BaseEntity {
 
     @NotBlank
     @Size(min = 2, max = 128)
+    @Pattern(regexp = "^[A-Za-z0-9]+$")
     private String username;
 
     @NotBlank
     @Size(min = 2, max = 128)
+    @Pattern(regexp = NAME_REGEX)
     private String firstName;
 
     @NotBlank
     @Size(min = 2, max = 128)
+    @Pattern(regexp = NAME_REGEX)
     private String lastName;
 
-    @NotBlank
-    @Size(min = 2)
+    @Pattern(regexp = PSWD_REGEX)
     private String password;
 
     @Enumerated(EnumType.STRING)

@@ -141,9 +141,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO updateUser(Long currentUserId, UpdateUserDTO dto) {
         User user = userRepository.findById(currentUserId).get();
-        if (Strings.isNotBlank(dto.getPassword())) {
-            user.setPassword(bCryptPasswordEncoder.encode(dto.getPassword()));
-        }
+        mapperFacade.map(dto, user);
+        user = userRepository.save(user);
+        return mapperFacade.map(user, UserDTO.class);
+    }
+
+    @Override
+    public UserDTO changeProfilePassword(Long currentUserId, ChangeUserPasswordDTO dto) {
+        User user = userRepository.findById(currentUserId).get();
+        String newPswd = bCryptPasswordEncoder.encode(dto.getPassword());
+        user.setPassword(newPswd);
+        user = userRepository.save(user);
         return mapperFacade.map(user, UserDTO.class);
     }
 
@@ -191,7 +199,7 @@ public class UserServiceImpl implements UserService {
     public void generateResetPasswordToken(GenerateResetPasswordDTO dto) {
         User user = userRepository.findByEmail(dto.getEmail());
         if(user == null) {
-            LOGGER.error("Cant create reset password token for {}, user not found in the database.", dto.getEmail());
+            LOGGER.warn("Cant create reset password token for {}, user not found in the database.", dto.getEmail());
         } else {
             Token token = new Token();
             token.setType(TokenType.PASSWORD_RESET);

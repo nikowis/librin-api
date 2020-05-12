@@ -26,4 +26,6 @@ public interface UserService {
     void generateResetPasswordToken(GenerateResetPasswordDTO dto);
 
     void changePassword(UUID tokenId, ChangeUserPasswordDTO userDTO);
+
+    UserDTO changeProfilePassword(Long currentUserId, ChangeUserPasswordDTO dto);
 }

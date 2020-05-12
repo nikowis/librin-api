@@ -2,16 +2,14 @@ package pl.nikowis.ksiazkofilia.dto;
 
 import lombok.Data;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+
+import static pl.nikowis.ksiazkofilia.security.SecurityConstants.PSWD_REGEX;
 
 @Data
 public class ChangeUserPasswordDTO {
 
-    @Size(min = 2, max = 32)
-    @NotBlank
+    @Pattern(regexp = PSWD_REGEX)
     private String password;
 
 }
