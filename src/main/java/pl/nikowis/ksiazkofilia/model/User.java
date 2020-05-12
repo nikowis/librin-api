@@ -42,7 +42,6 @@ public class User extends BaseEntity {
     @Pattern(regexp = NAME_REGEX)
     private String lastName;
 
-    @Pattern(regexp = PSWD_REGEX)
     private String password;
 
     @Enumerated(EnumType.STRING)

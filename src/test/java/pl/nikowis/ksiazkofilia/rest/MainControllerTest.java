@@ -74,7 +74,7 @@ class MainControllerTest {
         String registerMail = "testemail5121@email.com";
         RegisterUserDTO user = new RegisterUserDTO();
         user.setEmail(registerMail);
-        user.setPassword(TestConstants.EMAIL);
+        user.setPassword(TestConstants.PASSWORD_RAW);
         user.setConfirmEmailBaseUrl("baseurl");
         user.setFirstName("Marek");
         user.setLastName("Nowak");
@@ -184,7 +184,7 @@ class MainControllerTest {
         token = tokenRepository.save(token);
 
         ChangeUserPasswordDTO dto = new ChangeUserPasswordDTO();
-        dto.setPassword(TestConstants.EMAIL);
+        dto.setPassword(TestConstants.PASSWORD_RAW);
         mockMvc.perform(put(MainController.CHANGE_PASSWORD_ENDPOINT, token.getId()).contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(dto)))
                 .andDo(print())

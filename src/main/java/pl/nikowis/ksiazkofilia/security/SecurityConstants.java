@@ -2,7 +2,7 @@ package pl.nikowis.ksiazkofilia.security;
 
 public class SecurityConstants {
 
-    public final static String LETTERS_GROUP_WITH_POLISH_CHARS = "[a-zA-ZzżźćńółęąśŻŹĆĄŚĘŁÓŃ]";
+    public final static String LETTERS_GROUP_WITH_POLISH_CHARS = "[a-zA-ZżźćńółęąśŻŹĆĄŚĘŁÓŃ]";
     public static final String NAME_REGEX = "^[" + LETTERS_GROUP_WITH_POLISH_CHARS + "]+$";
     /*
         Password that contains 8 characters, no white spaces, at least one digit or special character
