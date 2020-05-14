@@ -37,7 +37,7 @@ public class Token {
     @Temporal(TemporalType.TIMESTAMP)
     protected Date expiresAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userId")
     private User user;
 

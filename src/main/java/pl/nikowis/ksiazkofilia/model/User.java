@@ -29,17 +29,14 @@ public class User extends BaseEntity {
 
     @NotBlank
     @Size(min = 2, max = 128)
-    @Pattern(regexp = "^[A-Za-z0-9]+$")
     private String username;
 
     @NotBlank
     @Size(min = 2, max = 128)
-    @Pattern(regexp = NAME_REGEX)
     private String firstName;
 
     @NotBlank
     @Size(min = 2, max = 128)
-    @Pattern(regexp = NAME_REGEX)
     private String lastName;
 
     private String password;
