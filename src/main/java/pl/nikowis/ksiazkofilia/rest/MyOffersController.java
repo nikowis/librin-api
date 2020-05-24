@@ -1,5 +1,6 @@
 package pl.nikowis.ksiazkofilia.rest;
 
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferFilterDTO;
+import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.security.SecurityConstants;
 import pl.nikowis.ksiazkofilia.service.OfferService;
 import pl.nikowis.ksiazkofilia.util.SecurityUtils;
@@ -40,6 +42,7 @@ public class MyOffersController {
     public Page<OfferDTO> offersList(OfferFilterDTO filterDTO, Pageable pageable) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         filterDTO.setOwner(currentUserId);
+        filterDTO.setStatuses(Lists.newArrayList(OfferStatus.ACTIVE, OfferStatus.SOLD));
         return offerService.getOffers(filterDTO, pageable);
     }
 

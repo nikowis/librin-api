@@ -1,5 +1,6 @@
 package pl.nikowis.ksiazkofilia.rest;
 
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +28,7 @@ public class OffersController {
 
     @GetMapping
     public Page<OfferDTO> offersList(OfferFilterDTO filterDTO, Pageable pageable) {
-        filterDTO.setStatus(OfferStatus.ACTIVE);
+        filterDTO.setStatuses(Lists.newArrayList(OfferStatus.ACTIVE));
         return offerService.getOffers(filterDTO, pageable);
     }
 

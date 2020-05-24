@@ -21,5 +21,5 @@ public class CreateOfferDTO {
     @Min(0)
     private BigDecimal price;
 
-    private AttachmentDTO attachment;
+    private AttachmentDTO photo;
 }

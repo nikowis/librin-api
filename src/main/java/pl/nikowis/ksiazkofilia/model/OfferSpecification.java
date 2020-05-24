@@ -28,8 +28,8 @@ public class OfferSpecification implements Specification<Offer> {
             predicates.add(builder.equal(root.get(Offer_.owner).get(User_.id), filter.getOwner()));
         }
 
-        if (filter.getStatus() != null) {
-            predicates.add(builder.equal(root.get(Offer_.status), filter.getStatus()));
+        if (filter.getStatuses() != null && filter.getStatuses().size()>0) {
+            predicates.add(root.get(Offer_.status).in(filter.getStatuses()));
         }
 
         if (filter.getAuthor() != null) {

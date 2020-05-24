@@ -65,7 +65,7 @@ class OfferServiceImpl implements OfferService {
     }
 
     private void createAndAddAttachment(CreateOfferDTO dto, Offer offer, User user) {
-        AttachmentDTO file = dto.getAttachment();
+        AttachmentDTO file = dto.getPhoto();
         if (file != null) {
             Attachment attachment = new Attachment();
             attachment.setName(file.getName());
