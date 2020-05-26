@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.ksiazkofilia.dto.ChangeUserPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.DeleteUserDTO;
 import pl.nikowis.ksiazkofilia.dto.GenerateResetPasswordDTO;
+import pl.nikowis.ksiazkofilia.dto.PublicUserDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
@@ -19,6 +20,7 @@ import pl.nikowis.ksiazkofilia.exception.EmailAlreadyExistsException;
 import pl.nikowis.ksiazkofilia.exception.IncorrectPasswordException;
 import pl.nikowis.ksiazkofilia.exception.InorrectUserStatusException;
 import pl.nikowis.ksiazkofilia.exception.TokenNotFoundException;
+import pl.nikowis.ksiazkofilia.exception.UserNotFoundException;
 import pl.nikowis.ksiazkofilia.exception.UsernameAlreadyExistsException;
 import pl.nikowis.ksiazkofilia.model.Consent;
 import pl.nikowis.ksiazkofilia.model.OauthAccessToken;
@@ -153,6 +155,15 @@ public class UserServiceImpl implements UserService {
         user.setPassword(newPswd);
         user = userRepository.save(user);
         return mapperFacade.map(user, UserDTO.class);
+    }
+
+    @Override
+    public PublicUserDTO getPublicUserInfo(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        if(UserStatus.DELETED.equals(user.getStatus())) {
+            throw new UserNotFoundException();
+        }
+        return mapperFacade.map(user, PublicUserDTO.class);
     }
 
     @Override

@@ -3,6 +3,7 @@ package pl.nikowis.ksiazkofilia.service;
 import pl.nikowis.ksiazkofilia.dto.ChangeUserPasswordDTO;
 import pl.nikowis.ksiazkofilia.dto.DeleteUserDTO;
 import pl.nikowis.ksiazkofilia.dto.GenerateResetPasswordDTO;
+import pl.nikowis.ksiazkofilia.dto.PublicUserDTO;
 import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UpdateUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
@@ -28,4 +29,6 @@ public interface UserService {
     void changePassword(UUID tokenId, ChangeUserPasswordDTO userDTO);
 
     UserDTO changeProfilePassword(Long currentUserId, ChangeUserPasswordDTO dto);
+
+    PublicUserDTO getPublicUserInfo(Long userId);
 }
