@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class RootISBN {
         String RecordSourceType;
         String RecordSourceName;
         @XmlElement(name = "ProductIdentifier")
-        ProductIdentifier ProductIdentifierObject;
+        List<ProductIdentifier> ProductIdentifierObject;
         @XmlElement(name = "DescriptiveDetail")
         DescriptiveDetail DescriptiveDetailObject;
         @XmlElement(name = "CollateralDetail")
@@ -56,7 +57,8 @@ public class RootISBN {
         PublishingDetail PublishingDetailObject;
         @XmlElement(name = "ProductSupply")
         ProductSupply ProductSupplyObject;
-        String _datestamp;
+        @XmlAttribute(name = "datestamp")
+        String datestamp;
     }
 
     @Data
@@ -171,7 +173,7 @@ public class RootISBN {
         @XmlElement(name = "TitleDetail")
         TitleDetail TitleDetailObject;
         @XmlElement(name = "Contributor")
-        Contributor ContributorObject;
+        List<Contributor> ContributorObject;
         String EditionType;
         String EditionNumber;
         @XmlElement(name = "Language")
@@ -233,6 +235,7 @@ public class RootISBN {
         String TitleElementLevel;
         String YearOfAnnual;
         String TitleText;
+        String Subtitle;
     }
 
     @Data
