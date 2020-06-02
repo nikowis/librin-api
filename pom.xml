@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>pl.nikowis</groupId>
-    <artifactId>ksiazkofilia</artifactId>
+    <artifactId>librin</artifactId>
     <packaging>jar</packaging>
     <name>Self care</name>
 
@@ -146,7 +146,7 @@
     </profiles>
 
     <build>
-        <finalName>apiksiazkofilia</finalName>
+        <finalName>apilibrin</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -5,7 +5,7 @@
         <property scope="context" name="logfolder" value="${user.home}/logs"/>
     </springProfile>
     <springProfile name="prod">
-        <property scope="context" name="logfolder" value="${user.home}/nikowiscom/ksiazkofilia/logs"/>
+        <property scope="context" name="logfolder" value="${user.home}/nikowiscom/librin/logs"/>
     </springProfile>
 
     <appender name="console-appender" class="ch.qos.logback.core.ConsoleAppender">
@@ -19,14 +19,14 @@
     </appender>
 
     <appender name="error-file-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfolder}/ksiazkofiliaapi-errors.log</file>
+        <file>${logfolder}/librinapi-errors.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>
                 %d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n
             </Pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logfolder}/ksiazkofiliaapi-errors-%d{dd-MM-yyyy}.log</fileNamePattern>
+            <fileNamePattern>${logfolder}/librinapi-errors-%d{dd-MM-yyyy}.log</fileNamePattern>
             <maxHistory>10</maxHistory>
             <totalSizeCap>10MB</totalSizeCap>
         </rollingPolicy>
@@ -36,14 +36,14 @@
     </appender>
 
     <appender name="info-file-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfolder}/ksiazkofiliaapi-info.log</file>
+        <file>${logfolder}/librinapi-info.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>
                 %d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n
             </Pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logfolder}/ksiazkofiliaapi-info-%d{dd-MM-yyyy}.log</fileNamePattern>
+            <fileNamePattern>${logfolder}/librinapi-info-%d{dd-MM-yyyy}.log</fileNamePattern>
             <maxHistory>10</maxHistory>
             <totalSizeCap>10MB</totalSizeCap>
         </rollingPolicy>
@@ -53,14 +53,14 @@
     </appender>
 
     <appender name="debug-file-appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logfolder}/ksiazkofiliaapi-debug.log</file>
+        <file>${logfolder}/librinapi-debug.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>
                 %d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n
             </Pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${logfolder}/ksiazkofiliaapi-debug-%d{dd-MM-yyyy}.log</fileNamePattern>
+            <fileNamePattern>${logfolder}/librinapi-debug-%d{dd-MM-yyyy}.log</fileNamePattern>
             <maxHistory>10</maxHistory>
             <totalSizeCap>10MB</totalSizeCap>
         </rollingPolicy>
