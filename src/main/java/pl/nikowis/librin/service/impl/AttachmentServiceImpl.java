@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 @Service
 @Transactional
@@ -44,7 +45,9 @@ class AttachmentServiceImpl implements AttachmentService {
         Path resolvedFilePath = Paths.get(userFilesDirectory, filePath);
         try {
             Files.createDirectories(resolvedFilePath.getParent());
-            Files.write(resolvedFilePath, photo.getContent().getBytes());
+            String imageDataBytes = photo.getContent().substring(photo.getContent().indexOf(",") + 1);
+            byte[] decodedImg = Base64.getDecoder().decode(imageDataBytes.getBytes());
+            Files.write(resolvedFilePath, decodedImg);
             savedAttachment.setContent(photo.getContent());
         } catch (IOException e) {
             LOGGER.error("Cant create directories", e);
@@ -55,10 +58,12 @@ class AttachmentServiceImpl implements AttachmentService {
     @Override
     public Attachment fillAttachmentContent(Attachment attachment) {
         String filePath = resolveOfferAttachmentFilePath(attachment);
-        Path resolvedFilePath =  Paths.get(userFilesDirectory, filePath);
+        Path resolvedFilePath = Paths.get(userFilesDirectory, filePath);
         try {
-            String content = Files.readAllLines(resolvedFilePath).stream().reduce("", (s, s2) -> s+s2);
-            attachment.setContent(content);
+            byte[] bytesContent = Files.readAllBytes(resolvedFilePath);
+            String base64Img = Base64.getEncoder().encodeToString(bytesContent);
+            String contentType = Files.probeContentType(resolvedFilePath);
+            attachment.setContent("data:" + contentType + ";base64," + base64Img);
             return attachment;
         } catch (IOException e) {
             LOGGER.error("Cant read content from file ", e);
@@ -96,7 +101,7 @@ class AttachmentServiceImpl implements AttachmentService {
 
     private String getUserIdSubstr(Long userId) {
         String userIdStr = String.valueOf(userId);
-        if(userIdStr.length() > 2) {
+        if (userIdStr.length() > 2) {
             userIdStr = userIdStr.substring(0, 2);
         }
         return userIdStr;
