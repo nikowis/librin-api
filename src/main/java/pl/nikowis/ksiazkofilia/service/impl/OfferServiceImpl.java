@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.nikowis.ksiazkofilia.dto.AttachmentDTO;
 import pl.nikowis.ksiazkofilia.dto.CreateOfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferDTO;
 import pl.nikowis.ksiazkofilia.dto.OfferFilterDTO;
@@ -19,9 +18,9 @@ import pl.nikowis.ksiazkofilia.model.Offer;
 import pl.nikowis.ksiazkofilia.model.OfferSpecification;
 import pl.nikowis.ksiazkofilia.model.OfferStatus;
 import pl.nikowis.ksiazkofilia.model.User;
-import pl.nikowis.ksiazkofilia.repository.AttachmentRepository;
 import pl.nikowis.ksiazkofilia.repository.OfferRepository;
 import pl.nikowis.ksiazkofilia.repository.UserRepository;
+import pl.nikowis.ksiazkofilia.service.AttachmentService;
 import pl.nikowis.ksiazkofilia.service.OfferService;
 import pl.nikowis.ksiazkofilia.util.SecurityUtils;
 
@@ -41,11 +40,20 @@ class OfferServiceImpl implements OfferService {
     private MapperFacade mapperFacade;
 
     @Autowired
-    private AttachmentRepository attachmentRepository;
+    private AttachmentService attachmentService;
+
 
     @Override
     public Page<OfferDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable) {
-        return offerRepository.findAll(new OfferSpecification(filterDTO), pageable).map(g -> mapperFacade.map(g, OfferDTO.class));
+        Page<Offer> offersPage = offerRepository.findAll(new OfferSpecification(filterDTO), pageable);
+        offersPage.getContent().forEach(offer -> {
+            Attachment attachment = offer.getAttachment();
+            if (attachment != null) {
+                Attachment att = attachmentService.fillAttachmentContent(attachment);
+                offer.setAttachment(att);
+            }
+        });
+        return offersPage.map(o -> mapperFacade.map(o, OfferDTO.class));
     }
 
     @Override
@@ -57,25 +65,12 @@ class OfferServiceImpl implements OfferService {
         mapperFacade.map(dto, offer);
         User currentUser = userRepository.findById(currentUserId).get();
         offer.setOwner(currentUser);
-
-        createAndAddAttachment(dto, offer, currentUser);
-
         offer = offerRepository.save(offer);
-        return mapperFacade.map(offer, OfferDTO.class);
-    }
-
-    private void createAndAddAttachment(CreateOfferDTO dto, Offer offer, User user) {
-        AttachmentDTO file = dto.getPhoto();
-        if (file != null) {
-            Attachment attachment = new Attachment();
-            attachment.setName(file.getName());
-            attachment.setContent(file.getContent());
-            attachment.setOffer(offer);
-            attachment.setOwner(user);
-            attachment.setOwnerId(user.getId());
-            attachment.setSize((long) file.getContent().getBytes().length);
+        if (dto.getPhoto() != null) {
+            Attachment attachment = attachmentService.addAttachmentToOffer(offer, dto.getPhoto());
             offer.setAttachment(attachment);
         }
+        return mapperFacade.map(offer, OfferDTO.class);
     }
 
     @Override
@@ -85,10 +80,13 @@ class OfferServiceImpl implements OfferService {
         mapperFacade.map(offerDTO, offer);
         Attachment oldAtt = offer.getAttachment();
         if (oldAtt != null) {
-            attachmentRepository.delete(oldAtt);
+            attachmentService.removeOfferAttachment(oldAtt);
         }
-        createAndAddAttachment(offerDTO, offer, offer.getOwner());
         Offer saved = offerRepository.save(offer);
+        if (offerDTO.getPhoto() != null) {
+            Attachment attachment = attachmentService.addAttachmentToOffer(offer, offerDTO.getPhoto());
+            offer.setAttachment(attachment);
+        }
         return mapperFacade.map(saved, OfferDTO.class);
     }
 

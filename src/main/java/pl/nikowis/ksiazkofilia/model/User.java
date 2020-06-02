@@ -10,13 +10,9 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
-
-import static pl.nikowis.ksiazkofilia.security.SecurityConstants.NAME_REGEX;
-import static pl.nikowis.ksiazkofilia.security.SecurityConstants.PSWD_REGEX;
 
 @Entity
 @Table(name = "[user]")

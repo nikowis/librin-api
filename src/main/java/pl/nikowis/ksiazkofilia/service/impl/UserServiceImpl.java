@@ -1,7 +1,6 @@
 package pl.nikowis.ksiazkofilia.service.impl;
 
 import ma.glasnost.orika.MapperFacade;
-import org.apache.logging.log4j.util.Strings;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

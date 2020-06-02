@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import pl.nikowis.ksiazkofilia.dto.ChangeUserPasswordDTO;
-import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.dto.GenerateResetPasswordDTO;
+import pl.nikowis.ksiazkofilia.dto.RegisterUserDTO;
 import pl.nikowis.ksiazkofilia.dto.UserDTO;
 import pl.nikowis.ksiazkofilia.service.UserService;
 
