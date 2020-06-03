@@ -108,6 +108,11 @@ class OfferServiceImpl implements OfferService {
     @Override
     public OfferDTO getOffer(Long offerId) {
         Offer offer = offerRepository.findById(offerId).orElseThrow(OfferDoesntExistException::new);
+        Attachment attachment = offer.getAttachment();
+        if (attachment != null) {
+            Attachment att = attachmentService.fillAttachmentContent(attachment);
+            offer.setAttachment(att);
+        }
         return mapperFacade.map(offer, OfferDTO.class);
     }
 
@@ -116,6 +121,11 @@ class OfferServiceImpl implements OfferService {
         Offer offer = getOfferValidateOwner(offerId);
         offer.setStatus(OfferStatus.SOLD);
         Offer saved = offerRepository.save(offer);
+        Attachment attachment = saved.getAttachment();
+        if (attachment != null) {
+            Attachment att = attachmentService.fillAttachmentContent(attachment);
+            offer.setAttachment(att);
+        }
         return mapperFacade.map(saved, OfferDTO.class);
     }
 
