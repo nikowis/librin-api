@@ -169,9 +169,11 @@ class MessageControllerTest {
                 .andExpect(jsonPath("$.messages[0].id", is(notNullValue())))
                 .andExpect(jsonPath("$.messages[0].content", is(messageContent1)))
                 .andExpect(jsonPath("$.messages[0].createdBy", is(notNullValue())))
+                .andExpect(jsonPath("$.messages[0].read", is(true)))
                 .andExpect(jsonPath("$.messages[1].id", is(notNullValue())))
                 .andExpect(jsonPath("$.messages[1].content", is(messageContent2)))
                 .andExpect(jsonPath("$.messages[1].createdBy", is(notNullValue())))
+                .andExpect(jsonPath("$.messages[1].read", is(false)))
                 .andExpect(jsonPath("$.offer.id", is(o.getId().intValue())))
                 .andExpect(jsonPath("$.offer.price", is(o.getPrice())));
     }

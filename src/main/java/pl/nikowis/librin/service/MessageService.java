@@ -3,6 +3,7 @@ package pl.nikowis.librin.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import pl.nikowis.librin.dto.ConversationDTO;
+import pl.nikowis.librin.dto.ConversationWithoutMessagesDTO;
 import pl.nikowis.librin.dto.CreateConversationDTO;
 import pl.nikowis.librin.dto.SendMessageDTO;
 
@@ -14,5 +15,5 @@ public interface MessageService {
 
     ConversationDTO createConversation(CreateConversationDTO createConversationDTO);
 
-    Page<ConversationDTO> getUserConversations(Pageable pageable);
+    Page<ConversationWithoutMessagesDTO> getUserConversations(Pageable pageable);
 }

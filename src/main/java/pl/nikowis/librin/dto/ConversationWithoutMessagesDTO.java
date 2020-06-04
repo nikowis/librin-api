@@ -7,10 +7,9 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-public class ConversationDTO {
+public class ConversationWithoutMessagesDTO {
 
     private Long id;
-    private List<MessageDTO> messages = new ArrayList<>();
     private OfferDTO offer;
     private PublicUserDTO customer;
     private Date createdAt;

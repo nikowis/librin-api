@@ -11,4 +11,5 @@ public class MessageDTO {
     private String content;
     private Long createdBy;
     private Date createdAt;
+    private Boolean read;
 }

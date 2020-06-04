@@ -17,6 +17,9 @@ public class Message extends BaseEntity {
     @NotNull
     private Long createdBy;
 
+    @NotNull
+    private boolean read;
+
     @ManyToOne
     @JoinColumn(name = "conversationId")
     private Conversation conversation;

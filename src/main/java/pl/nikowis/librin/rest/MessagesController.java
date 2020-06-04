@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.nikowis.librin.dto.ConversationDTO;
+import pl.nikowis.librin.dto.ConversationWithoutMessagesDTO;
 import pl.nikowis.librin.dto.CreateConversationDTO;
 import pl.nikowis.librin.dto.SendMessageDTO;
 import pl.nikowis.librin.service.MessageService;
@@ -39,7 +40,7 @@ public class MessagesController {
     }
 
     @GetMapping
-    public Page<ConversationDTO> getUserConversations(Pageable pageable) {
+    public Page<ConversationWithoutMessagesDTO> getUserConversations(Pageable pageable) {
         return messageService.getUserConversations(pageable);
     }
 

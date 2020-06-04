@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.dto.ConversationDTO;
+import pl.nikowis.librin.dto.ConversationWithoutMessagesDTO;
 import pl.nikowis.librin.dto.CreateConversationDTO;
 import pl.nikowis.librin.dto.SendMessageDTO;
 import pl.nikowis.librin.exception.CantCreateConversationOnNonActiveOfferException;
@@ -17,6 +18,7 @@ import pl.nikowis.librin.model.Message;
 import pl.nikowis.librin.model.Offer;
 import pl.nikowis.librin.model.OfferStatus;
 import pl.nikowis.librin.repository.ConversationRepository;
+import pl.nikowis.librin.repository.MessageRepository;
 import pl.nikowis.librin.repository.OfferRepository;
 import pl.nikowis.librin.repository.UserRepository;
 import pl.nikowis.librin.service.MessageService;
@@ -41,9 +43,23 @@ public class MessageServiceImpl implements MessageService {
     @Autowired
     private MapperFacade mapperFacade;
 
+    @Autowired
+    private MessageRepository messageRepository;
+
     @Override
+    @Transactional
     public ConversationDTO getConversation(Long conversationId) {
-        Conversation conversation = conversationRepository.findByIdAndCustomerIdOrOfferOwnerId(conversationId, SecurityUtils.getCurrentUserId()).orElseThrow(ConversationNotFoundException::new);
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        Conversation conversation = conversationRepository.findByIdAndCustomerIdOrOfferOwnerId(conversationId, currentUserId).orElseThrow(ConversationNotFoundException::new);
+        if (conversation == null) {
+            throw new ConversationNotFoundException();
+        }
+        messageRepository.markMessagesAsRead(currentUserId, conversationId);
+        conversation.getMessages().forEach(message -> {
+            if (!message.getCreatedBy().equals(currentUserId)) {
+                message.setRead(true);
+            }
+        });
         return mapperFacade.map(conversation, ConversationDTO.class);
     }
 
@@ -61,7 +77,12 @@ public class MessageServiceImpl implements MessageService {
         conversation.getMessages().add(newMessage);
         conversation.setUpdatedAt(new Date());
         Conversation saved = conversationRepository.save(conversation);
-
+        messageRepository.markMessagesAsRead(currentUserId, conversationId);
+        conversation.getMessages().forEach(message -> {
+            if (!message.getCreatedBy().equals(currentUserId)) {
+                message.setRead(true);
+            }
+        });
         return mapperFacade.map(saved, ConversationDTO.class);
     }
 
@@ -74,7 +95,7 @@ public class MessageServiceImpl implements MessageService {
         }
 
         Offer offer = offerRepository.findById(createConversationDTO.getOfferId()).orElseThrow(OfferDoesntExistException::new);
-        if(!OfferStatus.ACTIVE.equals(offer.getStatus())) {
+        if (!OfferStatus.ACTIVE.equals(offer.getStatus())) {
             throw new CantCreateConversationOnNonActiveOfferException();
         }
 
@@ -87,8 +108,10 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Page<ConversationDTO> getUserConversations(Pageable pageable) {
-        Page<Conversation> allByCustomerIdOrOfferOwnerId = conversationRepository.findAllByUserId(SecurityUtils.getCurrentUserId(), pageable);
-        return allByCustomerIdOrOfferOwnerId.map(c -> mapperFacade.map(c, ConversationDTO.class));
+    public Page<ConversationWithoutMessagesDTO> getUserConversations(Pageable pageable) {
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        Page<Conversation> allByCustomerIdOrOfferOwnerId = conversationRepository.findAllByUserId(currentUserId, pageable);
+        allByCustomerIdOrOfferOwnerId.stream().forEach(c -> c.setRead(!c.getMessages().stream().anyMatch(message -> !message.isRead() && !message.getCreatedBy().equals(currentUserId))));
+        return allByCustomerIdOrOfferOwnerId.map(c -> mapperFacade.map(c, ConversationWithoutMessagesDTO.class));
     }
 }

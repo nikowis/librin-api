@@ -1,5 +1,6 @@
 package pl.nikowis.librin.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import javax.persistence.CascadeType;
@@ -8,6 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,15 +17,18 @@ import java.util.List;
 @Data
 public class Conversation extends BaseEntity {
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customerId")
     private User customer;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "offerId")
     private Offer offer;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "conversation", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "conversation", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Message> messages = new ArrayList<>();
 
+    @Transient
+    @JsonInclude
+    private boolean read = true;
 }
