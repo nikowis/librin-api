@@ -28,7 +28,15 @@ public class Conversation extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "conversation", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Message> messages = new ArrayList<>();
 
+    private boolean offerOwnerRead;
+    private boolean customerRead;
+
     @Transient
     @JsonInclude
     private boolean read = true;
+
+    @Override
+    public void preUpdate() {
+
+    }
 }
