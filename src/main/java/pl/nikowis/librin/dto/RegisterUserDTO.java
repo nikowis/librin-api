@@ -13,14 +13,13 @@ import static pl.nikowis.librin.security.SecurityConstants.PSWD_REGEX;
 @Data
 public class RegisterUserDTO {
 
-
     @NotBlank
     @Size(min = 2, max = 256)
     @Email
     private String email;
 
     @NotBlank
-    @Size(min = 2, max = 128)
+    @Size(min = 2, max = 20)
     @Pattern(regexp = "^[A-Za-z0-9]+$")
     private String username;
 

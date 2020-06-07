@@ -1,6 +1,8 @@
 package pl.nikowis.librin.service.impl;
 
 import ma.glasnost.orika.MapperFacade;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +15,9 @@ import pl.nikowis.librin.dto.SendMessageDTO;
 import pl.nikowis.librin.exception.CantCreateConversationOnNonActiveOfferException;
 import pl.nikowis.librin.exception.ConversationNotFoundException;
 import pl.nikowis.librin.exception.OfferDoesntExistException;
+import pl.nikowis.librin.model.BaseEntity;
 import pl.nikowis.librin.model.Conversation;
+import pl.nikowis.librin.model.ConversationSpecification;
 import pl.nikowis.librin.model.Message;
 import pl.nikowis.librin.model.Offer;
 import pl.nikowis.librin.model.OfferStatus;
@@ -24,12 +28,17 @@ import pl.nikowis.librin.repository.UserRepository;
 import pl.nikowis.librin.service.MessageService;
 import pl.nikowis.librin.util.SecurityUtils;
 
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class MessageServiceImpl implements MessageService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageServiceImpl.class);
 
     @Autowired
     private ConversationRepository conversationRepository;
@@ -54,13 +63,17 @@ public class MessageServiceImpl implements MessageService {
         if (conversation == null) {
             throw new ConversationNotFoundException();
         }
-        messageRepository.markMessagesAsRead(currentUserId, conversationId);
-        conversation.getMessages().forEach(message -> {
-            if (!message.getCreatedBy().equals(currentUserId)) {
-                message.setRead(true);
-            }
-        });
+        processSortUpdateMessages(currentUserId, conversation);
         return mapperFacade.map(conversation, ConversationDTO.class);
+    }
+
+    private void processSortUpdateMessages(Long currentUserId, Conversation conversation) {
+        conversation.getMessages().sort(Comparator.comparing(BaseEntity::getCreatedAt));
+        List<Message> unReadMessagse = conversation.getMessages().stream().filter(m -> !m.getCreatedBy().equals(currentUserId) && !m.isRead()).collect(Collectors.toList());
+        unReadMessagse.forEach(message -> {
+            message.setRead(true);
+        });
+        messageRepository.saveAll(unReadMessagse);
     }
 
     @Override
@@ -77,12 +90,7 @@ public class MessageServiceImpl implements MessageService {
         conversation.getMessages().add(newMessage);
         conversation.setUpdatedAt(new Date());
         Conversation saved = conversationRepository.save(conversation);
-        messageRepository.markMessagesAsRead(currentUserId, conversationId);
-        conversation.getMessages().forEach(message -> {
-            if (!message.getCreatedBy().equals(currentUserId)) {
-                message.setRead(true);
-            }
-        });
+        processSortUpdateMessages(currentUserId, saved);
         return mapperFacade.map(saved, ConversationDTO.class);
     }
 
@@ -110,8 +118,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Page<ConversationWithoutMessagesDTO> getUserConversations(Pageable pageable) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
-        Page<Conversation> allByCustomerIdOrOfferOwnerId = conversationRepository.findAllByUserId(currentUserId, pageable);
-        allByCustomerIdOrOfferOwnerId.stream().forEach(c -> c.setRead(!c.getMessages().stream().anyMatch(message -> !message.isRead() && !message.getCreatedBy().equals(currentUserId))));
+        Page<Conversation> allByCustomerIdOrOfferOwnerId = conversationRepository.findAll(new ConversationSpecification(currentUserId), pageable);
         return allByCustomerIdOrOfferOwnerId.map(c -> mapperFacade.map(c, ConversationWithoutMessagesDTO.class));
     }
 }
