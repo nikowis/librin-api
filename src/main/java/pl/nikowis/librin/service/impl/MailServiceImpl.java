@@ -10,10 +10,12 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import pl.nikowis.librin.service.MailService;
+import pl.nikowis.librin.service.WebsocketSenderService;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -36,12 +38,14 @@ public class MailServiceImpl implements MailService {
     private String senderEmailAddress;
 
     @Override
+    @Async
     public void sendEmailConfirmationMessage(String recipient, String confirmUrl) {
         String msgPrefix = MAIL_LOC_PREFIX + CONFIRM_EMAIL_PREFIX;
         createAndSend(recipient, confirmUrl, msgPrefix);
     }
 
     @Override
+    @Async
     public void sendResetPasswordEmail(String recipient, String resetUrl) {
         String msgPrefix = MAIL_LOC_PREFIX + RESET_PSWD_PREFIX;
         createAndSend(recipient, resetUrl, msgPrefix);
