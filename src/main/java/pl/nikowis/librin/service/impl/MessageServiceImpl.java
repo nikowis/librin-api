@@ -86,15 +86,15 @@ public class MessageServiceImpl implements MessageService {
             throw new ConversationNotFoundException();
         }
 
-        Long recipientId = null;
+        String recipientEmail = null;
         if (isCustomer(conversation, currentUserId)) {
             conversation.setOfferOwnerRead(false);
             conversation.setCustomerRead(true);
-            recipientId = conversation.getOffer().getOwnerId();
+            recipientEmail = conversation.getOffer().getOwner().getEmail();
         } else {
             conversation.setOfferOwnerRead(true);
             conversation.setCustomerRead(false);
-            recipientId = conversation.getCustomer().getId();
+            recipientEmail = conversation.getCustomer().getEmail();
         }
 
         Message newMessage = mapperFacade.map(messageDTO, Message.class);
@@ -105,7 +105,7 @@ public class MessageServiceImpl implements MessageService {
         Conversation saved = conversationRepository.save(conversation);
         processSortUpdateMessages(currentUserId, saved);
         setRead(saved, currentUserId);
-        websocketSenderService.sendConversationUpdate(newMessage, recipientId, saved.getId());
+        websocketSenderService.sendConversationUpdate(newMessage, recipientEmail, saved.getId());
         return mapperFacade.map(saved, ConversationDTO.class);
     }
 

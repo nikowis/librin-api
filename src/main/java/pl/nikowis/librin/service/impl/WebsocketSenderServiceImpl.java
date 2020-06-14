@@ -24,9 +24,9 @@ public class WebsocketSenderServiceImpl implements WebsocketSenderService {
 
     @Override
     @Async
-    public void sendConversationUpdate(Message newMessage, Long recipientId, Long conversationId) {
-        String destination = String.format("/users/%s/conversation/%s", recipientId, conversationId);
+    public void sendConversationUpdate(Message newMessage, String recipientEmail, Long conversationId) {
+        String destination = String.format("/queue/conversation/%s", conversationId);
         LOGGER.info("Sending websocket message update to {}", destination);
-        websocketTemplate.convertAndSendToUser("nikowis@gmail.com", destination, mapperFacade.map(newMessage, MessageDTO.class));
+        websocketTemplate.convertAndSendToUser(recipientEmail, destination, mapperFacade.map(newMessage, MessageDTO.class));
     }
 }

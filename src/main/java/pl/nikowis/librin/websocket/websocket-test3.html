@@ -13,6 +13,7 @@
     function setConnected(connected) {
         $("#connect").prop("disabled", connected);
         $("#disconnect").prop("disabled", !connected);
+        $("#send").prop("disabled", !connected);
         if (connected) {
             $("#greetings-conversation").show();
             $("#messages-conversation").show();
@@ -20,6 +21,7 @@
             $("#greetings-conversation").hide();
             $("#messages-conversation").hide();
         }
+        $("#greetings").html("");
         $("#messages").html("");
     }
 
@@ -27,7 +29,6 @@
         var socket = new SockJS('http://localhost:8081/ws');
         stompClient = Stomp.over(socket);
         var headers = {};
-        headers['token'] = '3e568280-5a18-4b58-b14b-e16f4de9cee1';
         stompClient.connect(headers, function (frame) {
             setConnected(true);
             console.log('Connected: ' + frame);

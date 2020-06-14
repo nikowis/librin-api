@@ -4,5 +4,5 @@ import pl.nikowis.librin.model.Message;
 
 public interface WebsocketSenderService {
 
-    void sendConversationUpdate(Message newMessage, Long recipientId, Long conversationId);
+    void sendConversationUpdate(Message newMessage, String recipientEmail, Long conversationId);
 }
