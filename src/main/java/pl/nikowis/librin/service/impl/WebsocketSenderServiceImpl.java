@@ -27,7 +27,6 @@ public class WebsocketSenderServiceImpl implements WebsocketSenderService {
     public void sendConversationUpdate(Message newMessage, Long recipientId, Long conversationId) {
         String destination = String.format("/users/%s/conversation/%s", recipientId, conversationId);
         LOGGER.info("Sending websocket message update to {}", destination);
-        websocketTemplate.convertAndSend(destination, mapperFacade.map(newMessage, MessageDTO.class));
-
+        websocketTemplate.convertAndSendToUser("nikowis@gmail.com", destination, mapperFacade.map(newMessage, MessageDTO.class));
     }
 }

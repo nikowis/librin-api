@@ -29,7 +29,7 @@
         var socket = new SockJS('http://localhost:8081/ws');
         stompClient = Stomp.over(socket);
         var headers = {};
-        headers['token'] = 'd53eaa4f-a332-4ba7-813e-5390f7d2a1a1';
+        headers['token'] = '3e568280-5a18-4b58-b14b-e16f4de9cee1';
         stompClient.connect(headers, function (frame) {
             setConnected(true);
             console.log('Connected: ' + frame);
