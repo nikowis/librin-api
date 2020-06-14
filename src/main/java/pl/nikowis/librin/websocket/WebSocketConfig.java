@@ -12,7 +12,9 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenStore;
@@ -49,7 +51,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 if (StompCommand.CONNECT == accessor.getCommand()) {
                     final String authorizationToken = accessor.getFirstNativeHeader("token");
                     OAuth2Authentication oAuth2Authentication = tokenStore.readAuthentication(authorizationToken);
-
+                    if(oAuth2Authentication == null) {
+                        throw new InsufficientAuthenticationException("Websocket connect authentication error");
+                    }
                     Authentication userAuthentication = oAuth2Authentication.getUserAuthentication();
                     accessor.setUser(userAuthentication);
                     SecurityContextHolder.getContext().setAuthentication(userAuthentication);
