@@ -21,6 +21,7 @@ import pl.nikowis.librin.model.ConversationSpecification;
 import pl.nikowis.librin.model.Message;
 import pl.nikowis.librin.model.Offer;
 import pl.nikowis.librin.model.OfferStatus;
+import pl.nikowis.librin.model.WsConversationUpdateDTO;
 import pl.nikowis.librin.repository.ConversationRepository;
 import pl.nikowis.librin.repository.MessageRepository;
 import pl.nikowis.librin.repository.OfferRepository;
@@ -105,8 +106,17 @@ public class MessageServiceImpl implements MessageService {
         Conversation saved = conversationRepository.save(conversation);
         processSortUpdateMessages(currentUserId, saved);
         setRead(saved, currentUserId);
-        websocketSenderService.sendConversationUpdate(newMessage, recipientEmail, saved.getId());
+        sendWsUpdate(conversation, recipientEmail, newMessage, saved);
         return mapperFacade.map(saved, ConversationDTO.class);
+    }
+
+    private void sendWsUpdate(Conversation conversation, String recipientEmail, Message newMessage, Conversation saved) {
+        Message lastSavedMessage = conversation.getMessages().get(conversation.getMessages().size() - 1);
+        WsConversationUpdateDTO wsUpdate = mapperFacade.map(newMessage, WsConversationUpdateDTO.class);
+        wsUpdate.setCreatedAt(lastSavedMessage.getCreatedAt());
+        wsUpdate.setConversationId(saved.getId());
+        wsUpdate.setId(lastSavedMessage.getId());
+        websocketSenderService.sendConversationUpdate(wsUpdate, recipientEmail, saved.getId());
     }
 
     @Override
