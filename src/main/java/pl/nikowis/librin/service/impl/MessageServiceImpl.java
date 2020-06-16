@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.dto.ConversationDTO;
@@ -26,6 +27,7 @@ import pl.nikowis.librin.repository.ConversationRepository;
 import pl.nikowis.librin.repository.MessageRepository;
 import pl.nikowis.librin.repository.OfferRepository;
 import pl.nikowis.librin.repository.UserRepository;
+import pl.nikowis.librin.security.SecurityConstants;
 import pl.nikowis.librin.service.MessageService;
 import pl.nikowis.librin.service.WebsocketSenderService;
 import pl.nikowis.librin.util.SecurityUtils;
@@ -38,6 +40,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Secured(SecurityConstants.ROLE_USER)
 public class MessageServiceImpl implements MessageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageServiceImpl.class);

@@ -33,7 +33,7 @@ public class Conversation extends BaseEntity {
 
     @Transient
     @JsonInclude
-    private boolean read = true;
+    private Boolean read;
 
     @Override
     public void preUpdate() {
