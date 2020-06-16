@@ -15,7 +15,7 @@ public class Oauth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.cors().and()
-                .csrf().disable()//todo enable?
+                .csrf().ignoringAntMatchers("/ws/**").disable()//todo enable?
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
                 .antMatchers("/email").permitAll()

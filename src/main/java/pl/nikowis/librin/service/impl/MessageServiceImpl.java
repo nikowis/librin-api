@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.dto.ConversationDTO;
@@ -22,11 +22,14 @@ import pl.nikowis.librin.model.ConversationSpecification;
 import pl.nikowis.librin.model.Message;
 import pl.nikowis.librin.model.Offer;
 import pl.nikowis.librin.model.OfferStatus;
+import pl.nikowis.librin.model.WsConversationUpdateDTO;
 import pl.nikowis.librin.repository.ConversationRepository;
 import pl.nikowis.librin.repository.MessageRepository;
 import pl.nikowis.librin.repository.OfferRepository;
 import pl.nikowis.librin.repository.UserRepository;
+import pl.nikowis.librin.security.SecurityConstants;
 import pl.nikowis.librin.service.MessageService;
+import pl.nikowis.librin.service.WebsocketSenderService;
 import pl.nikowis.librin.util.SecurityUtils;
 
 import java.util.Comparator;
@@ -37,6 +40,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@Secured(SecurityConstants.ROLE_USER)
 public class MessageServiceImpl implements MessageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageServiceImpl.class);
@@ -56,6 +60,9 @@ public class MessageServiceImpl implements MessageService {
     @Autowired
     private MessageRepository messageRepository;
 
+    @Autowired
+    private WebsocketSenderService websocketSenderService;
+
     @Override
     @Transactional
     public ConversationDTO getConversation(Long conversationId) {
@@ -64,7 +71,7 @@ public class MessageServiceImpl implements MessageService {
         if (conversation == null) {
             throw new ConversationNotFoundException();
         }
-        if(isCustomer(conversation, currentUserId)) {
+        if (isCustomer(conversation, currentUserId)) {
             conversation.setCustomerRead(true);
         } else {
             conversation.setOfferOwnerRead(true);
@@ -83,12 +90,15 @@ public class MessageServiceImpl implements MessageService {
             throw new ConversationNotFoundException();
         }
 
-        if(isCustomer(conversation, currentUserId)) {
+        String recipientEmail = null;
+        if (isCustomer(conversation, currentUserId)) {
             conversation.setOfferOwnerRead(false);
             conversation.setCustomerRead(true);
+            recipientEmail = conversation.getOffer().getOwner().getEmail();
         } else {
             conversation.setOfferOwnerRead(true);
             conversation.setCustomerRead(false);
+            recipientEmail = conversation.getCustomer().getEmail();
         }
 
         Message newMessage = mapperFacade.map(messageDTO, Message.class);
@@ -99,7 +109,17 @@ public class MessageServiceImpl implements MessageService {
         Conversation saved = conversationRepository.save(conversation);
         processSortUpdateMessages(currentUserId, saved);
         setRead(saved, currentUserId);
+        sendWsUpdate(conversation, recipientEmail, newMessage, saved);
         return mapperFacade.map(saved, ConversationDTO.class);
+    }
+
+    private void sendWsUpdate(Conversation conversation, String recipientEmail, Message newMessage, Conversation saved) {
+        Message lastSavedMessage = conversation.getMessages().get(conversation.getMessages().size() - 1);
+        WsConversationUpdateDTO wsUpdate = mapperFacade.map(newMessage, WsConversationUpdateDTO.class);
+        wsUpdate.setCreatedAt(lastSavedMessage.getCreatedAt());
+        wsUpdate.setConversationId(saved.getId());
+        wsUpdate.setId(lastSavedMessage.getId());
+        websocketSenderService.sendConversationUpdate(wsUpdate, recipientEmail, saved.getId());
     }
 
     @Override
@@ -137,12 +157,12 @@ public class MessageServiceImpl implements MessageService {
     private void processSortUpdateMessages(Long currentUserId, Conversation conversation) {
         conversation.getMessages().sort(Comparator.comparing(BaseEntity::getCreatedAt));
         List<Message> unReadMessagse = conversation.getMessages().stream().filter(m -> !m.getCreatedBy().equals(currentUserId) && !m.isRead()).collect(Collectors.toList());
-        unReadMessagse.forEach(message ->message.setRead(true));
+        unReadMessagse.forEach(message -> message.setRead(true));
         messageRepository.saveAll(unReadMessagse);
     }
 
     private void setRead(Conversation conversation, Long userId) {
-        if(isCustomer(conversation, userId)) {
+        if (isCustomer(conversation, userId)) {
             conversation.setRead(conversation.isCustomerRead());
         } else {
             conversation.setRead(conversation.isOfferOwnerRead());

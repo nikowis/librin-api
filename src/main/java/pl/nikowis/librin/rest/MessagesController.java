@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +25,7 @@ public class MessagesController {
     public static final String CONVERSATIONS_ENDPOINT = "/messages";
     public static final String CONVERSATION_ID_VARIABLE = "conversationId";
     public static final String CONVERSATION_PATH = "/{" + CONVERSATION_ID_VARIABLE + "}";
+    public static final String CONVERSATION_READ = CONVERSATION_PATH + "/read";
     public static final String CONVERSATION_ENDPOINT = CONVERSATIONS_ENDPOINT + CONVERSATION_PATH;
 
     @Autowired
@@ -37,6 +39,11 @@ public class MessagesController {
     @PostMapping(path = CONVERSATION_PATH)
     public ConversationDTO sendMessage(@PathVariable(CONVERSATION_ID_VARIABLE) Long conversationId, @Validated @RequestBody SendMessageDTO messageDTO) {
         return messageService.sendMessage(conversationId, messageDTO);
+    }
+
+    @PutMapping(path = CONVERSATION_READ)
+    public void markConversationRead(@PathVariable(CONVERSATION_ID_VARIABLE) Long conversationId) {
+        messageService.getConversation(conversationId);
     }
 
     @GetMapping
