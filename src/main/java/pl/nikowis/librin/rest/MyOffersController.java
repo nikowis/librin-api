@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.nikowis.librin.dto.CreateOfferDTO;
 import pl.nikowis.librin.dto.OfferDTO;
 import pl.nikowis.librin.dto.OfferFilterDTO;
+import pl.nikowis.librin.dto.SellOfferDTO;
 import pl.nikowis.librin.model.OfferStatus;
 import pl.nikowis.librin.security.SecurityConstants;
 import pl.nikowis.librin.service.OfferService;
@@ -62,8 +63,8 @@ public class MyOffersController {
     }
 
     @PutMapping(path = SOLD_PATH)
-    public OfferDTO offerSold(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
-        return offerService.offerSold(offerId);
+    public OfferDTO offerSold(@PathVariable(OFFER_ID_VARIABLE) Long offerId,  @Validated @RequestBody SellOfferDTO dto) {
+        return offerService.offerSold(offerId, dto.getCustomerId());
     }
 
     @DeleteMapping(path = OFFER_PATH)

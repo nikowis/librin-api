@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changeset2020-06-17-add-buyer-to-offer.xml" author="nikowis">
+        <sql>
+            ALTER TABLE "offer" ADD COLUMN "buyer_id" BIGINT;
+            ALTER TABLE "offer" ADD CONSTRAINT fk_offer_buyer FOREIGN KEY (buyer_id) REFERENCES "user" (id);
+        </sql>
+    </changeSet>
+</databaseChangeLog>

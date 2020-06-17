@@ -11,6 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.dto.CreateOfferDTO;
 import pl.nikowis.librin.dto.OfferDTO;
 import pl.nikowis.librin.dto.OfferFilterDTO;
+import pl.nikowis.librin.exception.CannotBuyOwnOfferException;
+import pl.nikowis.librin.exception.CannotUpdateOfferException;
+import pl.nikowis.librin.exception.CustomerAccountBlockedException;
+import pl.nikowis.librin.exception.CustomerAccountDeletedException;
 import pl.nikowis.librin.exception.OfferCantBeUpdatedException;
 import pl.nikowis.librin.exception.OfferDoesntExistException;
 import pl.nikowis.librin.model.Attachment;
@@ -18,11 +22,14 @@ import pl.nikowis.librin.model.Offer;
 import pl.nikowis.librin.model.OfferSpecification;
 import pl.nikowis.librin.model.OfferStatus;
 import pl.nikowis.librin.model.User;
+import pl.nikowis.librin.model.UserStatus;
 import pl.nikowis.librin.repository.OfferRepository;
 import pl.nikowis.librin.repository.UserRepository;
 import pl.nikowis.librin.service.AttachmentService;
 import pl.nikowis.librin.service.OfferService;
 import pl.nikowis.librin.util.SecurityUtils;
+
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -117,8 +124,20 @@ class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public OfferDTO offerSold(Long offerId) {
+    public OfferDTO offerSold(Long offerId, Long customerId) {
         Offer offer = getOfferValidateOwner(offerId);
+        if(offer.getOwnerId().equals(customerId)) {
+            throw new CannotBuyOwnOfferException();
+        }
+        Optional<User> customerOpt = userRepository.findById(customerId);
+        User customer = customerOpt.orElseThrow(CannotUpdateOfferException::new);
+        if(UserStatus.BLOCKED.equals(customer.getStatus())) {
+            throw new CustomerAccountBlockedException();
+        }
+        if(UserStatus.DELETED.equals(customer.getStatus())) {
+            throw new CustomerAccountDeletedException();
+        }
+        offer.setBuyer(customer);
         offer.setStatus(OfferStatus.SOLD);
         Offer saved = offerRepository.save(offer);
         Attachment attachment = saved.getAttachment();

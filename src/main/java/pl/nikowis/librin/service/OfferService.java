@@ -19,5 +19,5 @@ public interface OfferService {
 
     OfferDTO getOffer(Long offerId);
 
-    OfferDTO offerSold(Long offerId);
+    OfferDTO offerSold(Long offerId, Long customerId);
 }

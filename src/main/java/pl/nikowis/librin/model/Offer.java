@@ -27,6 +27,10 @@ public class Offer extends BaseEntity {
     @JoinColumn(name = "ownerId")
     private User owner;
 
+    @ManyToOne
+    @JoinColumn(name = "buyerId")
+    private User buyer;
+
     private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
