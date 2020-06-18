@@ -1,6 +1,7 @@
 package pl.nikowis.librin.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,11 @@ import pl.nikowis.librin.model.Offer;
 import pl.nikowis.librin.model.OfferStatus;
 import pl.nikowis.librin.model.User;
 import pl.nikowis.librin.repository.ConversationRepository;
+import pl.nikowis.librin.repository.MessageRepository;
 import pl.nikowis.librin.repository.OfferRepository;
 import pl.nikowis.librin.repository.UserRepository;
+
+import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -54,6 +58,9 @@ class MessageControllerTest {
 
     @Autowired
     private OfferRepository offerRepository;
+
+    @Autowired
+    private MessageRepository messagesRepository;
 
     @Autowired
     private ConversationRepository conversationRepository;
@@ -147,20 +154,24 @@ class MessageControllerTest {
         Conversation conversation = new Conversation();
         conversation.setCustomer(testUser2);
         conversation.setOffer(o);
+        Conversation saved = conversationRepository.save(conversation);
 
         Message message1 = new Message();
         String messageContent1 = "Hello, how much?";
         message1.setContent(messageContent1);
         message1.setCreatedBy(testUser.getId());
+        message1.setCreatedAt(new Date());
+        message1.setConversationId(saved.getId());
 
         Message message2 = new Message();
         String messageContent2 = "12 dollars?";
         message2.setContent(messageContent2);
         message2.setCreatedBy(testUser2.getId());
+        message2.setCreatedAt(new Date());
+        message2.setConversationId(saved.getId());
 
-        conversation.getMessages().add(message1);
-        conversation.getMessages().add(message2);
-        Conversation saved = conversationRepository.save(conversation);
+        messagesRepository.save(message1);
+        messagesRepository.save(message2);
 
         mockMvc.perform(get(MessagesController.CONVERSATION_ENDPOINT, saved.getId()))
                 .andDo(print())

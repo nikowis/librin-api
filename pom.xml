@@ -128,7 +128,10 @@
             <artifactId>spring-security-messaging</artifactId>
             <version>5.2.1.RELEASE</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

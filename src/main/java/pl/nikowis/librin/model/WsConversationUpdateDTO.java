@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class WsConversationUpdateDTO {
 
-    private Long id;
+    private String id;
     private Long conversationId;
     private String content;
     private Long createdBy;

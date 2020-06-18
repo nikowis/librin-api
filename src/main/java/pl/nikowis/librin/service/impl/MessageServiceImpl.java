@@ -71,12 +71,14 @@ public class MessageServiceImpl implements MessageService {
         if (conversation == null) {
             throw new ConversationNotFoundException();
         }
+
         if (isCustomer(conversation, currentUserId)) {
             conversation.setCustomerRead(true);
         } else {
             conversation.setOfferOwnerRead(true);
         }
         Conversation saved = conversationRepository.save(conversation);
+        conversation.setMessages(messageRepository.findByConversationId(conversationId));
         processSortUpdateMessages(currentUserId, saved);
         setRead(saved, currentUserId);
         return mapperFacade.map(saved, ConversationDTO.class);
@@ -103,10 +105,12 @@ public class MessageServiceImpl implements MessageService {
 
         Message newMessage = mapperFacade.map(messageDTO, Message.class);
         newMessage.setCreatedBy(currentUserId);
-        newMessage.setConversation(conversation);
-        conversation.getMessages().add(newMessage);
+        newMessage.setConversationId(conversation.getId());
+        newMessage.setCreatedAt(new Date());
+        messageRepository.save(newMessage);
         conversation.setUpdatedAt(new Date());
         Conversation saved = conversationRepository.save(conversation);
+        saved.setMessages(messageRepository.findByConversationId(conversationId));
         processSortUpdateMessages(currentUserId, saved);
         setRead(saved, currentUserId);
         sendWsUpdate(conversation, recipientEmail, newMessage, saved);
@@ -127,7 +131,10 @@ public class MessageServiceImpl implements MessageService {
         Long currentUser = SecurityUtils.getCurrentUserId();
         Optional<Conversation> conv = conversationRepository.findByUserAndOfferId(createConversationDTO.getOfferId(), currentUser);
         if (conv.isPresent()) {
-            return mapperFacade.map(conv.get(), ConversationDTO.class);
+            Conversation conversation = conv.get();
+            List<Message> messages = messageRepository.findByConversationId(conversation.getId());
+            conversation.setMessages(messages);
+            return mapperFacade.map(conversation, ConversationDTO.class);
         }
 
         Offer offer = offerRepository.findById(createConversationDTO.getOfferId()).orElseThrow(OfferDoesntExistException::new);
@@ -155,7 +162,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private void processSortUpdateMessages(Long currentUserId, Conversation conversation) {
-        conversation.getMessages().sort(Comparator.comparing(BaseEntity::getCreatedAt));
+        conversation.getMessages().sort(Comparator.comparing(Message::getCreatedAt));
         List<Message> unReadMessagse = conversation.getMessages().stream().filter(m -> !m.getCreatedBy().equals(currentUserId) && !m.isRead()).collect(Collectors.toList());
         unReadMessagse.forEach(message -> message.setRead(true));
         messageRepository.saveAll(unReadMessagse);

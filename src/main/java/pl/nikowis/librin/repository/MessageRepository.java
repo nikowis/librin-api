@@ -1,10 +1,12 @@
 package pl.nikowis.librin.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 import pl.nikowis.librin.model.Message;
 
-@Repository
-public interface MessageRepository extends JpaRepository<Message, Long> {
+import java.util.List;
 
+@Repository
+public interface MessageRepository extends MongoRepository<Message, Long> {
+    List<Message> findByConversationId(Long conversationId);
 }
