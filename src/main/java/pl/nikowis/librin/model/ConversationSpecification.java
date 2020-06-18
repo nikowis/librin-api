@@ -37,6 +37,7 @@ public class ConversationSpecification implements Specification<Conversation> {
         if (Long.class != query.getResultType()) {
             Fetch<Conversation, Offer> fetchedOffer = root.fetch(Conversation_.offer, JoinType.LEFT);
             fetchedOffer.fetch(Offer_.owner, JoinType.LEFT);
+            fetchedOffer.fetch(Offer_.buyer, JoinType.LEFT);
             fetchedOffer.fetch(Offer_.attachment, JoinType.LEFT);
             root.fetch(Conversation_.customer, JoinType.LEFT);
         }

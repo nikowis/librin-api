@@ -16,6 +16,7 @@ import pl.nikowis.librin.TestConstants;
 import pl.nikowis.librin.config.GlobalExceptionHandler;
 import pl.nikowis.librin.config.Profiles;
 import pl.nikowis.librin.dto.CreateOfferDTO;
+import pl.nikowis.librin.dto.SellOfferDTO;
 import pl.nikowis.librin.model.Offer;
 import pl.nikowis.librin.model.OfferStatus;
 import pl.nikowis.librin.model.Offer_;
@@ -227,9 +228,15 @@ class MyOffersControllerTest {
         o.setAuthor(OFFER_AUTHOR);
         o.setId(OFFER_ID);
         o.setOwner(testUser);
+        o.setOwnerId(testUser.getId());
         o = offerRepository.save(o);
 
-        mockMvc.perform(put(MyOffersController.OFFER_SOLD_ENDPOINT, o.getId()))
+        SellOfferDTO dto = new SellOfferDTO();
+        dto.setCustomerId(2L);
+
+        mockMvc.perform(put(MyOffersController.OFFER_SOLD_ENDPOINT, o.getId())
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(new ObjectMapper().writeValueAsString(dto)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(o.getId().intValue())))

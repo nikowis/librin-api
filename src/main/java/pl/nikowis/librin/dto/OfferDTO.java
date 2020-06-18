@@ -18,5 +18,7 @@ public class OfferDTO {
     private OfferStatus status;
     private PublicUserDTO owner;
     private AttachmentDTO attachment;
+    private Boolean soldToMe;
+    private Long buyerId;
 
 }

@@ -23,7 +23,7 @@ public class BaseConfiguration {
 
     @Bean
     public MapperFacade mapperFacade() {
-        return MapperConfiguration.mapperFactory().getMapperFacade();
+        return OrikaMapperConfig.getMapperFacade();
     }
 
     @Bean
