@@ -4,10 +4,15 @@ import pl.nikowis.librin.dto.AttachmentDTO;
 import pl.nikowis.librin.model.Attachment;
 import pl.nikowis.librin.model.Offer;
 
-public interface AttachmentService {
-    Attachment addAttachmentToOffer(Offer offer, AttachmentDTO photo);
+import java.util.List;
 
-    void removeOfferAttachment(Attachment oldAtt);
+public interface AttachmentService {
+
+    List<Attachment> addAttachmentsToOffer(Offer offer, List<AttachmentDTO> photo);
+
+    void removeOfferAttachments(List<Attachment> oldAtts);
+
+    List<Attachment> fillAttachmentContent(List<Attachment> attachments);
 
     Attachment fillAttachmentContent(Attachment attachment);
 }

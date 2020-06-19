@@ -17,7 +17,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,26 +36,56 @@ class AttachmentServiceImpl implements AttachmentService {
     private String userFilesDirectory;
 
     @Override
-    public Attachment addAttachmentToOffer(Offer offer, AttachmentDTO photo) {
-        Attachment attachment = new Attachment();
-        attachment.setName(photo.getName());
-        attachment.setOffer(offer);
-        attachment.setOwner(offer.getOwner());
-        attachment.setOwnerId(offer.getOwner().getId());
-        attachment.setSize((long) photo.getContent().getBytes().length);
-        Attachment savedAttachment = attachmentRepository.save(attachment);
-        String filePath = resolveOfferAttachmentFilePath(savedAttachment);
-        Path resolvedFilePath = Paths.get(userFilesDirectory, filePath);
-        try {
-            Files.createDirectories(resolvedFilePath.getParent());
-            String imageDataBytes = photo.getContent().substring(photo.getContent().indexOf(",") + 1);
-            byte[] decodedImg = Base64.getDecoder().decode(imageDataBytes.getBytes());
-            Files.write(resolvedFilePath, decodedImg);
-            savedAttachment.setContent(photo.getContent());
-        } catch (IOException e) {
-            LOGGER.error("Cant create directories", e);
+    public List<Attachment> addAttachmentsToOffer(Offer offer, List<AttachmentDTO> photosDTO) {
+        List<Attachment> attachments = new ArrayList<>();
+        if(photosDTO != null) {
+            setMainAttachment(photosDTO);
+            attachments = photosDTO.stream().map(photo -> {
+                Attachment attachment = new Attachment();
+                attachment.setName(photo.getName());
+                attachment.setOffer(offer);
+                attachment.setOwner(offer.getOwner());
+                attachment.setOwnerId(offer.getOwner().getId());
+                attachment.setSize((long) photo.getContent().getBytes().length);
+                attachment.setMain(photo.isMain());
+                Attachment savedAtt = attachmentRepository.save(attachment);
+                saveToFileSystem(savedAtt, photo.getContent());
+                savedAtt.setContent(photo.getContent());
+                return savedAtt;
+            }).collect(Collectors.toList());
         }
-        return savedAttachment;
+        return attachments;
+    }
+
+    private void setMainAttachment(List<AttachmentDTO> photosDTO) {
+        long mainCount = photosDTO.stream().filter(AttachmentDTO::isMain).count();
+        if(mainCount == 1) {
+            return;
+        } else if(mainCount > 1) {
+            photosDTO.forEach(attachmentDTO -> attachmentDTO.setMain(false));
+        }
+        photosDTO.get(0).setMain(true);
+    }
+
+    @Override
+    public void removeOfferAttachments(List<Attachment> oldAtts) {
+        oldAtts.forEach(a -> {
+            String filePath = resolveOfferAttachmentFilePath(a);
+            Path resolvedFilePath = Paths.get(userFilesDirectory, filePath);
+            try {
+                Files.delete(resolvedFilePath);
+            } catch (IOException e) {
+                LOGGER.error("Cant remove file", e);
+            }
+        });
+
+        attachmentRepository.deleteAll(oldAtts);
+    }
+
+    @Override
+    public List<Attachment> fillAttachmentContent(List<Attachment> attachments) {
+        attachments.forEach(this::fillAttachmentContent);
+        return attachments;
     }
 
     @Override
@@ -71,18 +104,21 @@ class AttachmentServiceImpl implements AttachmentService {
         }
     }
 
-    @Override
-    public void removeOfferAttachment(Attachment oldAtt) {
-        String filePath = resolveOfferAttachmentFilePath(oldAtt);
+    private void saveToFileSystem(Attachment attachment, String photoContent) {
+        String filePath = resolveOfferAttachmentFilePath(attachment);
         Path resolvedFilePath = Paths.get(userFilesDirectory, filePath);
         try {
-            Files.delete(resolvedFilePath);
+            Files.createDirectories(resolvedFilePath.getParent());
+            Files.write(resolvedFilePath, getFileBytes(photoContent));
         } catch (IOException e) {
-            LOGGER.error("Cant remove file", e);
+            LOGGER.error("Cant create directories", e);
         }
-        attachmentRepository.delete(oldAtt);
     }
 
+    private byte[] getFileBytes(String base64Content) {
+        String imageDataBytes = base64Content.substring(base64Content.indexOf(",") + 1);
+        return Base64.getDecoder().decode(imageDataBytes.getBytes());
+    }
 
     private String resolveOfferAttachmentFilePath(Attachment attachment) {
         return File.separator +
@@ -106,4 +142,6 @@ class AttachmentServiceImpl implements AttachmentService {
         }
         return userIdStr;
     }
+
+
 }

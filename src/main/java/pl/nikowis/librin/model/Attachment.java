@@ -20,6 +20,8 @@ public class Attachment extends BaseEntity {
     @NotBlank
     private String name;
 
+    private boolean main;
+
     @Column(name = "ownerId", updatable = false, insertable = false)
     private Long ownerId;
 

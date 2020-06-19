@@ -10,8 +10,12 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -36,6 +40,9 @@ public class Offer extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private OfferStatus status;
 
-    @OneToOne(fetch = FetchType.EAGER, mappedBy = "offer", cascade = {CascadeType.ALL})
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "offer", cascade = {CascadeType.ALL})
+    private List<Attachment> attachments = new ArrayList<>();
+
+    @Transient
     private Attachment attachment;
 }

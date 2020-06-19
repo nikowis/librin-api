@@ -11,7 +11,7 @@ public class ConversationDTO {
 
     private Long id;
     private List<MessageDTO> messages = new ArrayList<>();
-    private OfferDTO offer;
+    private OfferPreviewDTO offer;
     private PublicUserDTO customer;
     private Date createdAt;
     private Date updatedAt;

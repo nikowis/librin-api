@@ -15,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.nikowis.librin.dto.CreateOfferDTO;
-import pl.nikowis.librin.dto.OfferDTO;
+import pl.nikowis.librin.dto.OfferDetailsDTO;
+import pl.nikowis.librin.dto.OfferPreviewDTO;
 import pl.nikowis.librin.dto.OfferFilterDTO;
 import pl.nikowis.librin.dto.SellOfferDTO;
 import pl.nikowis.librin.model.OfferStatus;
@@ -40,7 +41,7 @@ public class MyOffersController {
     private OfferService offerService;
 
     @GetMapping
-    public Page<OfferDTO> offersList(OfferFilterDTO filterDTO, Pageable pageable) {
+    public Page<OfferPreviewDTO> offersList(OfferFilterDTO filterDTO, Pageable pageable) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         filterDTO.setOwner(currentUserId);
         filterDTO.setStatuses(Lists.newArrayList(OfferStatus.ACTIVE, OfferStatus.SOLD));
@@ -48,27 +49,27 @@ public class MyOffersController {
     }
 
     @PostMapping
-    public OfferDTO createOffer(@Validated @RequestBody CreateOfferDTO offer) {
+    public OfferPreviewDTO createOffer(@Validated @RequestBody CreateOfferDTO offer) {
         return offerService.createOffer(offer);
     }
 
     @GetMapping(path = OFFER_PATH)
-    public OfferDTO getOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
+    public OfferDetailsDTO getOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
         return offerService.getOffer(offerId);
     }
 
     @PutMapping(path = OFFER_PATH)
-    public OfferDTO updateOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId, @Validated @RequestBody CreateOfferDTO offer) {
+    public OfferPreviewDTO updateOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId, @Validated @RequestBody CreateOfferDTO offer) {
         return offerService.updateOffer(offerId, offer);
     }
 
     @PutMapping(path = SOLD_PATH)
-    public OfferDTO offerSold(@PathVariable(OFFER_ID_VARIABLE) Long offerId,  @Validated @RequestBody SellOfferDTO dto) {
+    public OfferPreviewDTO offerSold(@PathVariable(OFFER_ID_VARIABLE) Long offerId, @Validated @RequestBody SellOfferDTO dto) {
         return offerService.offerSold(offerId, dto.getCustomerId());
     }
 
     @DeleteMapping(path = OFFER_PATH)
-    public OfferDTO deleteOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
+    public OfferPreviewDTO deleteOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
         return offerService.deleteOffer(offerId);
     }
 

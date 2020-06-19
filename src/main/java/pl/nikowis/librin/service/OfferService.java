@@ -4,20 +4,21 @@ package pl.nikowis.librin.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import pl.nikowis.librin.dto.CreateOfferDTO;
-import pl.nikowis.librin.dto.OfferDTO;
+import pl.nikowis.librin.dto.OfferDetailsDTO;
+import pl.nikowis.librin.dto.OfferPreviewDTO;
 import pl.nikowis.librin.dto.OfferFilterDTO;
 
 public interface OfferService {
 
-    Page<OfferDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable);
+    Page<OfferPreviewDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable);
 
-    OfferDTO createOffer(CreateOfferDTO offer);
+    OfferPreviewDTO createOffer(CreateOfferDTO offer);
 
-    OfferDTO updateOffer(Long offerId, CreateOfferDTO offerDTO);
+    OfferPreviewDTO updateOffer(Long offerId, CreateOfferDTO offerDTO);
 
-    OfferDTO deleteOffer(Long offerDTO);
+    OfferPreviewDTO deleteOffer(Long offerDTO);
 
-    OfferDTO getOffer(Long offerId);
+    OfferDetailsDTO getOffer(Long offerId);
 
-    OfferDTO offerSold(Long offerId, Long customerId);
+    OfferPreviewDTO offerSold(Long offerId, Long customerId);
 }

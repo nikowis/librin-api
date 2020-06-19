@@ -17,4 +17,6 @@ public class AttachmentDTO {
     @NotNull
     private String content;
 
+    private boolean main;
+
 }

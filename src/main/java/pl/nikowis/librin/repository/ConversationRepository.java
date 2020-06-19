@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface ConversationRepository extends JpaRepository<Conversation, Long>, JpaSpecificationExecutor<Conversation> {
 
-    @Query("SELECT c FROM Conversation c LEFT JOIN FETCH c.offer o LEFT JOIN FETCH o.owner LEFT JOIN FETCH o.attachment LEFT JOIN FETCH c.customer cust WHERE c.id = :convId AND (cust.id = :userId OR o.ownerId = :userId)")
+    @Query("SELECT c FROM Conversation c LEFT JOIN FETCH c.offer o LEFT JOIN FETCH o.owner LEFT JOIN FETCH c.customer cust WHERE c.id = :convId AND (cust.id = :userId OR o.ownerId = :userId)")
     Optional<Conversation> findByIdAndCustomerIdOrOfferOwnerId(@Param("convId") Long convId, @Param("userId") Long userId);
 
     @Query("SELECT c FROM Conversation c LEFT JOIN FETCH c.offer o LEFT JOIN FETCH o.owner LEFT JOIN FETCH o.buyer JOIN c.customer cust WHERE o.id = :offerId AND (cust.id = :userId OR o.ownerId = :userId)")

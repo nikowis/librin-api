@@ -9,8 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.dto.CreateOfferDTO;
-import pl.nikowis.librin.dto.OfferDTO;
+import pl.nikowis.librin.dto.OfferDetailsDTO;
 import pl.nikowis.librin.dto.OfferFilterDTO;
+import pl.nikowis.librin.dto.OfferPreviewDTO;
 import pl.nikowis.librin.exception.CannotBuyOwnOfferException;
 import pl.nikowis.librin.exception.CannotUpdateOfferException;
 import pl.nikowis.librin.exception.CustomerAccountBlockedException;
@@ -29,6 +30,7 @@ import pl.nikowis.librin.service.AttachmentService;
 import pl.nikowis.librin.service.OfferService;
 import pl.nikowis.librin.util.SecurityUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -49,22 +51,23 @@ class OfferServiceImpl implements OfferService {
     @Autowired
     private AttachmentService attachmentService;
 
-
     @Override
-    public Page<OfferDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable) {
+    public Page<OfferPreviewDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable) {
         Page<Offer> offersPage = offerRepository.findAll(new OfferSpecification(filterDTO), pageable);
         offersPage.getContent().forEach(offer -> {
-            Attachment attachment = offer.getAttachment();
-            if (attachment != null) {
-                Attachment att = attachmentService.fillAttachmentContent(attachment);
-                offer.setAttachment(att);
+            List<Attachment> attachments = offer.getAttachments();
+            if(attachments != null && attachments.size()> 0) {
+                Attachment mainAttachment = offer.getAttachments().stream().filter(Attachment::isMain).findFirst().orElse(null);
+                if(mainAttachment !=null) {
+                    offer.setAttachment(attachmentService.fillAttachmentContent(mainAttachment));
+                }
             }
         });
-        return offersPage.map(o -> mapperFacade.map(o, OfferDTO.class));
+        return offersPage.map(o -> mapperFacade.map(o, OfferPreviewDTO.class));
     }
 
     @Override
-    public OfferDTO createOffer(CreateOfferDTO dto) {
+    public OfferPreviewDTO createOffer(CreateOfferDTO dto) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
 
         Offer offer = new Offer();
@@ -73,37 +76,39 @@ class OfferServiceImpl implements OfferService {
         User currentUser = userRepository.findById(currentUserId).get();
         offer.setOwner(currentUser);
         offer = offerRepository.save(offer);
-        if (dto.getPhoto() != null) {
-            Attachment attachment = attachmentService.addAttachmentToOffer(offer, dto.getPhoto());
-            offer.setAttachment(attachment);
+        if (dto.getPhotos() != null) {
+            List<Attachment> attachments = attachmentService.addAttachmentsToOffer(offer, dto.getPhotos());
+            offer.setAttachments(attachments);
+            offer.setAttachment(attachments.stream().filter(Attachment::isMain).findFirst().get());
         }
-        return mapperFacade.map(offer, OfferDTO.class);
+        return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
     @Override
-    public OfferDTO updateOffer(Long offerId, CreateOfferDTO offerDTO) {
+    public OfferPreviewDTO updateOffer(Long offerId, CreateOfferDTO offerDTO) {
         Offer offer = getOfferValidateOwner(offerId);
         validateOfferActive(offer);
         mapperFacade.map(offerDTO, offer);
-        Attachment oldAtt = offer.getAttachment();
-        if (oldAtt != null) {
-            attachmentService.removeOfferAttachment(oldAtt);
+        List<Attachment> oldAtts = offer.getAttachments();
+        if (oldAtts != null) {
+            attachmentService.removeOfferAttachments(oldAtts);
         }
+        offer.setAttachments(null);
         Offer saved = offerRepository.save(offer);
-        if (offerDTO.getPhoto() != null) {
-            Attachment attachment = attachmentService.addAttachmentToOffer(offer, offerDTO.getPhoto());
-            offer.setAttachment(attachment);
+        if (offerDTO.getPhotos() != null) {
+            List<Attachment> attachments = attachmentService.addAttachmentsToOffer(offer, offerDTO.getPhotos());
+            offer.setAttachments(attachments);
         }
-        return mapperFacade.map(saved, OfferDTO.class);
+        return mapperFacade.map(saved, OfferPreviewDTO.class);
     }
 
     @Override
-    public OfferDTO deleteOffer(Long offerDTO) {
+    public OfferPreviewDTO deleteOffer(Long offerDTO) {
         Offer offer = getOfferValidateOwner(offerDTO);
         validateOfferActive(offer);
         offer.setStatus(OfferStatus.DELETED);
         offer = offerRepository.save(offer);
-        return mapperFacade.map(offer, OfferDTO.class);
+        return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
     private void validateOfferActive(Offer offer) {
@@ -113,18 +118,18 @@ class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public OfferDTO getOffer(Long offerId) {
+    public OfferDetailsDTO getOffer(Long offerId) {
         Offer offer = offerRepository.findById(offerId).orElseThrow(OfferDoesntExistException::new);
-        Attachment attachment = offer.getAttachment();
-        if (attachment != null) {
-            Attachment att = attachmentService.fillAttachmentContent(attachment);
-            offer.setAttachment(att);
+        List<Attachment> attachments = offer.getAttachments();
+        if (attachments != null) {
+            attachments = attachmentService.fillAttachmentContent(attachments);
+            offer.setAttachments(attachments);
         }
-        return mapperFacade.map(offer, OfferDTO.class);
+        return mapperFacade.map(offer, OfferDetailsDTO.class);
     }
 
     @Override
-    public OfferDTO offerSold(Long offerId, Long customerId) {
+    public OfferPreviewDTO offerSold(Long offerId, Long customerId) {
         Offer offer = getOfferValidateOwner(offerId);
         if(offer.getOwnerId().equals(customerId)) {
             throw new CannotBuyOwnOfferException();
@@ -145,7 +150,7 @@ class OfferServiceImpl implements OfferService {
             Attachment att = attachmentService.fillAttachmentContent(attachment);
             offer.setAttachment(att);
         }
-        return mapperFacade.map(saved, OfferDTO.class);
+        return mapperFacade.map(saved, OfferPreviewDTO.class);
     }
 
     private Offer getOfferValidateOwner(Long offerId) {
