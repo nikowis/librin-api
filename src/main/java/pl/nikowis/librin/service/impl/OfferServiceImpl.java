@@ -19,6 +19,7 @@ import pl.nikowis.librin.exception.CustomerAccountDeletedException;
 import pl.nikowis.librin.exception.OfferCantBeUpdatedException;
 import pl.nikowis.librin.exception.OfferDoesntExistException;
 import pl.nikowis.librin.model.Attachment;
+import pl.nikowis.librin.model.BaseEntity;
 import pl.nikowis.librin.model.Offer;
 import pl.nikowis.librin.model.OfferSpecification;
 import pl.nikowis.librin.model.OfferStatus;
@@ -30,6 +31,7 @@ import pl.nikowis.librin.service.AttachmentService;
 import pl.nikowis.librin.service.OfferService;
 import pl.nikowis.librin.util.SecurityUtils;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,9 +79,7 @@ class OfferServiceImpl implements OfferService {
         offer.setOwner(currentUser);
         offer = offerRepository.save(offer);
         if (dto.getPhotos() != null) {
-            List<Attachment> attachments = attachmentService.addAttachmentsToOffer(offer, dto.getPhotos());
-            offer.setAttachments(attachments);
-            offer.setAttachment(attachments.stream().filter(Attachment::isMain).findFirst().get());
+            attachmentService.addAttachmentsToOffer(offer, dto.getPhotos());
         }
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
@@ -94,12 +94,11 @@ class OfferServiceImpl implements OfferService {
             attachmentService.removeOfferAttachments(oldAtts);
         }
         offer.setAttachments(null);
-        Offer saved = offerRepository.save(offer);
+        offer = offerRepository.save(offer);
         if (offerDTO.getPhotos() != null) {
-            List<Attachment> attachments = attachmentService.addAttachmentsToOffer(offer, offerDTO.getPhotos());
-            offer.setAttachments(attachments);
+            attachmentService.addAttachmentsToOffer(offer, offerDTO.getPhotos());
         }
-        return mapperFacade.map(saved, OfferPreviewDTO.class);
+        return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
     @Override
@@ -123,6 +122,7 @@ class OfferServiceImpl implements OfferService {
         List<Attachment> attachments = offer.getAttachments();
         if (attachments != null) {
             attachments = attachmentService.fillAttachmentContent(attachments);
+            attachments.sort(Comparator.comparing(BaseEntity::getId));
             offer.setAttachments(attachments);
         }
         return mapperFacade.map(offer, OfferDetailsDTO.class);

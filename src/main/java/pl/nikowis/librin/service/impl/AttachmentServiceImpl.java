@@ -54,16 +54,13 @@ class AttachmentServiceImpl implements AttachmentService {
                 return savedAtt;
             }).collect(Collectors.toList());
         }
+        offer.setAttachments(attachments);
+        offer.setAttachment(attachments.stream().filter(Attachment::isMain).findFirst().orElse(null));
         return attachments;
     }
 
     private void setMainAttachment(List<AttachmentDTO> photosDTO) {
-        long mainCount = photosDTO.stream().filter(AttachmentDTO::isMain).count();
-        if(mainCount == 1) {
-            return;
-        } else if(mainCount > 1) {
-            photosDTO.forEach(attachmentDTO -> attachmentDTO.setMain(false));
-        }
+        photosDTO.forEach(attachmentDTO -> attachmentDTO.setMain(false));
         photosDTO.get(0).setMain(true);
     }
 
