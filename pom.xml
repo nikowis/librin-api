@@ -149,7 +149,12 @@
             <properties>
                 <activatedProperties>test</activatedProperties>
             </properties>
-
+        </profile>
+        <profile>
+            <id>stage</id>
+            <properties>
+                <activatedProperties>stage</activatedProperties>
+            </properties>
         </profile>
         <profile>
             <id>prod</id>

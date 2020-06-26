@@ -4,8 +4,8 @@
     <springProfile name="dev,test">
         <property scope="context" name="logfolder" value="${user.home}/logs"/>
     </springProfile>
-    <springProfile name="prod">
-        <property scope="context" name="logfolder" value="${user.home}/nikowiscom/librin/logs"/>
+    <springProfile name="stage,prod">
+        <property scope="context" name="logfolder" value="${user.home}/librin/logs"/>
     </springProfile>
 
     <appender name="console-appender" class="ch.qos.logback.core.ConsoleAppender">
