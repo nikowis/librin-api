@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,6 +90,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO register(RegisterUserDTO userDTO) {
+        userDTO.setEmail(userDTO.getEmail().toLowerCase(LocaleContextHolder.getLocale()));
+        userDTO.setUsername(userDTO.getUsername().toLowerCase(LocaleContextHolder.getLocale()));
         if (userRepository.findByEmail(userDTO.getEmail()) != null) {
             throw new EmailAlreadyExistsException(new Object[]{userDTO.getEmail()});
         }

@@ -2,6 +2,7 @@ package pl.nikowis.librin.service.impl;
 
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,7 +24,7 @@ public class DatabaseUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User userByEmail = userService.findUserByEmail(username);
+        User userByEmail = userService.findUserByEmail(username.toLowerCase(LocaleContextHolder.getLocale()));
         if (userByEmail == null) {
             throw new UsernameNotFoundException("Username no found - " + username);
         }
