@@ -1,6 +1,8 @@
 package pl.nikowis.librin.dto;
 
 import lombok.Data;
+import pl.nikowis.librin.model.OfferCategory;
+import pl.nikowis.librin.model.OfferCondition;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -21,6 +23,15 @@ public class CreateOfferDTO {
     @NotBlank
     @Size(min = 2)
     private String author;
+
+    private String description;
+
+    @NotNull
+    protected OfferCategory category;
+
+    @NotNull
+    protected OfferCondition condition;
+
     @NotNull
     @Min(0)
     private BigDecimal price;

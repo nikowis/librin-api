@@ -54,6 +54,14 @@ public class OfferSpecification implements Specification<Offer> {
             predicates.add(builder.like(builder.upper(root.get(Offer_.title)), "%" + filter.getTitle().toUpperCase() + "%"));
         }
 
+        if(filter.getCategory() != null) {
+            predicates.add(builder.equal(root.get(Offer_.category), filter.getCategory()));
+        }
+
+        if(filter.getCondition() != null) {
+            predicates.add(builder.equal(root.get(Offer_.condition), filter.getCondition()));
+        }
+
         return builder.and(predicates.toArray(new Predicate[0]));
     }
 }

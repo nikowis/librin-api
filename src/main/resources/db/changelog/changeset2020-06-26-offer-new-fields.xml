@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changeset2020-06-26-offer-new-fields" author="nikowis">
+        <sql>
+            ALTER TABLE "offer" ADD COLUMN "description" VARCHAR(512);
+            ALTER TABLE "offer" ADD COLUMN "condition" VARCHAR(128);
+            ALTER TABLE "offer" ADD COLUMN "category" VARCHAR(128) NOT NULL DEFAULT 'OTHER';
+        </sql>
+    </changeSet>
+</databaseChangeLog>

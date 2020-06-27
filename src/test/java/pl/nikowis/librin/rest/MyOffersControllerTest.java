@@ -17,10 +17,8 @@ import pl.nikowis.librin.config.GlobalExceptionHandler;
 import pl.nikowis.librin.config.Profiles;
 import pl.nikowis.librin.dto.CreateOfferDTO;
 import pl.nikowis.librin.dto.SellOfferDTO;
-import pl.nikowis.librin.model.Offer;
-import pl.nikowis.librin.model.OfferStatus;
+import pl.nikowis.librin.model.*;
 import pl.nikowis.librin.model.Offer_;
-import pl.nikowis.librin.model.User;
 import pl.nikowis.librin.repository.OfferRepository;
 import pl.nikowis.librin.repository.UserRepository;
 
@@ -46,6 +44,8 @@ class MyOffersControllerTest {
     private static final Long OFFER_ID = 1L;
     public static final String OFFER_TITLE = "Title";
     public static final String OFFER_AUTHOR = "Author";
+    public static final OfferCategory OFFER_CATEGORY = OfferCategory.CRIMINAL;
+    public static final OfferCondition OFFER_CONDITION = OfferCondition.NEW;
 
     private MockMvc mockMvc;
 
@@ -129,6 +129,8 @@ class MyOffersControllerTest {
         CreateOfferDTO o = new CreateOfferDTO();
         o.setTitle(OFFER_TITLE);
         o.setAuthor(OFFER_AUTHOR);
+        o.setCategory(OFFER_CATEGORY);
+        o.setCondition(OFFER_CONDITION);
         o.setPrice(BigDecimal.ZERO);
 
         mockMvc.perform(post(MyOffersController.MY_OFFERS_ENDPOINT)
@@ -139,6 +141,8 @@ class MyOffersControllerTest {
                 .andExpect(jsonPath("$.id", is(notNullValue())))
                 .andExpect(jsonPath("$.createdAt", is(notNullValue())))
                 .andExpect(jsonPath("$.title", is(OFFER_TITLE)))
+                .andExpect(jsonPath("$.category", is(OFFER_CATEGORY.name())))
+                .andExpect(jsonPath("$.condition", is(OFFER_CONDITION.name())))
                 .andExpect(jsonPath("$.author", is(OFFER_AUTHOR)));
     }
 
@@ -171,12 +175,16 @@ class MyOffersControllerTest {
         edit.setAuthor(newAuthor);
         BigDecimal newPrice = BigDecimal.ZERO;
         edit.setPrice(newPrice);
+        edit.setCategory(OfferCategory.OTHER);
+        edit.setCondition(OfferCondition.DESTROYED);
 
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);
         o.setAuthor(OFFER_AUTHOR);
         o.setId(OFFER_ID);
         o.setOwner(testUser);
+        o.setCategory(OFFER_CATEGORY);
+        o.setCondition(OFFER_CONDITION);
         o.setStatus(OfferStatus.ACTIVE);
         o = offerRepository.save(o);
 
@@ -189,6 +197,8 @@ class MyOffersControllerTest {
                 .andExpect(jsonPath("$.createdAt", is(notNullValue())))
                 .andExpect(jsonPath("$.title", is(newTitle)))
                 .andExpect(jsonPath("$.author", is(newAuthor)))
+                .andExpect(jsonPath("$.category", is(OfferCategory.OTHER.name())))
+                .andExpect(jsonPath("$.condition", is(OfferCondition.DESTROYED.name())))
                 .andExpect(jsonPath("$.price", is(newPrice.intValue())));
     }
 
@@ -202,12 +212,16 @@ class MyOffersControllerTest {
         edit.setAuthor(newAuthor);
         BigDecimal newPrice = BigDecimal.ZERO;
         edit.setPrice(newPrice);
+        edit.setCondition(OFFER_CONDITION);
+        edit.setCategory(OFFER_CATEGORY);
 
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);
         o.setAuthor(OFFER_AUTHOR);
         o.setId(OFFER_ID);
         o.setOwner(testUser);
+        o.setCategory(OFFER_CATEGORY);
+        o.setCondition(OFFER_CONDITION);
         o.setStatus(OfferStatus.SOLD);
         o = offerRepository.save(o);
 

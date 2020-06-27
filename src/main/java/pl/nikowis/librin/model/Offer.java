@@ -23,6 +23,7 @@ public class Offer extends BaseEntity {
 
     private String title;
     private String author;
+    private String description;
 
     @Column(name = "ownerId", updatable = false, insertable = false)
     private Long ownerId;
@@ -39,6 +40,12 @@ public class Offer extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private OfferStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private OfferCategory category;
+
+    @Enumerated(EnumType.ORDINAL)
+    private OfferCondition condition;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "offer", cascade = {CascadeType.ALL})
     private List<Attachment> attachments = new ArrayList<>();
