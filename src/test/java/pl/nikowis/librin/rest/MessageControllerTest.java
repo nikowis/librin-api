@@ -1,11 +1,13 @@
 package pl.nikowis.librin.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,10 +30,13 @@ import pl.nikowis.librin.repository.MessageRepository;
 import pl.nikowis.librin.repository.OfferRepository;
 import pl.nikowis.librin.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -60,6 +65,7 @@ class MessageControllerTest {
     private OfferRepository offerRepository;
 
     @Autowired
+    @MockBean
     private MessageRepository messagesRepository;
 
     @Autowired
@@ -138,6 +144,15 @@ class MessageControllerTest {
         String messageContent = "New message";
         sendMessageDTO.setContent(messageContent);
 
+        Message message1 = new Message();
+        message1.setId("1");
+        message1.setContent(messageContent);
+        message1.setCreatedBy(testUser2.getId());
+        message1.setCreatedAt(new Date());
+        message1.setConversationId(saved.getId());
+
+        when(messagesRepository.findByConversationId(any(Long.class))).thenReturn(Lists.newArrayList(message1));
+
         mockMvc.perform(post(MessagesController.CONVERSATION_ENDPOINT, saved.getId())
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(new ObjectMapper().writeValueAsString(sendMessageDTO)))
@@ -157,6 +172,7 @@ class MessageControllerTest {
         Conversation saved = conversationRepository.save(conversation);
 
         Message message1 = new Message();
+        message1.setId("1");
         String messageContent1 = "Hello, how much?";
         message1.setContent(messageContent1);
         message1.setCreatedBy(testUser.getId());
@@ -164,11 +180,14 @@ class MessageControllerTest {
         message1.setConversationId(saved.getId());
 
         Message message2 = new Message();
+        message2.setId("2");
         String messageContent2 = "12 dollars?";
         message2.setContent(messageContent2);
         message2.setCreatedBy(testUser2.getId());
         message2.setCreatedAt(new Date());
         message2.setConversationId(saved.getId());
+
+        when(messagesRepository.findByConversationId(any(Long.class))).thenReturn(Lists.newArrayList(message1, message2));
 
         messagesRepository.save(message1);
         messagesRepository.save(message2);
