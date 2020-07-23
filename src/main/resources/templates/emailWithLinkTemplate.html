@@ -10,25 +10,30 @@
             margin: auto;
         }
 
+        img {
+            margin: auto;
+        }
+
         .card:hover {
             box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
         }
 
         .container {
-            padding: 2px 16px;
+            padding: 0;
         }
 
     </style>
 </head>
 <body>
 
-<h2 th:text="${title}"></h2>
-
 <div class="card">
+    <img src="brandLogo.png" th:src="|cid:${brandLogo}|" width="300px" height="auto"/>
+
+    <h2 th:text="${title}"></h2>
     <div class="container">
-        <h4><b th:text="${info}"></b></h4>
+        <h4 th:text="${info}"></h4>
         <a th:href="${url}" th:text="${linkText}"></a>
-        <p th:text="${footer}"></p>
+        <div th:text="${footer}"></div>
     </div>
 </div>
 

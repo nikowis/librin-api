@@ -115,7 +115,7 @@ public class UserServiceImpl implements UserService {
 
     private List<Consent> createRegisterConsentList(User u) {
         List<Consent> consents = new ArrayList<>();
-        for(PolicyType type: PolicyType.values()) {
+        for (PolicyType type : PolicyType.values()) {
             Policy policy = policyRepository.findFirstByTypeOrderByVersionDesc(type);
             Consent c = new Consent();
             c.setPolicy(policy);
@@ -133,7 +133,7 @@ public class UserServiceImpl implements UserService {
         token = tokenRepository.save(token);
         String confirmUrl = dto.getConfirmEmailBaseUrl() + "/" + token.getId().toString();
 
-        mailService.sendEmailConfirmationMessage(saved.getEmail(), confirmUrl);
+        mailService.sendEmailConfirmationMessage(saved.getEmail(), confirmUrl, LocaleContextHolder.getLocale());
     }
 
     @Override
@@ -162,7 +162,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public PublicUserDTO getPublicUserInfo(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-        if(UserStatus.DELETED.equals(user.getStatus())) {
+        if (UserStatus.DELETED.equals(user.getStatus())) {
             throw new UserNotFoundException();
         }
         return mapperFacade.map(user, PublicUserDTO.class);
@@ -172,7 +172,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(DeleteUserDTO dto, Long currentUserId) {
         User user = userRepository.findById(currentUserId).get();
 
-        if(!bCryptPasswordEncoder.matches(dto.getPassword(), user.getPassword())) {
+        if (!bCryptPasswordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new IncorrectPasswordException();
         }
 
@@ -194,11 +194,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void confirmEmail(UUID tokenId) {
         Token token = tokenRepository.findByIdAndType(tokenId, TokenType.ACCOUNT_EMAIL_CONFIRMATION);
-        if(token == null || token.getExpiresAt().before(new Date()) || token.isExecuted()) {
+        if (token == null || token.getExpiresAt().before(new Date()) || token.isExecuted()) {
             throw new TokenNotFoundException();
         }
         User user = token.getUser();
-        if(!UserStatus.INACTIVE.equals(user.getStatus())) {
+        if (!UserStatus.INACTIVE.equals(user.getStatus())) {
             throw new InorrectUserStatusException();
         }
         user.setStatus(UserStatus.ACTIVE);
@@ -211,7 +211,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void generateResetPasswordToken(GenerateResetPasswordDTO dto) {
         User user = userRepository.findByEmail(dto.getEmail());
-        if(user == null) {
+        if (user == null) {
             LOGGER.warn("Cant create reset password token for {}, user not found in the database.", dto.getEmail());
         } else {
             Token token = new Token();
@@ -220,18 +220,18 @@ public class UserServiceImpl implements UserService {
             token.setUser(user);
             token = tokenRepository.save(token);
             String confirmUrl = dto.getChangePasswordBaseUrl() + "/" + token.getId().toString();
-            mailService.sendResetPasswordEmail(user.getEmail(), confirmUrl);
+            mailService.sendResetPasswordEmail(user.getEmail(), confirmUrl, LocaleContextHolder.getLocale());
         }
     }
 
     @Override
     public void changePassword(UUID tokenId, ChangeUserPasswordDTO userDTO) {
         Token token = tokenRepository.findByIdAndType(tokenId, TokenType.PASSWORD_RESET);
-        if(token == null || token.getExpiresAt().before(new Date()) || token.isExecuted()) {
+        if (token == null || token.getExpiresAt().before(new Date()) || token.isExecuted()) {
             throw new TokenNotFoundException();
         }
         User user = token.getUser();
-        if(UserStatus.DELETED.equals(user.getStatus())) {
+        if (UserStatus.DELETED.equals(user.getStatus())) {
             throw new InorrectUserStatusException();
         }
         user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));

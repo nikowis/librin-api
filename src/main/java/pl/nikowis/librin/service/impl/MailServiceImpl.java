@@ -5,17 +5,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
-import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.io.Resource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import pl.nikowis.librin.service.MailService;
-import pl.nikowis.librin.service.WebsocketSenderService;
+
+import java.io.File;
+import java.util.Locale;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -37,35 +40,40 @@ public class MailServiceImpl implements MailService {
     @Value("${sender.email.address}")
     private String senderEmailAddress;
 
+    @Value("classpath:logo.png")
+    private Resource brandLogoFile;
+
     @Override
     @Async
-    public void sendEmailConfirmationMessage(String recipient, String confirmUrl) {
+    public void sendEmailConfirmationMessage(String recipient, String confirmUrl, Locale locale) {
         String msgPrefix = MAIL_LOC_PREFIX + CONFIRM_EMAIL_PREFIX;
-        createAndSend(recipient, confirmUrl, msgPrefix);
+        createAndSend(recipient, confirmUrl, msgPrefix, locale);
     }
 
     @Override
     @Async
-    public void sendResetPasswordEmail(String recipient, String resetUrl) {
+    public void sendResetPasswordEmail(String recipient, String resetUrl, Locale locale) {
         String msgPrefix = MAIL_LOC_PREFIX + RESET_PSWD_PREFIX;
-        createAndSend(recipient, resetUrl, msgPrefix);
+        createAndSend(recipient, resetUrl, msgPrefix, locale);
     }
 
-    private void createAndSend(String recipient, String resetUrl, String msgPrefix) {
+    private void createAndSend(String recipient, String resetUrl, String msgPrefix, Locale locale) {
         Context context = new Context();
         context.setVariable("url", resetUrl);
-        context.setVariable("title", getMsg(msgPrefix + "title"));
-        context.setVariable("info", getMsg(msgPrefix + "info"));
-        context.setVariable("linkText", getMsg(msgPrefix + "linkText"));
-        context.setVariable("footer", getMsg(msgPrefix + "footer"));
+        context.setVariable("title", getMsg(msgPrefix + "title", locale));
+        context.setVariable("info", getMsg(msgPrefix + "info", locale));
+        context.setVariable("linkText", getMsg(msgPrefix + "linkText", locale));
+        context.setVariable("footer", getMsg(msgPrefix + "footer", locale));
+        context.setVariable("brandLogo", "brandLogo");
         String messageText = templateEngine.process("emailWithLinkTemplate", context);
 
         MimeMessagePreparator messagePreparator = mimeMessage -> {
-            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            messageHelper.setText(messageText, true);
             messageHelper.setFrom(senderEmailAddress);
             messageHelper.setTo(recipient);
-            messageHelper.setSubject(getMsg(msgPrefix + "subject"));
-            messageHelper.setText(messageText, true);
+            messageHelper.setSubject(getMsg("brand", locale) + ": "+ getMsg(msgPrefix + "subject", locale));
+            messageHelper.addInline("brandLogo", brandLogoFile, "image/png");
         };
         try {
             javaMailSender.send(messagePreparator);
@@ -74,7 +82,7 @@ public class MailServiceImpl implements MailService {
         }
     }
 
-    private String getMsg(String key) {
-        return messageSource.getMessage(key, new Object[]{}, LocaleContextHolder.getLocale());
+    private String getMsg(String key, Locale locale) {
+        return messageSource.getMessage(key, new Object[]{}, locale);
     }
 }
