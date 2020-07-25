@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changeset2020-07-24-indices" author="nikowis">
+        <sql>
+<!--            CREATE INDEX USER_EMAIL_IDX ON "user" ('email');-->
+<!--            CREATE INDEX OFFER_CATEGORY_STATUS_CREATEDAT_IDX ON "offer" ('category', 'status', 'created_at');-->
+<!--            CREATE INDEX OFFER_TITLE_STATUS_CREATEDAT_IDX ON "offer" ('title' varchar_pattern_ops, 'status', 'created_at');-->
+
+<!--  mongodb index          /-->
+<!--            db.message.createIndex( { conversationId: 1, createdAt: 1 });-->
+
+        </sql>
+    </changeSet>
+</databaseChangeLog>

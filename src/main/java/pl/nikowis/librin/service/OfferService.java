@@ -16,6 +16,10 @@ public interface OfferService {
 
     OfferPreviewDTO updateOffer(Long offerId, CreateOfferDTO offerDTO);
 
+    OfferPreviewDTO deactivateOffer(Long offerDTO);
+
+    OfferPreviewDTO activateOffer(Long offerDTO);
+
     OfferPreviewDTO deleteOffer(Long offerDTO);
 
     OfferDetailsDTO getOffer(Long offerId);

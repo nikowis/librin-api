@@ -18,6 +18,7 @@ import pl.nikowis.librin.exception.CustomerAccountBlockedException;
 import pl.nikowis.librin.exception.CustomerAccountDeletedException;
 import pl.nikowis.librin.exception.OfferCantBeUpdatedException;
 import pl.nikowis.librin.exception.OfferDoesntExistException;
+import pl.nikowis.librin.exception.OfferIsSoldException;
 import pl.nikowis.librin.model.Attachment;
 import pl.nikowis.librin.model.BaseEntity;
 import pl.nikowis.librin.model.Offer;
@@ -102,6 +103,28 @@ class OfferServiceImpl implements OfferService {
     }
 
     @Override
+    public OfferPreviewDTO deactivateOffer(Long offerDTO) {
+        Offer offer = getOfferValidateOwner(offerDTO);
+        if (!OfferStatus.ACTIVE.equals(offer.getStatus())) {
+            throw new OfferCantBeUpdatedException();
+        }
+        offer.setStatus(OfferStatus.INACTIVE);
+        offer = offerRepository.save(offer);
+        return mapperFacade.map(offer, OfferPreviewDTO.class);
+    }
+
+    @Override
+    public OfferPreviewDTO activateOffer(Long offerDTO) {
+        Offer offer = getOfferValidateOwner(offerDTO);
+        if (!OfferStatus.INACTIVE.equals(offer.getStatus())) {
+            throw new OfferCantBeUpdatedException();
+        }
+        offer.setStatus(OfferStatus.ACTIVE);
+        offer = offerRepository.save(offer);
+        return mapperFacade.map(offer, OfferPreviewDTO.class);
+    }
+
+    @Override
     public OfferPreviewDTO deleteOffer(Long offerDTO) {
         Offer offer = getOfferValidateOwner(offerDTO);
         validateOfferActive(offer);
@@ -111,7 +134,10 @@ class OfferServiceImpl implements OfferService {
     }
 
     private void validateOfferActive(Offer offer) {
-        if (!OfferStatus.ACTIVE.equals(offer.getStatus())) {
+        if (OfferStatus.SOLD.equals(offer.getStatus())) {
+            throw new OfferIsSoldException();
+        }
+        if (OfferStatus.DELETED.equals(offer.getStatus())) {
             throw new OfferCantBeUpdatedException();
         }
     }
@@ -119,6 +145,9 @@ class OfferServiceImpl implements OfferService {
     @Override
     public OfferDetailsDTO getOffer(Long offerId) {
         Offer offer = offerRepository.findById(offerId).orElseThrow(OfferDoesntExistException::new);
+        if (OfferStatus.DELETED.equals(offer.getStatus())) {
+            throw new OfferDoesntExistException();
+        }
         List<Attachment> attachments = offer.getAttachments();
         if (attachments != null) {
             attachments = attachmentService.fillAttachmentContent(attachments);

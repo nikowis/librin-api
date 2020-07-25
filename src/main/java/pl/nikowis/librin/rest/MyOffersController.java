@@ -35,6 +35,8 @@ public class MyOffersController {
     public static final String OFFER_PATH = "/{" + OFFER_ID_VARIABLE + "}";
     public static final String OFFER_ENDPOINT = MY_OFFERS_ENDPOINT + OFFER_PATH;
     public static final String SOLD_PATH = OFFER_PATH + "/sold";
+    public static final String DEACTIVATE_PATH = OFFER_PATH + "/deactivate";
+    public static final String ACTIVATE_PATH = OFFER_PATH + "/activate";
     public static final String OFFER_SOLD_ENDPOINT = MY_OFFERS_ENDPOINT + SOLD_PATH;
 
     @Autowired
@@ -44,7 +46,7 @@ public class MyOffersController {
     public Page<OfferPreviewDTO> offersList(OfferFilterDTO filterDTO, Pageable pageable) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         filterDTO.setOwner(currentUserId);
-        filterDTO.setStatuses(Lists.newArrayList(OfferStatus.ACTIVE, OfferStatus.SOLD));
+        filterDTO.setStatuses(Lists.newArrayList(OfferStatus.ACTIVE, OfferStatus.SOLD, OfferStatus.INACTIVE));
         return offerService.getOffers(filterDTO, pageable);
     }
 
@@ -66,6 +68,16 @@ public class MyOffersController {
     @PutMapping(path = SOLD_PATH)
     public OfferPreviewDTO offerSold(@PathVariable(OFFER_ID_VARIABLE) Long offerId, @Validated @RequestBody SellOfferDTO dto) {
         return offerService.offerSold(offerId, dto.getCustomerId());
+    }
+
+    @PutMapping(path = DEACTIVATE_PATH)
+    public OfferPreviewDTO deactivateOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
+        return offerService.deactivateOffer(offerId);
+    }
+
+    @PutMapping(path = ACTIVATE_PATH)
+    public OfferPreviewDTO activateOffer(@PathVariable(OFFER_ID_VARIABLE) Long offerId) {
+        return offerService.activateOffer(offerId);
     }
 
     @DeleteMapping(path = OFFER_PATH)
