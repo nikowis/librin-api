@@ -68,8 +68,18 @@ public class GlobalExceptionHandler implements WebResponseExceptionTranslator<OA
         return new ResponseEntity<>(apiErrorResponse, httpHeaders, status);
     }
 
+    private ResponseEntity getResponse(Exception ex, HttpStatus status, String translatedMessage) {
+        LOGGER.warn("Exception handled ", ex);
+        String exceptionName = ex.getClass().getSimpleName();
+        ApiError apiError = new ApiError(GENERAL_FIELD, translatedMessage);
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(status, Collections.singletonList(apiError));
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+        return new ResponseEntity<>(apiErrorResponse, httpHeaders, status);
+    }
+
     @Override
     public ResponseEntity<OAuth2Exception> translate(Exception ex) throws Exception {
-        return getResponse(ex, HttpStatus.UNAUTHORIZED);
+        return getResponse(ex, HttpStatus.UNAUTHORIZED, ex.getLocalizedMessage());
     }
 }
