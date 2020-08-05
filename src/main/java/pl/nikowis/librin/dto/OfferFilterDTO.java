@@ -14,7 +14,7 @@ public class OfferFilterDTO {
     private String author;
     private List<OfferStatus> statuses;
     private Long owner;
-    private OfferCategory category;
-    private OfferCondition condition;
+    private List<OfferCategory> categories;
+    private List<OfferCondition> conditions;
 
 }
