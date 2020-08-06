@@ -44,7 +44,7 @@ class MyOffersControllerTest {
     private static final Long OFFER_ID = 1L;
     public static final String OFFER_TITLE = "Title";
     public static final String OFFER_AUTHOR = "Author";
-    public static final OfferCategory OFFER_CATEGORY = OfferCategory.CRIME_SENSATION_THRILLER;
+    public static final OfferCategory OFFER_CATEGORY = OfferCategory.CRIME;
     public static final OfferCondition OFFER_CONDITION = OfferCondition.NEW;
 
     private MockMvc mockMvc;
