@@ -12,5 +12,7 @@ public class WsConversationUpdateDTO {
     private String content;
     private Long createdBy;
     private Date createdAt;
+    private OfferStatus offerStatus;
+    private Boolean soldToMe;
 
 }

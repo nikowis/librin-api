@@ -54,6 +54,9 @@ class OfferServiceImpl implements OfferService {
     @Autowired
     private AttachmentService attachmentService;
 
+    @Autowired
+    private MessageServiceImpl messageService;
+
     @Override
     public Page<OfferPreviewDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable) {
         Page<Offer> offersPage = offerRepository.findAll(new OfferSpecification(filterDTO), pageable);
@@ -110,6 +113,7 @@ class OfferServiceImpl implements OfferService {
         }
         offer.setStatus(OfferStatus.INACTIVE);
         offer = offerRepository.save(offer);
+        messageService.notifyAllConversationsOfferStatusChange(offerDTO, OfferStatus.INACTIVE, null);
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
@@ -121,6 +125,7 @@ class OfferServiceImpl implements OfferService {
         }
         offer.setStatus(OfferStatus.ACTIVE);
         offer = offerRepository.save(offer);
+        messageService.notifyAllConversationsOfferStatusChange(offerDTO, OfferStatus.ACTIVE, null);
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
@@ -130,6 +135,7 @@ class OfferServiceImpl implements OfferService {
         validateOfferActive(offer);
         offer.setStatus(OfferStatus.DELETED);
         offer = offerRepository.save(offer);
+        messageService.notifyAllConversationsOfferStatusChange(offerDTO, OfferStatus.DELETED, null);
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
@@ -179,6 +185,9 @@ class OfferServiceImpl implements OfferService {
             Attachment att = attachmentService.fillAttachmentContent(attachment);
             offer.setAttachment(att);
         }
+
+        messageService.notifyAllConversationsOfferStatusChange(offerId, OfferStatus.SOLD, customerId);
+
         return mapperFacade.map(saved, OfferPreviewDTO.class);
     }
 

@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.nikowis.librin.model.Conversation;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -17,4 +18,7 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
 
     @Query("SELECT c FROM Conversation c LEFT JOIN FETCH c.offer o LEFT JOIN FETCH o.owner LEFT JOIN FETCH o.buyer JOIN c.customer cust WHERE o.id = :offerId AND (cust.id = :userId OR o.ownerId = :userId)")
     Optional<Conversation> findByUserAndOfferId(@Param("offerId") Long offerId, @Param("userId") Long userId);
+
+    List<Conversation> findAllByOfferId(@Param("offerId") Long offerId);
+
 }

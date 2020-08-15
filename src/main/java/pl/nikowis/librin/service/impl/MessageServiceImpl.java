@@ -16,12 +16,12 @@ import pl.nikowis.librin.dto.SendMessageDTO;
 import pl.nikowis.librin.exception.CantCreateConversationOnNonActiveOfferException;
 import pl.nikowis.librin.exception.ConversationNotFoundException;
 import pl.nikowis.librin.exception.OfferDoesntExistException;
-import pl.nikowis.librin.model.BaseEntity;
 import pl.nikowis.librin.model.Conversation;
 import pl.nikowis.librin.model.ConversationSpecification;
 import pl.nikowis.librin.model.Message;
 import pl.nikowis.librin.model.Offer;
 import pl.nikowis.librin.model.OfferStatus;
+import pl.nikowis.librin.model.User;
 import pl.nikowis.librin.model.WsConversationUpdateDTO;
 import pl.nikowis.librin.repository.ConversationRepository;
 import pl.nikowis.librin.repository.MessageRepository;
@@ -159,6 +159,22 @@ public class MessageServiceImpl implements MessageService {
         Page<Conversation> allByCustomerIdOrOfferOwnerId = conversationRepository.findAll(new ConversationSpecification(currentUserId), pageable);
         allByCustomerIdOrOfferOwnerId.forEach(conv -> setRead(conv, currentUserId));
         return allByCustomerIdOrOfferOwnerId.map(c -> mapperFacade.map(c, ConversationWithoutMessagesDTO.class));
+    }
+
+    @Override
+    public void notifyAllConversationsOfferStatusChange(Long offerId, OfferStatus status, Long buyerId) {
+        List<Conversation> conversationList = conversationRepository.findAllByOfferId(offerId);
+        conversationList.forEach(c -> {
+            User convCust = c.getCustomer();
+            User owner = c.getOffer().getOwner();
+            WsConversationUpdateDTO updateDTO = new WsConversationUpdateDTO();
+            updateDTO.setConversationId(c.getId());
+            updateDTO.setCreatedAt(new Date());
+            updateDTO.setCreatedBy(owner.getId());
+            updateDTO.setOfferStatus(status);
+            updateDTO.setSoldToMe(OfferStatus.SOLD.equals(status) && convCust.getId().equals(buyerId));
+            websocketSenderService.sendConversationUpdate(updateDTO, convCust.getEmail(), c.getId());
+        });
     }
 
     private void processSortUpdateMessages(Long currentUserId, Conversation conversation) {
