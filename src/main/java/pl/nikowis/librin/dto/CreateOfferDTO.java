@@ -4,6 +4,7 @@ import lombok.Data;
 import pl.nikowis.librin.model.OfferCategory;
 import pl.nikowis.librin.model.OfferCondition;
 
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -18,12 +19,13 @@ public class CreateOfferDTO {
     private static final int MAX_PHOTOS = 3;
 
     @NotBlank
-    @Size(min = 2)
+    @Size(min = 2, max = 128)
     private String title;
     @NotBlank
-    @Size(min = 2)
+    @Size(min = 2, max = 128)
     private String author;
 
+    @Size(max = 512)
     private String description;
 
     @NotNull
@@ -34,6 +36,7 @@ public class CreateOfferDTO {
 
     @NotNull
     @Min(0)
+    @Max(999999)
     private BigDecimal price;
 
     @Size(min = MIN_PHOTOS, max = MAX_PHOTOS)
