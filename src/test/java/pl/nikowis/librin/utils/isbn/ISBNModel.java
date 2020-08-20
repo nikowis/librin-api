@@ -1,4 +1,4 @@
-package pl.nikowis.librin.utils;
+package pl.nikowis.librin.utils.isbn;
 
 import lombok.Data;
 
@@ -13,7 +13,7 @@ import java.util.List;
 @XmlRootElement(name = "ONIXMessage")
 @XmlAccessorType(XmlAccessType.FIELD)
 @Data
-public class RootISBN {
+public class ISBNModel {
 
     @XmlElement(name = "Product")
     List<Product> products = new ArrayList<>();
