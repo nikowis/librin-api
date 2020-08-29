@@ -83,3 +83,6 @@ api/mvnw.cmd
 
 api/data/selfcaredb.mv.db
 frontend/node_modules/
+src/test/java/pl/nikowis/librin/utils/*.json
+src/test/java/pl/nikowis/librin/utils/*.xml
+src/test/java/pl/nikowis/librin/utils/*.csv

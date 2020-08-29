@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ISBNMain {
@@ -29,8 +30,15 @@ public class ISBNMain {
     public static final List<String> INCORRECT_AUTHORS = Arrays.asList("autor anonimowy", "publikacja zbiorowa"
             , "autor anonimowy,", "publikacja zbiorowa,", "praca zbiorowa", "dom wydawniczy bellona", "z500 sp. z o.o."
             , "paweł boduch", "stanisław gola", "janusz ledwoch", "tomasz pisaniak", "paweł głowacki", "łukasz lelo"
-            , "wiesława żaba-żabińska", "arch. tomasz sobieszuk", "aneta gibek-wiśniewska"
+            , "wiesława żaba-żabińska", "arch. tomasz sobieszuk", "aneta gibek-wiśniewska", "maja klimowicz", "tomasz sobieszuk"
+            , "maciej matłowski"
     );
+
+    public static final List<String> SWAP_TITLES = Arrays.asList("mistrzynie polskich kryminałów",
+            "bestsellery na obcasach", "seria powieści dla kobiet monika szwaja", "mistrzowie polskiej fantastyki", "Kolory życia"
+    );
+    public static final List<String> JOIN_TITLES = Arrays.asList("polska", "wiersze");
+
     public static final String CSV_SEPARATOR = ",";
     public static final String CSV_HEADERS = "id,author,title,subtitle,datestamp";
     public static final int MAX_TITLE_LENGTH = 50;
@@ -70,26 +78,55 @@ public class ISBNMain {
                 .addStep("short_authors", (library -> library.stream().filter(bookDTO -> bookDTO.getAuthor().length() < MAX_AUTHOR_LENGTH).collect(Collectors.toList())))
                 .addStep("short_titles", (library -> library.stream().filter(bookDTO -> bookDTO.getTitle().length() < MAX_TITLE_LENGTH && (bookDTO.getSubtitle() == null || bookDTO.getSubtitle().length() < MAX_TITLE_LENGTH)).collect(Collectors.toList())))
                 .addStep("distinct_books", (library -> library.stream().distinct().collect(Collectors.toList())))
+                .addStep("remove_authors_with_one_book", ISBNMain::removeAuthorsWithOneBook)
+                .addStep("swap_title_subtitle", library -> {
+                    for (BookDTO bookDTO : library) {
+                        if(SWAP_TITLES.contains(bookDTO.getTitle().toLowerCase()) && bookDTO.getSubtitle() != null) {
+                            bookDTO.setTitle(bookDTO.getSubtitle());
+                            bookDTO.setSubtitle(null);
+                        } else if(JOIN_TITLES.contains(bookDTO.getTitle().toLowerCase()) && bookDTO.getSubtitle() != null) {
+                            bookDTO.setTitle(bookDTO.getTitle() + " " + bookDTO.getSubtitle());
+                            bookDTO.setSubtitle(null);
+                            System.out.println(bookDTO.getTitle());
+                        }
+                    }
+                    return library;
+                })
                 .run();
 
-        printDistinctCount(finalBookList);
-        printBucketCounts(finalBookList);
 
+        finalBookList = removeAuthorsWithOneBook(finalBookList);
+//        printBucketCounts(finalBookList, 50,Integer.MAX_VALUE, bookDTO -> bookDTO.getAuthor().toLowerCase());
+//        printBucketCounts(finalBookList, 10, Integer.MAX_VALUE,bookDTO -> bookDTO.getTitle().toLowerCase());
+
+        printDistinctCount(finalBookList);
         saveToCSV(finalBookList);
         System.out.println("Finished in " + (System.currentTimeMillis() - time) / 1000 + "s");
-
     }
 
-    private static void printBucketCounts(List<BookDTO> books) {
-        Map<String, Long> authorCounts = books.stream().collect(Collectors.groupingBy(BookDTO::getAuthor, Collectors.counting()));
+    private static List<BookDTO> removeAuthorsWithOneBook(List<BookDTO> books) {
+        Map<String, Long> authorCounts = books.stream().collect(Collectors.groupingBy(bookDTO -> bookDTO.getAuthor().toLowerCase(), Collectors.counting()));
+
+        LinkedList<BookDTO> result = new LinkedList<>();
+        books.forEach(bookDTO -> {
+            if(authorCounts.get(bookDTO.getAuthor().toLowerCase()) > 1) {
+                result.add(bookDTO);
+            }
+        });
+
+        return result;
+    }
+
+    private static void printBucketCounts(List<BookDTO> books, int minOccurences, int maxOccurences, Function<BookDTO, String> bookToStr) {
+        Map<String, Long> authorCounts = books.stream().collect(Collectors.groupingBy(bookToStr, Collectors.counting()));
         List<AuthorBucket> authorBuckets = new LinkedList<>();
         authorCounts.forEach((a, c) -> {
-            if (c > 50) {
+            if (c >= minOccurences && c <= maxOccurences) {
                 authorBuckets.add(new AuthorBucket(a, c));
             }
         });
 
-        System.out.println("Bucketed authors " + authorBuckets.size());
+        System.out.println("Bucketed count " + authorBuckets.size());
 
         authorBuckets.forEach(ab -> {
             System.out.printf("%s - \"%s\"\n", ab.count, ab.author);
@@ -133,7 +170,9 @@ public class ISBNMain {
         String[] commaSplit = author.split(",");
         int commaSplitLength = commaSplit.length;
         String normalizedAuthro = author.toLowerCase().trim();
-        return author.contains(" ") && !INCORRECT_AUTHORS.contains(normalizedAuthro) && (commaSplitLength < 3 || (commaSplitLength == 3 && spacesCount == 2)) && !normalizedAuthro.contains("wydawnictwo") && !normalizedAuthro.contains("zespół") && !normalizedAuthro.contains("zbiorowa");
+        return author.contains(" ") && author.matches("\\D+") && !INCORRECT_AUTHORS.contains(normalizedAuthro) && (commaSplitLength < 3 || (commaSplitLength == 3 && spacesCount == 2))
+                && !normalizedAuthro.contains("wydawnictwo") && !normalizedAuthro.contains("pracownia") && !normalizedAuthro.contains("galeria")
+                && !normalizedAuthro.contains("zespół") && !normalizedAuthro.contains("zbiorowa") && !normalizedAuthro.contains("arch.");
     }
 
     private static String normalizaName(String name) {
