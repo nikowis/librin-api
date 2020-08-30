@@ -86,3 +86,4 @@ frontend/node_modules/
 src/test/java/pl/nikowis/librin/utils/*.json
 src/test/java/pl/nikowis/librin/utils/*.xml
 src/test/java/pl/nikowis/librin/utils/*.csv
+src/main/resources/db/data/*.csv

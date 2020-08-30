@@ -14,6 +14,7 @@ public class BookDTO {
 
 
     public static final String STR_SGN = "\"";
+    public static final String NULL = "null";
     private String id;
     private String author;
     private String title;
@@ -45,7 +46,11 @@ public class BookDTO {
     }
 
     public String toCsvRecord() {
-        return STR_SGN + id +  STR_SGN + CSV_SEPARATOR + STR_SGN  + author + STR_SGN + CSV_SEPARATOR + STR_SGN  + title + STR_SGN + CSV_SEPARATOR + STR_SGN  + subtitle + STR_SGN + CSV_SEPARATOR + STR_SGN  + datestamp;
+        return STR_SGN + id +  STR_SGN + CSV_SEPARATOR
+                + (author != null ? STR_SGN  + author.replace("'", "''").replace("\"", "'\"") + STR_SGN : NULL) + CSV_SEPARATOR
+                + (title != null ? STR_SGN  + title.replace("'", "''").replace("\"", "'\"") + STR_SGN : NULL) + CSV_SEPARATOR
+                + (subtitle != null ? STR_SGN  + subtitle.replace("'", "''").replace("\"", "'\"") + STR_SGN : NULL) + CSV_SEPARATOR
+                + (datestamp != null ? STR_SGN  + datestamp + STR_SGN : NULL);
     }
 
     @Override

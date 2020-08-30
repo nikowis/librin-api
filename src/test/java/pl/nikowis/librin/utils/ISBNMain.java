@@ -87,7 +87,6 @@ public class ISBNMain {
                         } else if(JOIN_TITLES.contains(bookDTO.getTitle().toLowerCase()) && bookDTO.getSubtitle() != null) {
                             bookDTO.setTitle(bookDTO.getTitle() + " " + bookDTO.getSubtitle());
                             bookDTO.setSubtitle(null);
-                            System.out.println(bookDTO.getTitle());
                         }
                     }
                     return library;
