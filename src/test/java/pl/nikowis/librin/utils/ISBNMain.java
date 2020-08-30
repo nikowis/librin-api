@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.nikowis.librin.utils.isbn.BookDTO;
 import pl.nikowis.librin.utils.isbn.BooksFilterRunner;
+import pl.nikowis.librin.utils.isbn.IsbnXMLMapper;
+import pl.nikowis.librin.utils.isbn.LibraryDTO;
 
 import javax.xml.bind.JAXBException;
 import java.io.BufferedWriter;
@@ -24,9 +26,9 @@ public class ISBNMain {
 
     public static final String BASE_PATH = "C:\\Users\\nikow\\Desktop\\librin-api\\src\\test\\java\\pl\\nikowis\\librin\\utils\\";
     public static final String PL_LANG_VALUE = "pol";
-    public static final String BOOK_FORM_VALUE = "BA";
-    public static final String HARDBACK_BOOK_FORM_VALUE = "BB";
-    public static final String SOFTBACK_BOOK_FORM_VALUE = "BC";
+
+    public static final List<String> ALLOWD_BOOK_FORMS = Arrays.asList("BA", "BB", "BC", "BF");
+
     public static final List<String> INCORRECT_AUTHORS = Arrays.asList("autor anonimowy", "publikacja zbiorowa"
             , "autor anonimowy,", "publikacja zbiorowa,", "praca zbiorowa", "dom wydawniczy bellona", "z500 sp. z o.o."
             , "paweł boduch", "stanisław gola", "janusz ledwoch", "tomasz pisaniak", "paweł głowacki", "łukasz lelo"
@@ -48,59 +50,59 @@ public class ISBNMain {
     public static void main(String[] args) throws IOException, JAXBException {
         long time = System.currentTimeMillis();
 
-//        IsbnXMLMapper isbnXMLMapper = new IsbnXMLMapper(BASE_PATH + "bazaISBN.xml");
-//        isbnXMLMapper.map();
-//        isbnXMLMapper.save(BASE_PATH + LibraryDTO.BOOKS_RAW_FILENAME);
+        IsbnXMLMapper isbnXMLMapper = new IsbnXMLMapper(BASE_PATH + "bazaISBN.xml");
+        isbnXMLMapper.map();
+        isbnXMLMapper.save(BASE_PATH + LibraryDTO.BOOKS_RAW_FILENAME);
 
-        List<BookDTO> finalBookList = new BooksFilterRunner(BASE_PATH)
-                .addStep("correct_form", (library) -> library.stream().filter(ISBNMain::isCorrectForm).collect(Collectors.toList()))
-                .addStep("only_polish", (library) -> library.stream().filter(ISBNMain::isInPolish).collect(Collectors.toList()))
-                .addStep("filter_contibutors", (library) -> {
-                    ArrayList<BookDTO> res = new ArrayList<>();
-                    for (BookDTO b : library) {
-                        List<BookDTO.Contributor> contributors = b.contributors.stream().filter(c -> isCorrectContributorRole(c.getRole()) && isCorrectAuthorName(c.getName())).collect(Collectors.toList());
-                        if (contributors.size() > 0) {
-                            b.setContributors(contributors);
-                            res.add(b);
-                        }
-                    }
-                    return res;
-                })
-                .addStep("fill_author", (library) -> {
-                    ArrayList<BookDTO> res = new ArrayList<>();
-                    for (BookDTO b : library) {
-                        List<BookDTO.Contributor> contributors = b.contributors;
-                        b.setAuthor(normalizaName(contributors.get(0).getName()));
-                        res.add(b);
-                    }
-                    return res;
-                })
-                .addStep("short_authors", (library -> library.stream().filter(bookDTO -> bookDTO.getAuthor().length() < MAX_AUTHOR_LENGTH).collect(Collectors.toList())))
-                .addStep("short_titles", (library -> library.stream().filter(bookDTO -> bookDTO.getTitle().length() < MAX_TITLE_LENGTH && (bookDTO.getSubtitle() == null || bookDTO.getSubtitle().length() < MAX_TITLE_LENGTH)).collect(Collectors.toList())))
-                .addStep("distinct_books", (library -> library.stream().distinct().collect(Collectors.toList())))
-                .addStep("remove_authors_with_one_book", ISBNMain::removeAuthorsWithOneBook)
-                .addStep("swap_title_subtitle", library -> {
-                    for (BookDTO bookDTO : library) {
-                        if(SWAP_TITLES.contains(bookDTO.getTitle().toLowerCase()) && bookDTO.getSubtitle() != null) {
-                            bookDTO.setTitle(bookDTO.getSubtitle());
-                            bookDTO.setSubtitle(null);
-                        } else if(JOIN_TITLES.contains(bookDTO.getTitle().toLowerCase()) && bookDTO.getSubtitle() != null) {
-                            bookDTO.setTitle(bookDTO.getTitle() + " " + bookDTO.getSubtitle());
-                            bookDTO.setSubtitle(null);
-                        }
-                    }
-                    return library;
-                })
-                .run();
-
-
-        finalBookList = removeAuthorsWithOneBook(finalBookList);
+//        List<BookDTO> finalBookList = filterBooks();
 //        printBucketCounts(finalBookList, 50,Integer.MAX_VALUE, bookDTO -> bookDTO.getAuthor().toLowerCase());
 //        printBucketCounts(finalBookList, 10, Integer.MAX_VALUE,bookDTO -> bookDTO.getTitle().toLowerCase());
-
-        printDistinctCount(finalBookList);
-        saveToCSV(finalBookList);
+//        printDistinctCount(finalBookList);
+//        saveToCSV(finalBookList);
         System.out.println("Finished in " + (System.currentTimeMillis() - time) / 1000 + "s");
+    }
+
+    private static List<BookDTO> filterBooks() throws IOException {
+        return new BooksFilterRunner(BASE_PATH)
+                    .addStep("correct_form", (library) -> library.stream().filter(ISBNMain::isCorrectForm).collect(Collectors.toList()))
+                    .addStep("only_polish", (library) -> library.stream().filter(ISBNMain::isInPolish).collect(Collectors.toList()))
+                    .addStep("filter_contibutors", (library) -> {
+                        ArrayList<BookDTO> res = new ArrayList<>();
+                        for (BookDTO b : library) {
+                            List<BookDTO.Contributor> contributors = b.contributors.stream().filter(c -> isCorrectContributorRole(c.getRole()) && isCorrectAuthorName(c.getName())).collect(Collectors.toList());
+                            if (contributors.size() > 0) {
+                                b.setContributors(contributors);
+                                res.add(b);
+                            }
+                        }
+                        return res;
+                    })
+                    .addStep("fill_author", (library) -> {
+                        ArrayList<BookDTO> res = new ArrayList<>();
+                        for (BookDTO b : library) {
+                            List<BookDTO.Contributor> contributors = b.contributors;
+                            b.setAuthor(normalizaName(contributors.get(0).getName()));
+                            res.add(b);
+                        }
+                        return res;
+                    })
+                    .addStep("short_authors", (library -> library.stream().filter(bookDTO -> bookDTO.getAuthor().length() < MAX_AUTHOR_LENGTH).collect(Collectors.toList())))
+                    .addStep("short_titles", (library -> library.stream().filter(bookDTO -> bookDTO.getTitle().length() < MAX_TITLE_LENGTH && (bookDTO.getSubtitle() == null || bookDTO.getSubtitle().length() < MAX_TITLE_LENGTH)).collect(Collectors.toList())))
+                    .addStep("distinct_books", (library -> library.stream().distinct().collect(Collectors.toList())))
+                    .addStep("remove_authors_with_one_book", ISBNMain::removeAuthorsWithOneBook)
+                    .addStep("swap_title_subtitle", library -> {
+                        for (BookDTO bookDTO : library) {
+                            if(SWAP_TITLES.contains(bookDTO.getTitle().toLowerCase()) && bookDTO.getSubtitle() != null) {
+                                bookDTO.setTitle(bookDTO.getSubtitle());
+                                bookDTO.setSubtitle(null);
+                            } else if(JOIN_TITLES.contains(bookDTO.getTitle().toLowerCase()) && bookDTO.getSubtitle() != null) {
+                                bookDTO.setTitle(bookDTO.getTitle() + " " + bookDTO.getSubtitle());
+                                bookDTO.setSubtitle(null);
+                            }
+                        }
+                        return library;
+                    })
+                    .run();
     }
 
     private static List<BookDTO> removeAuthorsWithOneBook(List<BookDTO> books) {
@@ -197,7 +199,7 @@ public class ISBNMain {
     private static boolean isCorrectForm(BookDTO b) {
         //http://www.onix-codelists.io/codelist/150
         String form = b.getForm();
-        return form.equals(BOOK_FORM_VALUE) || form.equals(HARDBACK_BOOK_FORM_VALUE) || form.equals(SOFTBACK_BOOK_FORM_VALUE);
+        return ALLOWD_BOOK_FORMS.contains(form);
     }
 
     private static boolean isInPolish(BookDTO book) {
