@@ -7,10 +7,9 @@
 
     <changeSet id="changeset2020-07-24-indices" author="nikowis">
         <sql>
-<!--            CREATE INDEX USER_EMAIL_IDX ON "user" ('email');-->
-<!--            CREATE INDEX OFFER_CATEGORY_STATUS_CREATEDAT_IDX ON "offer" ('category', 'status', 'created_at');-->
-<!--            CREATE INDEX OFFER_TITLE_STATUS_CREATEDAT_IDX ON "offer" ('title' varchar_pattern_ops, 'status', 'created_at');-->
-
+            CREATE INDEX USER_EMAIL_IDX ON "user" ('email');
+            CREATE INDEX OFFER_CATEGORY_STATUS_CREATEDAT_IDX ON "offer" ('category', 'status', 'created_at');
+            CREATE INDEX OFFER_TITLE_STATUS_CREATEDAT_IDX ON "offer" ('title' varchar_pattern_ops, 'status', 'created_at');
 <!--  mongodb index          /-->
 <!--            db.message.createIndex( { conversationId: 1, createdAt: 1 });-->
 
