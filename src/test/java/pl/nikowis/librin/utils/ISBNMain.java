@@ -43,7 +43,7 @@ public class ISBNMain {
 
     public static final String CSV_SEPARATOR = ",";
     public static final String CSV_HEADERS = "id,author,title,subtitle,datestamp";
-    public static final int MAX_TITLE_LENGTH = 30;
+    public static final int MAX_TITLE_LENGTH = 50;
     public static final int MAX_AUTHOR_LENGTH = 30;
 
 
@@ -56,12 +56,11 @@ public class ISBNMain {
 
         List<BookDTO> finalBookList = filterBooks();
 
-        InvertedNamesHelper.findPossibleInvertedAuthors(finalBookList);
-
+//        InvertedNamesHelper.findPossibleInvertedAuthors(finalBookList);
 
 //        printBucketCounts(finalBookList, 50,Integer.MAX_VALUE, bookDTO -> bookDTO.getAuthor().toLowerCase());
 //        printBucketCounts(finalBookList, 10, Integer.MAX_VALUE,bookDTO -> bookDTO.getTitle().toLowerCase());
-//        printDistinctCount(finalBookList);
+        printDistinctCount(finalBookList);
         saveToCSV(finalBookList);
         System.out.println("Finished in " + (System.currentTimeMillis() - time) / 1000 + "s");
     }

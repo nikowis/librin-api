@@ -39,9 +39,9 @@ public class InvertedNamesHelper {
     }
 
     public static String findPossibleInvertedAuthors(List<BookDTO> finalBookList) {
-        List<String> matches = new ArrayList<>();
+        List<String> possible = new ArrayList<>();
+        List<String> exactMatches = new ArrayList<>();
         System.out.println("\nFinding possible inverted author names: ");
-        StringBuilder csvRecords = new StringBuilder();
 
         finalBookList.forEach(b1 -> {
             finalBookList.forEach(b2 -> {
@@ -49,35 +49,70 @@ public class InvertedNamesHelper {
                 String b2Author = b2.getAuthor();
                 if (!b1Author.equals(b2Author)) {
                     String[] b1Split = b1Author.split(" ");
-                    String[] b2Split = b2Author.split(" ");
-                    if (b1Split.length > 1 && b1Split[0].length() > 1 && b1Split[1].length() > 1 && b2Split.length > 1 && b2Split[0].length() > 1 && b2Split[1].length() > 1
-                            && b2Author.contains(b1Split[0]) && b2Author.contains(b1Split[1]) && b1Author.contains(b2Split[0]) && b1Author.contains(b2Split[1])
-                    ) {
+
+                    if (b1Split.length > 1 && b1Split[0].length() > 1 && b1Split[1].length() > 1 && b2Author.contains(b1Split[0]) && b2Author.contains(b1Split[1])) {
+                        String[] b2Split = b2Author.split(" ");
                         String match = b1Author + ";" + b2Author;
                         String invertedMatch = b2Author + ";" + b1Author;
-                        if (!matches.contains(match)) {
-                            matches.add(match);
-                            matches.add(invertedMatch);
+                        if( !exactMatches.contains(match) && isExactMatch(b1Split, b2Split)) {
+                            exactMatches.add(match);
+                            exactMatches.add(invertedMatch);
+                        } else if (!exactMatches.contains(match) && !possible.contains(match)) {
+                            possible.add(match);
+                            possible.add(invertedMatch);
                         }
                     }
                 }
             });
         });
 
-        System.out.println("Authors to invert " + matches.size());
+        System.out.println("Authors to invert " + exactMatches.size());
+        System.out.println("Possible authors to invert " + possible.size());
 
-        matches.forEach(s -> {
-            csvRecords.append(s);
-            csvRecords.append('\n');
-            csvRecords.append('\n');
+        StringBuilder possibleCsvRecords = new StringBuilder();
+        StringBuilder exactCsvRecords = new StringBuilder();
+        exactMatches.forEach(s -> {
+            exactCsvRecords.append(s);
+            exactCsvRecords.append('\n');
+            exactCsvRecords.append('\n');
         });
         try {
-            writeStrToFile(csvRecords.toString(), "possibleInvertedAuthors.csv");
+            writeStrToFile(exactCsvRecords.toString(), "exactInvertedAuthors.csv");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        possible.forEach(s -> {
+            possibleCsvRecords.append(s);
+            possibleCsvRecords.append('\n');
+            possibleCsvRecords.append('\n');
+        });
+        try {
+            writeStrToFile(possibleCsvRecords.toString(), "possibleInvertedAuthors.csv");
         } catch (IOException e) {
             e.printStackTrace();
         }
         //write to file
         return null;
+    }
+
+    private static boolean isExactMatch(String[] b1Split, String[] b2Split) {
+        if( b1Split.length != b2Split.length) {
+            return false;
+        }
+        boolean wordFound = false;
+        for (String split1: b1Split) {
+            wordFound = false;
+            for(String split2 : b2Split){
+                if(split1.equals(split2)) {
+                    wordFound = true;
+                }
+            }
+            if(!wordFound) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static void writeStrToFile(String fileContent, String fileName) throws IOException {
