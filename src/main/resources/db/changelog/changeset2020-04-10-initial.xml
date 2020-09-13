@@ -8,7 +8,7 @@
     <changeSet id="changeset2020-04-10-initial" author="nikowis">
         <sql>
             CREATE EXTENSION IF NOT EXISTS "unaccent";
-            CREATE EXTENSION IF NOT EXISTS "uuid-pg_trgm";
+            CREATE EXTENSION IF NOT EXISTS "pg_trgm";
             CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
             CREATE TABLE "user" (

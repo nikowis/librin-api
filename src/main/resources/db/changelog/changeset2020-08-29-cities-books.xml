@@ -14,7 +14,8 @@
                 , display_name VARCHAR(128) NOT NULL
                 , type VARCHAR(16) NOT NULL
             );
-            CREATE INDEX CITY_NAME_IDX ON "user" ('name');
+            CREATE INDEX CITY_NAME_IDX ON "city" ("name");
+
 
             CREATE TABLE "book" (
                 id VARCHAR(32) PRIMARY KEY
