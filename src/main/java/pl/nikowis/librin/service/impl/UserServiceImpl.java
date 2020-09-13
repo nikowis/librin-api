@@ -11,11 +11,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.dto.ChangeUserPasswordDTO;
 import pl.nikowis.librin.dto.DeleteUserDTO;
+import pl.nikowis.librin.dto.GenerateAccountActivationEmailDTO;
 import pl.nikowis.librin.dto.GenerateResetPasswordDTO;
 import pl.nikowis.librin.dto.PublicUserDTO;
 import pl.nikowis.librin.dto.RegisterUserDTO;
 import pl.nikowis.librin.dto.UpdateUserDTO;
 import pl.nikowis.librin.dto.UserDTO;
+import pl.nikowis.librin.exception.CantGenerateAccountActivationEmail;
 import pl.nikowis.librin.exception.EmailAlreadyExistsException;
 import pl.nikowis.librin.exception.IncorrectPasswordException;
 import pl.nikowis.librin.exception.InorrectUserStatusException;
@@ -108,7 +110,7 @@ public class UserServiceImpl implements UserService {
         u.setConsents(consents);
         User saved = userRepository.save(u);
 
-        sendConfirmEmail(saved, userDTO);
+        sendConfirmEmail(saved, userDTO.getConfirmEmailBaseUrl());
 
         return mapperFacade.map(saved, UserDTO.class);
     }
@@ -125,13 +127,13 @@ public class UserServiceImpl implements UserService {
         return consents;
     }
 
-    private void sendConfirmEmail(User saved, RegisterUserDTO dto) {
+    private void sendConfirmEmail(User saved, String emailConfirmationBaseUrl) {
         Token token = new Token();
         token.setType(TokenType.ACCOUNT_EMAIL_CONFIRMATION);
         token.setExpiresAt(new DateTime().plusYears(9999).toDate());
         token.setUser(saved);
         token = tokenRepository.save(token);
-        String confirmUrl = dto.getConfirmEmailBaseUrl() + "/" + token.getId().toString();
+        String confirmUrl = emailConfirmationBaseUrl + "/" + token.getId().toString();
 
         mailService.sendEmailConfirmationMessage(saved.getEmail(), confirmUrl, LocaleContextHolder.getLocale());
     }
@@ -166,6 +168,15 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException();
         }
         return mapperFacade.map(user, PublicUserDTO.class);
+    }
+
+    @Override
+    public void generateAccountActivationEmail(GenerateAccountActivationEmailDTO dto) {
+        User user = userRepository.findByEmail(dto.getEmail());
+        if(user == null || !UserStatus.INACTIVE.equals(user.getStatus())) {
+            throw new CantGenerateAccountActivationEmail();
+        }
+        sendConfirmEmail(user, dto.getConfirmEmailBaseUrl());
     }
 
     @Override

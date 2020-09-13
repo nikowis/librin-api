@@ -2,6 +2,7 @@ package pl.nikowis.librin.service;
 
 import pl.nikowis.librin.dto.ChangeUserPasswordDTO;
 import pl.nikowis.librin.dto.DeleteUserDTO;
+import pl.nikowis.librin.dto.GenerateAccountActivationEmailDTO;
 import pl.nikowis.librin.dto.GenerateResetPasswordDTO;
 import pl.nikowis.librin.dto.PublicUserDTO;
 import pl.nikowis.librin.dto.RegisterUserDTO;
@@ -31,4 +32,6 @@ public interface UserService {
     UserDTO changeProfilePassword(Long currentUserId, ChangeUserPasswordDTO dto);
 
     PublicUserDTO getPublicUserInfo(Long userId);
+
+    void generateAccountActivationEmail(GenerateAccountActivationEmailDTO dto);
 }

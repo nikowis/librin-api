@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import pl.nikowis.librin.dto.ChangeUserPasswordDTO;
+import pl.nikowis.librin.dto.GenerateAccountActivationEmailDTO;
 import pl.nikowis.librin.dto.GenerateResetPasswordDTO;
 import pl.nikowis.librin.dto.RegisterUserDTO;
 import pl.nikowis.librin.dto.UserDTO;
@@ -26,6 +27,7 @@ public class MainController {
     public static final String EMAIL_CONFIRM_ENDPOINT = EMAIL_CONFIRM_BASE + TOKEN_PATH;
 
     public static final String GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT = "/generateresetpswdtoken";
+    public static final String GENERATE_ACCOUNT_ACTIVATION_EMAIL = "/generateaccountactivationemail";
 
     public static final String CHANGE_PASSWORD_BASE = "/changepassword";
     public static final String CHANGE_PASSWORD_ENDPOINT = CHANGE_PASSWORD_BASE + TOKEN_PATH;
@@ -45,6 +47,11 @@ public class MainController {
     @PostMapping(GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT)
     public void generateResetPasswordToken(@Validated @RequestBody GenerateResetPasswordDTO dto) {
         userService.generateResetPasswordToken(dto);
+    }
+
+    @PostMapping(GENERATE_ACCOUNT_ACTIVATION_EMAIL)
+    public void generateAccountActivationEmail(@Validated @RequestBody GenerateAccountActivationEmailDTO dto) {
+        userService.generateAccountActivationEmail(dto);
     }
 
     @PutMapping(CHANGE_PASSWORD_ENDPOINT)
