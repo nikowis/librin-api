@@ -18,7 +18,7 @@ public class IsbnXMLMapper {
     public String entryFilePath;
     private List<BookDTO> books;
     private List<ISBNModel.Product> products;
-    public static final List<String> FIND_AND_PRINT_FULL_TITLES = Arrays.asList("me before you", "zanim się pojawiłeś");
+    public static final List<String> FIND_AND_PRINT_FULL_TITLES = Arrays.asList();
 
 
     public IsbnXMLMapper(String entryFilePath) {
@@ -55,13 +55,14 @@ public class IsbnXMLMapper {
         ISBNModel.TitleElement titleElement = titleDetail.TitleElementObject;
         if (titleElement == null) return false;
         if (titleElement.TitleText == null) return false;
-        if(FIND_AND_PRINT_FULL_TITLES.contains(titleElement.TitleText.toLowerCase())) {
-            try {
-                System.out.println( new ObjectMapper().writeValueAsString(product));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        }
+//        if(FIND_AND_PRINT_FULL_TITLES.size() > 0 && FIND_AND_PRINT_FULL_TITLES.contains(titleElement.TitleText.toLowerCase())) {
+//            try {
+//                System.out.println( new ObjectMapper().writeValueAsString(product));
+//            } catch (JsonProcessingException e) {
+//                e.printStackTrace();
+//            }
+//        }
+
         return true;
     }
 }
