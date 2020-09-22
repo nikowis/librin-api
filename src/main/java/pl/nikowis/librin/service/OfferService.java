@@ -5,8 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import pl.nikowis.librin.dto.CreateOfferDTO;
 import pl.nikowis.librin.dto.OfferDetailsDTO;
-import pl.nikowis.librin.dto.OfferPreviewDTO;
 import pl.nikowis.librin.dto.OfferFilterDTO;
+import pl.nikowis.librin.dto.OfferPreviewDTO;
 
 public interface OfferService {
 

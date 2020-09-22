@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.nikowis.librin.dto.OfferDetailsDTO;
-import pl.nikowis.librin.dto.OfferPreviewDTO;
 import pl.nikowis.librin.dto.OfferFilterDTO;
+import pl.nikowis.librin.dto.OfferPreviewDTO;
 import pl.nikowis.librin.model.OfferStatus;
 import pl.nikowis.librin.service.OfferService;
 

@@ -7,7 +7,6 @@ import pl.nikowis.librin.model.OfferStatus;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 @Data
 public class BaseOfferDTO {

@@ -2,10 +2,6 @@ package pl.nikowis.librin.model;
 
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
-import pl.nikowis.librin.dto.OfferFilterDTO;
-import pl.nikowis.librin.model.Offer_;
-import pl.nikowis.librin.model.User_;
-import pl.nikowis.librin.model.Conversation_;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
