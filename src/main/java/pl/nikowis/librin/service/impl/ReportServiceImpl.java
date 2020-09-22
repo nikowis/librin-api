@@ -46,20 +46,20 @@ public class ReportServiceImpl implements ReportService {
         Report report = new Report();
         report.setReporter(currentUser);
         report.setDescription(dto.getDescription());
-        if(dto.getUserId() != null) {
+        if (dto.getUserId() != null) {
             User user = userRepository.findById(dto.getUserId()).orElseThrow(IncorrectCreateReportRquestException::new);
-            if(dto.getUserId().equals(currentUserId) || UserStatus.DELETED.equals(user.getStatus())) {
+            if (dto.getUserId().equals(currentUserId) || UserStatus.DELETED.equals(user.getStatus())) {
                 throw new IncorrectCreateReportRquestException();
             }
             report.setUser(user);
             report.setType(ReportType.USER);
-        } else if(dto.getConversationId() != null) {
+        } else if (dto.getConversationId() != null) {
             Conversation conversation = conversationRepository.findByIdAndCustomerIdOrOfferOwnerId(dto.getConversationId(), currentUserId).orElseThrow(IncorrectCreateReportRquestException::new);
             report.setConversation(conversation);
             report.setType(ReportType.CONVERSATION);
-        } else if(dto.getOfferId() != null) {
+        } else if (dto.getOfferId() != null) {
             Offer offer = offerRepository.findById(dto.getOfferId()).orElseThrow(IncorrectCreateReportRquestException::new);
-            if(OfferStatus.DELETED.equals(offer.getStatus())) {
+            if (OfferStatus.DELETED.equals(offer.getStatus())) {
                 throw new IncorrectCreateReportRquestException();
             }
             report.setOffer(offer);

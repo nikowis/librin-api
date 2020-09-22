@@ -1,7 +1,6 @@
 package pl.nikowis.librin.rest;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -50,7 +49,7 @@ class CityControllerTest {
                 .build();
     }
 
-// not testable due to custom unnaccent method not available in h2
+    // not testable due to custom unnaccent method not available in h2
 //    @Test
     @WithUserDetails(TestConstants.EMAIL)
     public void createReportTest() throws Exception {

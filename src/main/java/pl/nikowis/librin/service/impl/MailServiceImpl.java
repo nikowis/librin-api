@@ -70,7 +70,7 @@ public class MailServiceImpl implements MailService {
             messageHelper.setText(messageText, true);
             messageHelper.setFrom(senderEmailAddress);
             messageHelper.setTo(recipient);
-            messageHelper.setSubject(getMsg("brand", locale) + ": "+ getMsg(msgPrefix + "subject", locale));
+            messageHelper.setSubject(getMsg("brand", locale) + ": " + getMsg(msgPrefix + "subject", locale));
             messageHelper.addInline("brandLogo", brandLogoFile, "image/png");
         };
         try {

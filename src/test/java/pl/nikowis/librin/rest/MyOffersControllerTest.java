@@ -17,8 +17,12 @@ import pl.nikowis.librin.config.GlobalExceptionHandler;
 import pl.nikowis.librin.config.Profiles;
 import pl.nikowis.librin.dto.CreateOfferDTO;
 import pl.nikowis.librin.dto.SellOfferDTO;
-import pl.nikowis.librin.model.*;
+import pl.nikowis.librin.model.Offer;
+import pl.nikowis.librin.model.OfferCategory;
+import pl.nikowis.librin.model.OfferCondition;
+import pl.nikowis.librin.model.OfferStatus;
 import pl.nikowis.librin.model.Offer_;
+import pl.nikowis.librin.model.User;
 import pl.nikowis.librin.repository.OfferRepository;
 import pl.nikowis.librin.repository.UserRepository;
 

@@ -22,6 +22,6 @@ public class Oauth2ResourceServerConfig extends ResourceServerConfigurerAdapter 
                 .antMatchers("/oauth/token").permitAll()
                 .antMatchers(OffersController.OFFERS_ENDPOINT + "/**").permitAll()
                 .antMatchers(MainController.REGISTRATION_ENDPOINT).permitAll()
-                .antMatchers(PolicyController.POLICIES_ENDPOINT+ "/**").permitAll();
+                .antMatchers(PolicyController.POLICIES_ENDPOINT + "/**").permitAll();
     }
 }

@@ -28,7 +28,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic", "/queue" ,"/users");
+        config.enableSimpleBroker("/topic", "/queue", "/users");
         config.setApplicationDestinationPrefixes("/app");
         config.setUserDestinationPrefix("/users");
     }
@@ -48,7 +48,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 if (StompCommand.CONNECT == accessor.getCommand()) {
                     final String authorizationToken = accessor.getFirstNativeHeader("token");
                     OAuth2Authentication oAuth2Authentication = tokenStore.readAuthentication(authorizationToken);
-                    if(oAuth2Authentication == null) {
+                    if (oAuth2Authentication == null) {
                         throw new InsufficientAuthenticationException("Websocket connect authentication error");
                     }
                     Authentication userAuthentication = oAuth2Authentication.getUserAuthentication();

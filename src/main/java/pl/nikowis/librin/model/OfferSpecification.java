@@ -40,7 +40,7 @@ public class OfferSpecification implements Specification<Offer> {
             predicates.add(builder.equal(root.get(Offer_.owner).get(User_.id), filter.getOwner()));
         }
 
-        if (filter.getStatuses() != null && filter.getStatuses().size()>0) {
+        if (filter.getStatuses() != null && filter.getStatuses().size() > 0) {
             predicates.add(root.get(Offer_.status).in(filter.getStatuses()));
         }
 
@@ -52,11 +52,11 @@ public class OfferSpecification implements Specification<Offer> {
             predicates.add(builder.like(builder.upper(root.get(Offer_.title)), "%" + filter.getTitle().toUpperCase() + "%"));
         }
 
-        if(filter.getCategories() != null) {
+        if (filter.getCategories() != null) {
             predicates.add(root.get(Offer_.category).in(filter.getCategories()));
         }
 
-        if(filter.getConditions() != null) {
+        if (filter.getConditions() != null) {
             predicates.add(root.get(Offer_.condition).in(filter.getConditions()));
         }
 

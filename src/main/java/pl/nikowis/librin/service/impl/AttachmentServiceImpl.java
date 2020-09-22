@@ -38,7 +38,7 @@ class AttachmentServiceImpl implements AttachmentService {
     @Override
     public List<Attachment> addAttachmentsToOffer(Offer offer, List<AttachmentDTO> photosDTO) {
         List<Attachment> attachments = new ArrayList<>();
-        if(photosDTO != null) {
+        if (photosDTO != null) {
             setMainAttachment(photosDTO);
             attachments = photosDTO.stream().map(photo -> {
                 Attachment attachment = new Attachment();

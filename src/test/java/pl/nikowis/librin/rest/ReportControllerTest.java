@@ -7,37 +7,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.TestConstants;
 import pl.nikowis.librin.config.GlobalExceptionHandler;
 import pl.nikowis.librin.config.Profiles;
-import pl.nikowis.librin.dto.CreateOfferDTO;
 import pl.nikowis.librin.dto.CreateReportDTO;
-import pl.nikowis.librin.dto.RegisterUserDTO;
-import pl.nikowis.librin.model.Offer;
-import pl.nikowis.librin.model.OfferStatus;
-import pl.nikowis.librin.model.PolicyType;
-import pl.nikowis.librin.model.User;
-import pl.nikowis.librin.repository.OfferRepository;
 import pl.nikowis.librin.repository.ReportRepository;
 import pl.nikowis.librin.repository.UserRepository;
 
-import java.math.BigDecimal;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.core.IsNull.notNullValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest

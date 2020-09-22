@@ -10,7 +10,7 @@ import java.util.List;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, String> {
-//    https://stackoverflow.com/questions/58621139/spring-jpa-define-sql-function-for-usage-in-custom-query
+    //    https://stackoverflow.com/questions/58621139/spring-jpa-define-sql-function-for-usage-in-custom-query
     @Query(nativeQuery = true
             , value = "SELECT DISTINCT author FROM book WHERE lower(public.f_unaccent(author)) LIKE lower(public.f_unaccent(CONCAT('%', ?1,'%'))) ORDER BY author LIMIT 10")
     List<String> findAuthorsByQuery(@Param("query") String query);

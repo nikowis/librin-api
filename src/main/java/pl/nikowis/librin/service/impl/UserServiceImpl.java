@@ -173,7 +173,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void generateAccountActivationEmail(GenerateAccountActivationEmailDTO dto) {
         User user = userRepository.findByEmail(dto.getEmail());
-        if(user == null || !UserStatus.INACTIVE.equals(user.getStatus())) {
+        if (user == null || !UserStatus.INACTIVE.equals(user.getStatus())) {
             throw new CantGenerateAccountActivationEmail();
         }
         sendConfirmEmail(user, dto.getConfirmEmailBaseUrl());

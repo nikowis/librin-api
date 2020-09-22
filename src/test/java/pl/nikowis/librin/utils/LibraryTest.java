@@ -46,7 +46,7 @@ public class LibraryTest {
     }
 
     private boolean hasOneMatchingBook(List<BookDTO> books, String author, String title) {
-        return books != null && books.size()> 0 && books.stream().filter(bookDTO -> bookDTO.getTitle().toLowerCase().equals(title.toLowerCase()) && bookDTO.getAuthor().toLowerCase().equals(author.toLowerCase())).count() == 1;
+        return books != null && books.size() > 0 && books.stream().filter(bookDTO -> bookDTO.getTitle().toLowerCase().equals(title.toLowerCase()) && bookDTO.getAuthor().toLowerCase().equals(author.toLowerCase())).count() == 1;
     }
 
 }

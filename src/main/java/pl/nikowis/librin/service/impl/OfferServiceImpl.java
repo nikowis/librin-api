@@ -62,9 +62,9 @@ class OfferServiceImpl implements OfferService {
         Page<Offer> offersPage = offerRepository.findAll(new OfferSpecification(filterDTO), pageable);
         offersPage.getContent().forEach(offer -> {
             List<Attachment> attachments = offer.getAttachments();
-            if(attachments != null && attachments.size()> 0) {
+            if (attachments != null && attachments.size() > 0) {
                 Attachment mainAttachment = offer.getAttachments().stream().filter(Attachment::isMain).findFirst().orElse(null);
-                if(mainAttachment !=null) {
+                if (mainAttachment != null) {
                     offer.setAttachment(attachmentService.fillAttachmentContent(mainAttachment));
                 }
             }
@@ -166,15 +166,15 @@ class OfferServiceImpl implements OfferService {
     @Override
     public OfferPreviewDTO offerSold(Long offerId, Long customerId) {
         Offer offer = getOfferValidateOwner(offerId);
-        if(offer.getOwnerId().equals(customerId)) {
+        if (offer.getOwnerId().equals(customerId)) {
             throw new CannotBuyOwnOfferException();
         }
         Optional<User> customerOpt = userRepository.findById(customerId);
         User customer = customerOpt.orElseThrow(CannotUpdateOfferException::new);
-        if(UserStatus.BLOCKED.equals(customer.getStatus())) {
+        if (UserStatus.BLOCKED.equals(customer.getStatus())) {
             throw new CustomerAccountBlockedException();
         }
-        if(UserStatus.DELETED.equals(customer.getStatus())) {
+        if (UserStatus.DELETED.equals(customer.getStatus())) {
             throw new CustomerAccountDeletedException();
         }
         offer.setBuyer(customer);
