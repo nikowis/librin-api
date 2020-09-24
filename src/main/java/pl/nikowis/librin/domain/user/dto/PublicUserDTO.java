@@ -1,0 +1,12 @@
+package pl.nikowis.librin.domain.user.dto;
+
+import lombok.Data;
+import pl.nikowis.librin.domain.user.model.UserStatus;
+
+@Data
+public class PublicUserDTO {
+
+    protected Long id;
+    protected String username;
+    protected UserStatus status;
+}
