@@ -7,7 +7,7 @@ import pl.nikowis.librin.domain.user.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User findByEmail(String email);
+    User findByEmailEmail(String email);
 
-    User findByUsername(String username);
+    User findByUsernameUsername(String username);
 }

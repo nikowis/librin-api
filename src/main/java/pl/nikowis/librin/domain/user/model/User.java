@@ -3,8 +3,12 @@ package pl.nikowis.librin.domain.user.model;
 import lombok.Data;
 import pl.nikowis.librin.domain.base.BaseEntity;
 import pl.nikowis.librin.domain.offer.model.Offer;
+import pl.nikowis.librin.domain.user.dto.InorrectUserStatusException;
+import pl.nikowis.librin.kernel.UserEmail;
+import pl.nikowis.librin.kernel.Username;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -21,13 +25,11 @@ import java.util.List;
 @Data
 public class User extends BaseEntity {
 
-    @NotBlank
-    @Size(min = 2, max = 128)
-    private String email;
+    @Embedded
+    private UserEmail email;
 
-    @NotBlank
-    @Size(min = 2, max = 128)
-    private String username;
+    @Embedded
+    private Username username;
 
     @NotBlank
     @Size(min = 2, max = 128)
@@ -51,4 +53,15 @@ public class User extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
     private List<Offer> offers = new ArrayList<>();
 
+    public void deleteUser() {
+        status = UserStatus.DELETED;
+        email = new UserEmail(String.valueOf(email.toString().hashCode()));
+    }
+
+    public void activateAccount() {
+        if (!UserStatus.INACTIVE.equals(status)) {
+            throw new InorrectUserStatusException();
+        }
+        status = UserStatus.ACTIVE;
+    }
 }

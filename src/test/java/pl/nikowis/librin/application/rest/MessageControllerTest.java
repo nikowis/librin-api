@@ -85,9 +85,9 @@ class MessageControllerTest {
                 .setControllerAdvice(globalExceptionHandler)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
-        testUser = userRepository.findByEmail(TestConstants.EMAIL);
-        testUser2 = userRepository.findByEmail(TestConstants.EMAIL2);
-        testUser3 = userRepository.findByEmail(TestConstants.EMAIL3);
+        testUser = userRepository.findByEmailEmail(TestConstants.EMAIL);
+        testUser2 = userRepository.findByEmailEmail(TestConstants.EMAIL2);
+        testUser3 = userRepository.findByEmailEmail(TestConstants.EMAIL3);
 
         o = new Offer();
         o.setTitle("Title");

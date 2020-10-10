@@ -31,6 +31,8 @@ import pl.nikowis.librin.infrastructure.repository.TokenRepository;
 import pl.nikowis.librin.infrastructure.repository.UserRepository;
 import pl.nikowis.librin.infrastructure.security.SecurityConstants;
 import pl.nikowis.librin.infrastructure.service.MailService;
+import pl.nikowis.librin.kernel.UserEmail;
+import pl.nikowis.librin.kernel.Username;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -86,7 +88,7 @@ class MainControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(registerMail));
 
-        User registered = userRepository.findByEmail(registerMail);
+        User registered = userRepository.findByEmailEmail(registerMail);
         Assertions.assertEquals(PolicyType.values().length, registered.getConsents().size());
     }
 
@@ -94,12 +96,12 @@ class MainControllerTest {
     @Test
     public void usernameNotAvailableTest() throws Exception {
         User user = new User();
-        user.setEmail(TestConstants.EMAIL);
+        user.setEmail(new UserEmail(TestConstants.EMAIL));
         user.setPassword(TestConstants.EMAIL);
         user.setRole(SecurityConstants.ROLE_USER);
         user.setFirstName("Marek");
         user.setLastName("Nowak");
-        user.setUsername("marnow");
+        user.setUsername(new Username("marnow"));
         userRepository.save(user);
 
         RegisterUserDTO registerUserDTO = new RegisterUserDTO();
@@ -114,7 +116,7 @@ class MainControllerTest {
 
     @Test
     public void userConfirmEmail() throws Exception {
-        User user = userRepository.findByEmail(TestConstants.EMAIL);
+        User user = userRepository.findByEmailEmail(TestConstants.EMAIL);
         user.setStatus(UserStatus.INACTIVE);
         user = userRepository.save(user);
 
@@ -129,19 +131,19 @@ class MainControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        User saved = userRepository.findByEmail(TestConstants.EMAIL);
+        User saved = userRepository.findByEmailEmail(TestConstants.EMAIL);
         Assertions.assertEquals(UserStatus.ACTIVE, saved.getStatus());
     }
 
     @Test
     public void cantConfirmEmailForActiveUser() throws Exception {
         User user = new User();
-        user.setEmail(TestConstants.EMAIL);
+        user.setEmail(new UserEmail(TestConstants.EMAIL));
         user.setPassword(TestConstants.EMAIL);
         user.setRole(SecurityConstants.ROLE_USER);
         user.setFirstName("Marek");
         user.setLastName("Nowak");
-        user.setUsername("marnow");
+        user.setUsername(new Username("marnow"));
         user.setStatus(UserStatus.ACTIVE);
         user = userRepository.save(user);
 
@@ -175,7 +177,7 @@ class MainControllerTest {
     @Test
     @WithAnonymousUser
     public void changePassword() throws Exception {
-        User user = userRepository.findByEmail(TestConstants.EMAIL);
+        User user = userRepository.findByEmailEmail(TestConstants.EMAIL);
         String oldPassword = user.getPassword();
         Token token = new Token();
         token.setType(TokenType.PASSWORD_RESET);
@@ -190,7 +192,7 @@ class MainControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        User changedUser = userRepository.findByEmail(TestConstants.EMAIL);
+        User changedUser = userRepository.findByEmailEmail(TestConstants.EMAIL);
         token = tokenRepository.findByIdAndType(token.getId(), TokenType.PASSWORD_RESET);
 
         Assertions.assertNotEquals(oldPassword, changedUser.getPassword());

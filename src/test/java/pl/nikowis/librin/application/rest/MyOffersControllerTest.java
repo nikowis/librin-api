@@ -75,8 +75,8 @@ class MyOffersControllerTest {
                 .setControllerAdvice(globalExceptionHandler)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
-        testUser = userRepository.findByEmail(TestConstants.EMAIL);
-        testUser2 = userRepository.findByEmail(TestConstants.EMAIL2);
+        testUser = userRepository.findByEmailEmail(TestConstants.EMAIL);
+        testUser2 = userRepository.findByEmailEmail(TestConstants.EMAIL2);
     }
 
     @Test

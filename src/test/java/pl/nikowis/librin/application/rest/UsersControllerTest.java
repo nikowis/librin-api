@@ -48,7 +48,7 @@ class UsersControllerTest {
                 .setControllerAdvice(globalExceptionHandler)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
-        testUser = userRepository.findByEmail(TestConstants.EMAIL);
+        testUser = userRepository.findByEmailEmail(TestConstants.EMAIL);
     }
 
     @Test
@@ -57,7 +57,7 @@ class UsersControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(testUser.getId().intValue())))
-                .andExpect(jsonPath("$.username", is(testUser.getUsername())))
+                .andExpect(jsonPath("$.username", is(testUser.getUsername().toString())))
                 .andExpect(jsonPath("$.status", is(UserStatus.ACTIVE.name())));
     }
 

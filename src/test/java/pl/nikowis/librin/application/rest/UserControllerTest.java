@@ -74,7 +74,7 @@ class UserControllerTest {
                 .setControllerAdvice(globalExceptionHandler)
                 .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
-        testUser = userRepository.findByEmail(TestConstants.EMAIL);
+        testUser = userRepository.findByEmailEmail(TestConstants.EMAIL);
 
         OauthAccessToken token = new OauthAccessToken();
         token.setRefreshToken(REFRESHTOKEN);
@@ -108,7 +108,7 @@ class UserControllerTest {
     @Test
     @WithUserDetails(TestConstants.EMAIL)
     public void deleteUser() throws Exception {
-        User byEmail = userRepository.findByEmail(TestConstants.EMAIL);
+        User byEmail = userRepository.findByEmailEmail(TestConstants.EMAIL);
 
         DeleteUserDTO dto = new DeleteUserDTO();
         dto.setPassword(TestConstants.PASSWORD_RAW);
@@ -119,7 +119,7 @@ class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        User afterDelete = userRepository.findByUsername(byEmail.getUsername());
+        User afterDelete = userRepository.findByUsernameUsername(byEmail.getUsername().toString());
         Offer offer = offerRepository.findById(o.getId()).get();
         List<OauthAccessToken> authTokens = oauthTokenRepository.findAllByUserName(TestConstants.EMAIL);
         Optional<OauthRefreshToken> refreshToken = oauthRefreshTokenRepository.findById(REFRESHTOKEN);

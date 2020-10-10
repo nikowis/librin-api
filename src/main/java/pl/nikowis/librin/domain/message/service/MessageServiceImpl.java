@@ -95,11 +95,11 @@ public class MessageServiceImpl implements MessageService {
         if (isCustomer(conversation, currentUserId)) {
             conversation.setOfferOwnerRead(false);
             conversation.setCustomerRead(true);
-            recipientEmail = conversation.getOffer().getOwner().getEmail();
+            recipientEmail = conversation.getOffer().getOwner().getEmail().toString();
         } else {
             conversation.setOfferOwnerRead(true);
             conversation.setCustomerRead(false);
-            recipientEmail = conversation.getCustomer().getEmail();
+            recipientEmail = conversation.getCustomer().getEmail().toString();
         }
 
         Message newMessage = mapperFacade.map(messageDTO, Message.class);
@@ -172,7 +172,7 @@ public class MessageServiceImpl implements MessageService {
             updateDTO.setCreatedBy(owner.getId());
             updateDTO.setOfferStatus(status);
             updateDTO.setSoldToMe(OfferStatus.SOLD.equals(status) && convCust.getId().equals(buyerId));
-            websocketSenderService.sendConversationUpdate(updateDTO, convCust.getEmail(), c.getId());
+            websocketSenderService.sendConversationUpdate(updateDTO, convCust.getEmail().toString(), c.getId());
         });
     }
 
