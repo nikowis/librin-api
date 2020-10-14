@@ -1,13 +1,14 @@
 package pl.nikowis.librin.domain.user.service;
 
 import ma.glasnost.orika.MapperFacade;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.nikowis.librin.domain.notification.NotificationService;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
 import pl.nikowis.librin.domain.user.UserFactory;
@@ -36,16 +37,14 @@ import pl.nikowis.librin.infrastructure.repository.OfferRepository;
 import pl.nikowis.librin.infrastructure.repository.TokenRepository;
 import pl.nikowis.librin.infrastructure.repository.UserRepository;
 import pl.nikowis.librin.infrastructure.security.OauthAccessToken;
-import pl.nikowis.librin.infrastructure.service.MailService;
-import pl.nikowis.librin.kernel.annotations.domain.DomainService;
 import pl.nikowis.librin.util.SecurityUtils;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@DomainService
+@Service
 @Transactional
 public class UserServiceImpl implements UserService {
 
@@ -74,10 +73,10 @@ public class UserServiceImpl implements UserService {
     private TokenRepository tokenRepository;
 
     @Autowired
-    private MailService mailService;
+    private UserFactory userFactory;
 
     @Autowired
-    private UserFactory userFactory;
+    private NotificationService notificationService;
 
     @Override
     public User findUserByEmail(String email) {
@@ -98,21 +97,11 @@ public class UserServiceImpl implements UserService {
         User user = userFactory.createNewUser(userDTO);
         User saved = userRepository.save(user);
 
-        sendConfirmEmail(saved, userDTO.getConfirmEmailBaseUrl());
+        notificationService.notifyUserRegistered(saved.getEmail(), saved.getTokens().get(0).getId(), userDTO.getConfirmEmailBaseUrl());
 
         return mapperFacade.map(saved, UserDTO.class);
     }
 
-    private void sendConfirmEmail(User saved, String emailConfirmationBaseUrl) {
-        Token token = new Token();
-        token.setType(TokenType.ACCOUNT_EMAIL_CONFIRMATION);
-        token.setExpiresAt(new DateTime().plusYears(9999).toDate());
-        token.setUser(saved);
-        token = tokenRepository.save(token);
-        String confirmUrl = emailConfirmationBaseUrl + "/" + token.getId().toString();
-
-        mailService.sendEmailConfirmationMessage(saved.getEmail().toString(), confirmUrl, LocaleContextHolder.getLocale());
-    }
 
     @Override
     public UserDTO getCurrentUser() {
@@ -152,7 +141,12 @@ public class UserServiceImpl implements UserService {
         if (user == null || !UserStatus.INACTIVE.equals(user.getStatus())) {
             throw new CantGenerateAccountActivationEmail();
         }
-        sendConfirmEmail(user, dto.getConfirmEmailBaseUrl());
+        Token token = new Token();
+        token.setType(TokenType.ACCOUNT_EMAIL_CONFIRMATION);
+        token.setExpiresAt(LocalDateTime.now().plusYears(9999));
+        token.setUser(user);
+        token = tokenRepository.save(token);
+        notificationService.notifyUserRegistered(user.getEmail(), token.getId(), dto.getConfirmEmailBaseUrl());
     }
 
     @Override
@@ -181,7 +175,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void confirmEmail(UUID tokenId) {
         Token token = tokenRepository.findByIdAndType(tokenId, TokenType.ACCOUNT_EMAIL_CONFIRMATION);
-        if (token == null || token.getExpiresAt().before(new Date()) || token.isExecuted()) {
+        if (token == null || token.getExpiresAt().isBefore(LocalDateTime.now()) || token.isExecuted()) {
             throw new TokenNotFoundException();
         }
         User user = token.getUser();
@@ -198,20 +192,22 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             LOGGER.warn("Cant create reset password token for {}, user not found in the database.", dto.getEmail());
         } else {
+
             Token token = new Token();
             token.setType(TokenType.PASSWORD_RESET);
-            token.setExpiresAt(new DateTime().plusDays(PASSWORD_RESET_TOKEN_VALIDITY).toDate());
+            token.setExpiresAt(LocalDateTime.now().plusDays(PASSWORD_RESET_TOKEN_VALIDITY));
             token.setUser(user);
             token = tokenRepository.save(token);
-            String confirmUrl = dto.getChangePasswordBaseUrl() + "/" + token.getId().toString();
-            mailService.sendResetPasswordEmail(user.getEmail().toString(), confirmUrl, LocaleContextHolder.getLocale());
+
+            notificationService.sendUserResetPasswordRequestCreated(user.getEmail(), token.getId(), dto.getChangePasswordBaseUrl());
+
         }
     }
 
     @Override
     public void changePassword(UUID tokenId, ChangeUserPasswordDTO userDTO) {
         Token token = tokenRepository.findByIdAndType(tokenId, TokenType.PASSWORD_RESET);
-        if (token == null || token.getExpiresAt().before(new Date()) || token.isExecuted()) {
+        if (token == null || token.getExpiresAt().isBefore(LocalDateTime.now()) || token.isExecuted()) {
             throw new TokenNotFoundException();
         }
         User user = token.getUser();

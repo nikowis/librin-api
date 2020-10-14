@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.UUID;
 
@@ -31,11 +32,9 @@ public class Token {
     @Column(name = "id", updatable = false, nullable = false)
     protected UUID id;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date createdAt;
+    protected LocalDateTime createdAt;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date expiresAt;
+    protected LocalDateTime expiresAt;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "userId")
@@ -49,7 +48,7 @@ public class Token {
     @PrePersist
     public void prePersist() {
         if (createdAt == null) {
-            createdAt = new Date();
+            createdAt = LocalDateTime.now();
         }
     }
 

@@ -34,6 +34,8 @@ import pl.nikowis.librin.infrastructure.service.MailService;
 import pl.nikowis.librin.kernel.UserEmail;
 import pl.nikowis.librin.kernel.Username;
 
+import java.time.LocalDateTime;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -123,7 +125,7 @@ class MainControllerTest {
         Token token = new Token();
         token.setType(TokenType.ACCOUNT_EMAIL_CONFIRMATION);
         token.setUser(user);
-        token.setExpiresAt(new DateTime().plusDays(1).toDate());
+        token.setExpiresAt(LocalDateTime.now().plusDays(1));
         token.setExecuted(false);
         token = tokenRepository.save(token);
 
@@ -150,7 +152,7 @@ class MainControllerTest {
         Token token = new Token();
         token.setType(TokenType.ACCOUNT_EMAIL_CONFIRMATION);
         token.setUser(user);
-        token.setExpiresAt(new DateTime().plusDays(1).toDate());
+        token.setExpiresAt(LocalDateTime.now().plusDays(1));
         token.setExecuted(false);
         token = tokenRepository.save(token);
 
@@ -181,7 +183,7 @@ class MainControllerTest {
         String oldPassword = user.getPassword();
         Token token = new Token();
         token.setType(TokenType.PASSWORD_RESET);
-        token.setExpiresAt(new DateTime().plusDays(1).toDate());
+        token.setExpiresAt(LocalDateTime.now().plusDays(1));
         token.setUser(user);
         token = tokenRepository.save(token);
 

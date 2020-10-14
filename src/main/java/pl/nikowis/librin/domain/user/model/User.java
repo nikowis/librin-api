@@ -50,6 +50,9 @@ public class User extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.ALL})
     private List<Consent> consents = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.ALL})
+    private List<Token> tokens = new ArrayList<>();
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
     private List<Offer> offers = new ArrayList<>();
 
