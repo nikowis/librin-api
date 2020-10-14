@@ -1,7 +1,6 @@
 package pl.nikowis.librin.application.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.DateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,16 +16,16 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.TestConstants;
-import pl.nikowis.librin.infrastructure.config.GlobalExceptionHandler;
-import pl.nikowis.librin.infrastructure.config.Profiles;
+import pl.nikowis.librin.domain.policy.model.PolicyType;
 import pl.nikowis.librin.domain.user.dto.ChangeUserPasswordDTO;
 import pl.nikowis.librin.domain.user.dto.GenerateResetPasswordDTO;
 import pl.nikowis.librin.domain.user.dto.RegisterUserDTO;
-import pl.nikowis.librin.domain.policy.model.PolicyType;
-import pl.nikowis.librin.domain.user.model.Token;
+import pl.nikowis.librin.domain.token.Token;
 import pl.nikowis.librin.domain.user.model.TokenType;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.domain.user.model.UserStatus;
+import pl.nikowis.librin.infrastructure.config.GlobalExceptionHandler;
+import pl.nikowis.librin.infrastructure.config.Profiles;
 import pl.nikowis.librin.infrastructure.repository.TokenRepository;
 import pl.nikowis.librin.infrastructure.repository.UserRepository;
 import pl.nikowis.librin.infrastructure.security.SecurityConstants;

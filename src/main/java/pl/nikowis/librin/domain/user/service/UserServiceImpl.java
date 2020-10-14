@@ -5,21 +5,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.domain.notification.NotificationService;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
+import pl.nikowis.librin.domain.token.TokenFactory;
 import pl.nikowis.librin.domain.user.UserFactory;
-import pl.nikowis.librin.domain.user.dto.CantGenerateAccountActivationEmail;
 import pl.nikowis.librin.domain.user.dto.ChangeUserPasswordDTO;
 import pl.nikowis.librin.domain.user.dto.DeleteUserDTO;
 import pl.nikowis.librin.domain.user.dto.EmailAlreadyExistsException;
 import pl.nikowis.librin.domain.user.dto.GenerateAccountActivationEmailDTO;
 import pl.nikowis.librin.domain.user.dto.GenerateResetPasswordDTO;
 import pl.nikowis.librin.domain.user.dto.IncorrectPasswordException;
-import pl.nikowis.librin.domain.user.dto.InorrectUserStatusException;
 import pl.nikowis.librin.domain.user.dto.PublicUserDTO;
 import pl.nikowis.librin.domain.user.dto.RegisterUserDTO;
 import pl.nikowis.librin.domain.user.dto.TokenNotFoundException;
@@ -27,7 +26,7 @@ import pl.nikowis.librin.domain.user.dto.UpdateUserDTO;
 import pl.nikowis.librin.domain.user.dto.UserDTO;
 import pl.nikowis.librin.domain.user.dto.UserNotFoundException;
 import pl.nikowis.librin.domain.user.dto.UsernameAlreadyExistsException;
-import pl.nikowis.librin.domain.user.model.Token;
+import pl.nikowis.librin.domain.token.Token;
 import pl.nikowis.librin.domain.user.model.TokenType;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.domain.user.model.UserStatus;
@@ -58,7 +57,7 @@ public class UserServiceImpl implements UserService {
     private OfferRepository offerRepository;
 
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private MapperFacade mapperFacade;
@@ -68,6 +67,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private OauthRefreshTokenRepository oauthRefreshTokenRepository;
+
+    @Autowired
+    private TokenFactory tokenFactory;
 
     @Autowired
     private TokenRepository tokenRepository;
@@ -120,7 +122,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO changeProfilePassword(Long currentUserId, ChangeUserPasswordDTO dto) {
         User user = userRepository.findById(currentUserId).get();
-        String newPswd = bCryptPasswordEncoder.encode(dto.getPassword());
+        String newPswd = passwordEncoder.encode(dto.getPassword());
         user.setPassword(newPswd);
         user = userRepository.save(user);
         return mapperFacade.map(user, UserDTO.class);
@@ -138,13 +140,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void generateAccountActivationEmail(GenerateAccountActivationEmailDTO dto) {
         User user = userRepository.findByEmailEmail(dto.getEmail());
-        if (user == null || !UserStatus.INACTIVE.equals(user.getStatus())) {
-            throw new CantGenerateAccountActivationEmail();
-        }
-        Token token = new Token();
-        token.setType(TokenType.ACCOUNT_EMAIL_CONFIRMATION);
-        token.setExpiresAt(LocalDateTime.now().plusYears(9999));
-        token.setUser(user);
+        Token token = tokenFactory.createConfirmEmailToken(user);
         token = tokenRepository.save(token);
         notificationService.notifyUserRegistered(user.getEmail(), token.getId(), dto.getConfirmEmailBaseUrl());
     }
@@ -153,7 +149,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(DeleteUserDTO dto, Long currentUserId) {
         User user = userRepository.findById(currentUserId).get();
 
-        if (!bCryptPasswordEncoder.matches(dto.getPassword(), user.getPassword())) {
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new IncorrectPasswordException();
         }
 
@@ -173,26 +169,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void confirmEmail(UUID tokenId) {
-        Token token = tokenRepository.findByIdAndType(tokenId, TokenType.ACCOUNT_EMAIL_CONFIRMATION);
-        if (token == null || token.getExpiresAt().isBefore(LocalDateTime.now()) || token.isExecuted()) {
-            throw new TokenNotFoundException();
-        }
-        User user = token.getUser();
-        user.activateAccount();
-        user = userRepository.save(user);
-        token.setExecuted(true);
-        tokenRepository.save(token);
-
-    }
-
-    @Override
     public void generateResetPasswordToken(GenerateResetPasswordDTO dto) {
         User user = userRepository.findByEmailEmail(dto.getEmail());
         if (user == null) {
             LOGGER.warn("Cant create reset password token for {}, user not found in the database.", dto.getEmail());
         } else {
-
             Token token = new Token();
             token.setType(TokenType.PASSWORD_RESET);
             token.setExpiresAt(LocalDateTime.now().plusDays(PASSWORD_RESET_TOKEN_VALIDITY));
@@ -200,22 +181,23 @@ public class UserServiceImpl implements UserService {
             token = tokenRepository.save(token);
 
             notificationService.sendUserResetPasswordRequestCreated(user.getEmail(), token.getId(), dto.getChangePasswordBaseUrl());
-
         }
     }
 
     @Override
+    public void confirmEmail(UUID tokenId) {
+        Token token = tokenRepository.findByIdAndType(tokenId, TokenType.ACCOUNT_EMAIL_CONFIRMATION).orElseThrow(TokenNotFoundException::new);
+        token.validate();
+        token.getUser().activateAccount();
+        token.setExecuted(true);
+        tokenRepository.save(token);
+    }
+
+    @Override
     public void changePassword(UUID tokenId, ChangeUserPasswordDTO userDTO) {
-        Token token = tokenRepository.findByIdAndType(tokenId, TokenType.PASSWORD_RESET);
-        if (token == null || token.getExpiresAt().isBefore(LocalDateTime.now()) || token.isExecuted()) {
-            throw new TokenNotFoundException();
-        }
-        User user = token.getUser();
-        if (UserStatus.DELETED.equals(user.getStatus())) {
-            throw new InorrectUserStatusException();
-        }
-        user.setPassword(bCryptPasswordEncoder.encode(userDTO.getPassword()));
-        user = userRepository.save(user);
+        Token token = tokenRepository.findByIdAndType(tokenId, TokenType.PASSWORD_RESET).orElseThrow(TokenNotFoundException::new);
+        token.validate();
+        token.getUser().changePassword(passwordEncoder, userDTO.getPassword());
         token.setExecuted(true);
         tokenRepository.save(token);
     }

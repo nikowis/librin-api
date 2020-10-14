@@ -1,8 +1,10 @@
 package pl.nikowis.librin.domain.user.model;
 
 import lombok.Data;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.nikowis.librin.domain.base.BaseEntity;
 import pl.nikowis.librin.domain.offer.model.Offer;
+import pl.nikowis.librin.domain.token.Token;
 import pl.nikowis.librin.domain.user.dto.InorrectUserStatusException;
 import pl.nikowis.librin.kernel.UserEmail;
 import pl.nikowis.librin.kernel.Username;
@@ -53,7 +55,7 @@ public class User extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.ALL})
     private List<Token> tokens = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner")
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner", cascade = {CascadeType.ALL})
     private List<Offer> offers = new ArrayList<>();
 
     public void deleteUser() {
@@ -66,5 +68,12 @@ public class User extends BaseEntity {
             throw new InorrectUserStatusException();
         }
         status = UserStatus.ACTIVE;
+    }
+
+    public void changePassword(PasswordEncoder passwordEncoder, String newPassword) {
+        if (UserStatus.DELETED.equals(status)) {
+            throw new InorrectUserStatusException();
+        }
+        password =  passwordEncoder.encode(newPassword);
     }
 }
