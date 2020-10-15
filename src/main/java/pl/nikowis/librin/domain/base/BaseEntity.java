@@ -1,6 +1,9 @@
 package pl.nikowis.librin.domain.base;
 
 import lombok.Data;
+import pl.nikowis.librin.domain.offer.exception.OfferCantBeUpdatedException;
+import pl.nikowis.librin.domain.offer.exception.OfferIsSoldException;
+import pl.nikowis.librin.domain.offer.model.OfferStatus;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

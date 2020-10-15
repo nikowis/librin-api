@@ -7,11 +7,12 @@ import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OfferRepository extends JpaRepository<Offer, Long>, JpaSpecificationExecutor<Offer> {
 
-    Offer findByIdAndOwnerId(Long id, Long ownerId);
+    Optional<Offer> findByIdAndOwnerId(Long id, Long ownerId);
 
     List<Offer> findByStatusAndOwnerId(OfferStatus status, Long ownerId);
 

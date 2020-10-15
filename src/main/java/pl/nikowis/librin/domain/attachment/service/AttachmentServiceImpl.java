@@ -64,6 +64,8 @@ class AttachmentServiceImpl implements AttachmentService {
 
     @Override
     public void removeOfferAttachments(List<Attachment> oldAtts) {
+        if(oldAtts == null)
+            return;
         oldAtts.forEach(a -> {
             String filePath = resolveOfferAttachmentFilePath(a);
             Path resolvedFilePath = Paths.get(userFilesDirectory, filePath);

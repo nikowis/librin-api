@@ -16,17 +16,11 @@ import pl.nikowis.librin.domain.offer.dto.CreateOfferDTO;
 import pl.nikowis.librin.domain.offer.dto.OfferDetailsDTO;
 import pl.nikowis.librin.domain.offer.dto.OfferFilterDTO;
 import pl.nikowis.librin.domain.offer.dto.OfferPreviewDTO;
-import pl.nikowis.librin.domain.offer.exception.CannotBuyOwnOfferException;
 import pl.nikowis.librin.domain.offer.exception.CannotUpdateOfferException;
-import pl.nikowis.librin.domain.offer.exception.OfferCantBeUpdatedException;
 import pl.nikowis.librin.domain.offer.exception.OfferDoesntExistException;
-import pl.nikowis.librin.domain.offer.exception.OfferIsSoldException;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
-import pl.nikowis.librin.domain.user.exception.CustomerAccountBlockedException;
-import pl.nikowis.librin.domain.user.exception.CustomerAccountDeletedException;
 import pl.nikowis.librin.domain.user.model.User;
-import pl.nikowis.librin.domain.user.model.UserStatus;
 import pl.nikowis.librin.infrastructure.repository.OfferRepository;
 import pl.nikowis.librin.infrastructure.repository.OfferSpecification;
 import pl.nikowis.librin.infrastructure.repository.UserRepository;
@@ -34,7 +28,6 @@ import pl.nikowis.librin.util.SecurityUtils;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -44,6 +37,9 @@ public class OfferServiceImpl implements OfferService {
 
     @Autowired
     private OfferRepository offerRepository;
+
+    @Autowired
+    private OfferFactory offerFactory;
 
     @Autowired
     private UserRepository userRepository;
@@ -75,85 +71,57 @@ public class OfferServiceImpl implements OfferService {
     @Override
     public OfferPreviewDTO createOffer(CreateOfferDTO dto) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
-
-        Offer offer = new Offer();
-        offer.setStatus(OfferStatus.ACTIVE);
-        mapperFacade.map(dto, offer);
-        User currentUser = userRepository.findById(currentUserId).get();
-        offer.setOwner(currentUser);
+        User owner = userRepository.findById(currentUserId).get();
+        Offer offer = offerFactory.createNewOffer(dto, owner);
         offer = offerRepository.save(offer);
-        if (dto.getPhotos() != null) {
-            attachmentService.addAttachmentsToOffer(offer, dto.getPhotos());
-        }
+        attachmentService.addAttachmentsToOffer(offer, dto.getPhotos());
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
     @Override
     public OfferPreviewDTO updateOffer(Long offerId, CreateOfferDTO offerDTO) {
-        Offer offer = getOfferValidateOwner(offerId);
-        validateOfferActive(offer);
+        Offer offer = offerRepository.findByIdAndOwnerId(offerId, SecurityUtils.getCurrentUserId()).orElseThrow(OfferDoesntExistException::new);
+        offer.updateOffer();
         mapperFacade.map(offerDTO, offer);
         List<Attachment> oldAtts = offer.getAttachments();
-        if (oldAtts != null) {
-            attachmentService.removeOfferAttachments(oldAtts);
-        }
+        attachmentService.removeOfferAttachments(oldAtts);
         offer.setAttachments(null);
         offer = offerRepository.save(offer);
-        if (offerDTO.getPhotos() != null) {
-            attachmentService.addAttachmentsToOffer(offer, offerDTO.getPhotos());
-        }
+        attachmentService.addAttachmentsToOffer(offer, offerDTO.getPhotos());
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
     @Override
-    public OfferPreviewDTO deactivateOffer(Long offerDTO) {
-        Offer offer = getOfferValidateOwner(offerDTO);
-        if (!OfferStatus.ACTIVE.equals(offer.getStatus())) {
-            throw new OfferCantBeUpdatedException();
-        }
-        offer.setStatus(OfferStatus.INACTIVE);
+    public OfferPreviewDTO deactivateOffer(Long offerId) {
+        Offer offer = offerRepository.findByIdAndOwnerId(offerId, SecurityUtils.getCurrentUserId()).orElseThrow(OfferDoesntExistException::new);
+        offer.deactivateOffer();
         offer = offerRepository.save(offer);
-        messageService.notifyAllConversationsOfferStatusChange(offerDTO, OfferStatus.INACTIVE, null);
+        messageService.notifyAllConversationsOfferStatusChange(offerId, OfferStatus.INACTIVE, null);
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
     @Override
-    public OfferPreviewDTO activateOffer(Long offerDTO) {
-        Offer offer = getOfferValidateOwner(offerDTO);
-        if (!OfferStatus.INACTIVE.equals(offer.getStatus())) {
-            throw new OfferCantBeUpdatedException();
-        }
-        offer.setStatus(OfferStatus.ACTIVE);
+    public OfferPreviewDTO activateOffer(Long offerId) {
+        Offer offer = offerRepository.findByIdAndOwnerId(offerId, SecurityUtils.getCurrentUserId()).orElseThrow(OfferDoesntExistException::new);
+        offer.activateOffer();
         offer = offerRepository.save(offer);
-        messageService.notifyAllConversationsOfferStatusChange(offerDTO, OfferStatus.ACTIVE, null);
+        messageService.notifyAllConversationsOfferStatusChange(offerId, OfferStatus.ACTIVE, null);
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
     @Override
-    public OfferPreviewDTO deleteOffer(Long offerDTO) {
-        Offer offer = getOfferValidateOwner(offerDTO);
-        validateOfferActive(offer);
-        offer.setStatus(OfferStatus.DELETED);
+    public OfferPreviewDTO deleteOffer(Long offerId) {
+        Offer offer = offerRepository.findByIdAndOwnerId(offerId, SecurityUtils.getCurrentUserId()).orElseThrow(OfferDoesntExistException::new);
+        offer.deleteOffer();
         offer = offerRepository.save(offer);
-        messageService.notifyAllConversationsOfferStatusChange(offerDTO, OfferStatus.DELETED, null);
+        messageService.notifyAllConversationsOfferStatusChange(offerId, OfferStatus.DELETED, null);
         return mapperFacade.map(offer, OfferPreviewDTO.class);
-    }
-
-    private void validateOfferActive(Offer offer) {
-        if (OfferStatus.SOLD.equals(offer.getStatus())) {
-            throw new OfferIsSoldException();
-        }
-        if (OfferStatus.DELETED.equals(offer.getStatus())) {
-            throw new OfferCantBeUpdatedException();
-        }
     }
 
     @Override
     public OfferDetailsDTO getOffer(Long offerId) {
         Offer offer = offerRepository.findById(offerId).orElseThrow(OfferDoesntExistException::new);
-        if (OfferStatus.DELETED.equals(offer.getStatus())) {
-            throw new OfferDoesntExistException();
-        }
+        offer.validateViewDetails();
         List<Attachment> attachments = offer.getAttachments();
         if (attachments != null) {
             attachments = attachmentService.fillAttachmentContent(attachments);
@@ -165,20 +133,10 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public OfferPreviewDTO offerSold(Long offerId, Long customerId) {
-        Offer offer = getOfferValidateOwner(offerId);
-        if (offer.getOwnerId().equals(customerId)) {
-            throw new CannotBuyOwnOfferException();
-        }
-        Optional<User> customerOpt = userRepository.findById(customerId);
-        User customer = customerOpt.orElseThrow(CannotUpdateOfferException::new);
-        if (UserStatus.BLOCKED.equals(customer.getStatus())) {
-            throw new CustomerAccountBlockedException();
-        }
-        if (UserStatus.DELETED.equals(customer.getStatus())) {
-            throw new CustomerAccountDeletedException();
-        }
-        offer.setBuyer(customer);
-        offer.setStatus(OfferStatus.SOLD);
+        Offer offer = offerRepository.findByIdAndOwnerId(offerId, SecurityUtils.getCurrentUserId()).orElseThrow(OfferDoesntExistException::new);
+        User customer = userRepository.findById(customerId).orElseThrow(CannotUpdateOfferException::new);
+        offer.sellOffer(customer);
+
         Offer saved = offerRepository.save(offer);
         Attachment attachment = saved.getAttachment();
         if (attachment != null) {
@@ -189,14 +147,6 @@ public class OfferServiceImpl implements OfferService {
         messageService.notifyAllConversationsOfferStatusChange(offerId, OfferStatus.SOLD, customerId);
 
         return mapperFacade.map(saved, OfferPreviewDTO.class);
-    }
-
-    private Offer getOfferValidateOwner(Long offerId) {
-        Offer offer = offerRepository.findByIdAndOwnerId(offerId, SecurityUtils.getCurrentUserId());
-        if (offer == null) {
-            throw new OfferDoesntExistException();
-        }
-        return offer;
     }
 
 }
