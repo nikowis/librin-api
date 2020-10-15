@@ -8,9 +8,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.TestConstants;
-import pl.nikowis.librin.infrastructure.config.Profiles;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.user.model.User;
+import pl.nikowis.librin.infrastructure.config.Profiles;
 
 @SpringBootTest
 @Transactional

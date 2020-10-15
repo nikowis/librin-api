@@ -15,6 +15,7 @@ public class BookDTO {
 
     public static final String STR_SGN = "\"";
     public static final String NULL = "null";
+    public List<Contributor> contributors = new LinkedList<>();
     private String id;
     private String author;
     private String title;
@@ -22,7 +23,6 @@ public class BookDTO {
     private String language;
     private String datestamp;
     private String form; //http://www.onix-codelists.io/codelist/150
-    public List<Contributor> contributors = new LinkedList<>();
 
     public BookDTO(ISBNModel.Product product) {
         ISBNModel.DescriptiveDetail descriptiveDet = product.DescriptiveDetailObject;
@@ -84,8 +84,8 @@ public class BookDTO {
     @Data
     @NoArgsConstructor
     public static class Contributor {
-        private String name;
         public String role;
+        private String name;
 
         public Contributor(ISBNModel.Contributor c) {
             name = c.getPersonNameInverted();

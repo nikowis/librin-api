@@ -7,9 +7,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import pl.nikowis.librin.domain.user.dto.ChangeUserPasswordDTO;
-import pl.nikowis.librin.domain.user.dto.GenerateAccountActivationEmailDTO;
-import pl.nikowis.librin.domain.user.dto.GenerateResetPasswordDTO;
+import pl.nikowis.librin.domain.token.dto.ChangeUserPasswordDTO;
+import pl.nikowis.librin.domain.token.dto.GenerateAccountActivationEmailDTO;
+import pl.nikowis.librin.domain.token.dto.GenerateResetPasswordDTO;
+import pl.nikowis.librin.domain.token.service.TokenService;
 import pl.nikowis.librin.domain.user.dto.RegisterUserDTO;
 import pl.nikowis.librin.domain.user.dto.UserDTO;
 import pl.nikowis.librin.domain.user.service.UserService;
@@ -31,8 +32,12 @@ public class MainController {
 
     public static final String CHANGE_PASSWORD_BASE = "/changepassword";
     public static final String CHANGE_PASSWORD_ENDPOINT = CHANGE_PASSWORD_BASE + TOKEN_PATH;
+
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TokenService tokenService;
 
     @PostMapping(REGISTRATION_ENDPOINT)
     public UserDTO register(@Validated @RequestBody RegisterUserDTO userDTO) {
@@ -41,22 +46,22 @@ public class MainController {
 
     @PutMapping(EMAIL_CONFIRM_ENDPOINT)
     public void confirmEmail(@PathVariable("tokenId") UUID tokenId) {
-        userService.confirmEmail(tokenId);
+        tokenService.confirmUserEmail(tokenId);
     }
 
     @PostMapping(GENERATE_RESET_PASSWORD_TOKEN_ENDPOINT)
     public void generateResetPasswordToken(@Validated @RequestBody GenerateResetPasswordDTO dto) {
-        userService.generateResetPasswordToken(dto);
+        tokenService.generateResetPasswordToken(dto);
     }
 
     @PostMapping(GENERATE_ACCOUNT_ACTIVATION_EMAIL)
     public void generateAccountActivationEmail(@Validated @RequestBody GenerateAccountActivationEmailDTO dto) {
-        userService.generateAccountActivationEmail(dto);
+        tokenService.generateAccountActivationToken(dto);
     }
 
     @PutMapping(CHANGE_PASSWORD_ENDPOINT)
     public void changePassword(@PathVariable("tokenId") UUID tokenId, @Validated @RequestBody ChangeUserPasswordDTO userDTO) {
-        userService.changePassword(tokenId, userDTO);
+        tokenService.changeUserPassword(tokenId, userDTO);
     }
 
 }

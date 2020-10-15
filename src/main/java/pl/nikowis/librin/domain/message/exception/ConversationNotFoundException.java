@@ -1,4 +1,4 @@
-package pl.nikowis.librin.domain.message.dto;
+package pl.nikowis.librin.domain.message.exception;
 
 import pl.nikowis.librin.domain.base.BusinessException;
 import pl.nikowis.librin.domain.message.model.Conversation_;

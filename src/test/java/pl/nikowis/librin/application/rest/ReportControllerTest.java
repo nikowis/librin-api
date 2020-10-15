@@ -14,11 +14,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.TestConstants;
+import pl.nikowis.librin.domain.report.dto.CreateReportDTO;
 import pl.nikowis.librin.infrastructure.config.GlobalExceptionHandler;
 import pl.nikowis.librin.infrastructure.config.Profiles;
-import pl.nikowis.librin.domain.report.dto.CreateReportDTO;
 import pl.nikowis.librin.infrastructure.repository.ReportRepository;
-import pl.nikowis.librin.infrastructure.repository.UserRepository;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -31,18 +30,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:db/testdata.sql")
 class ReportControllerTest {
 
-    private static final Long OFFER_ID = 1L;
     public static final String OFFER_TITLE = "Title";
     public static final String OFFER_AUTHOR = "Author";
     public static final long USER_ID = 1L;
-
+    private static final Long OFFER_ID = 1L;
     private MockMvc mockMvc;
 
     @Autowired
     private ReportController reportController;
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private ReportRepository reportRepository;

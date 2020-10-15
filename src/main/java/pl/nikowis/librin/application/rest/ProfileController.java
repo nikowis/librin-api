@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.nikowis.librin.domain.user.dto.ChangeUserPasswordDTO;
+import pl.nikowis.librin.domain.token.dto.ChangeUserPasswordDTO;
 import pl.nikowis.librin.domain.user.dto.DeleteUserDTO;
 import pl.nikowis.librin.domain.user.dto.UpdateUserDTO;
 import pl.nikowis.librin.domain.user.dto.UserDTO;

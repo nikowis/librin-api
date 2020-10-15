@@ -11,9 +11,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.TestConstants;
+import pl.nikowis.librin.domain.city.model.City;
 import pl.nikowis.librin.infrastructure.config.GlobalExceptionHandler;
 import pl.nikowis.librin.infrastructure.config.Profiles;
-import pl.nikowis.librin.domain.city.model.City;
 import pl.nikowis.librin.infrastructure.repository.CityRepository;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;

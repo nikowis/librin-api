@@ -1,4 +1,4 @@
-package pl.nikowis.librin.domain.user.dto;
+package pl.nikowis.librin.domain.token.dto;
 
 import lombok.Data;
 

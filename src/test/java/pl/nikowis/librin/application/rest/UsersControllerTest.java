@@ -11,10 +11,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.TestConstants;
-import pl.nikowis.librin.infrastructure.config.GlobalExceptionHandler;
-import pl.nikowis.librin.infrastructure.config.Profiles;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.domain.user.model.UserStatus;
+import pl.nikowis.librin.infrastructure.config.GlobalExceptionHandler;
+import pl.nikowis.librin.infrastructure.config.Profiles;
 import pl.nikowis.librin.infrastructure.repository.UserRepository;
 
 import static org.hamcrest.CoreMatchers.is;

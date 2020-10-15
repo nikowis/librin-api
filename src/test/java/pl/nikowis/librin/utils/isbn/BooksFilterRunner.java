@@ -48,16 +48,16 @@ public class BooksFilterRunner {
         return this;
     }
 
+    public interface LibraryFilter {
+        List<BookDTO> run(List<BookDTO> library);
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     public class Step {
         String stepName;
         LibraryFilter filter;
-    }
-
-    public interface LibraryFilter {
-        List<BookDTO> run(List<BookDTO> library);
     }
 
 

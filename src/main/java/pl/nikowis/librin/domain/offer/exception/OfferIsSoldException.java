@@ -1,11 +1,12 @@
-package pl.nikowis.librin.domain.user.dto;
+package pl.nikowis.librin.domain.offer.exception;
 
 import pl.nikowis.librin.domain.base.BusinessException;
 import pl.nikowis.librin.domain.offer.model.Offer_;
 
-public class CantCreateConversationOnNonActiveOfferException extends BusinessException {
+public class OfferIsSoldException extends BusinessException {
+
     @Override
     public String getFieldName() {
-        return Offer_.STATUS;
+        return Offer_.ID;
     }
 }

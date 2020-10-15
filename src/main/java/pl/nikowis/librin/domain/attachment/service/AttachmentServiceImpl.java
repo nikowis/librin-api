@@ -25,9 +25,8 @@ import java.util.stream.Collectors;
 @Transactional
 class AttachmentServiceImpl implements AttachmentService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentServiceImpl.class);
     public static final String OFFERS_DIR = "offers";
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(AttachmentServiceImpl.class);
     @Autowired
     private AttachmentRepository attachmentRepository;
 

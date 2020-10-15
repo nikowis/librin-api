@@ -24,6 +24,12 @@ public class Consent {
 
     @Temporal(TemporalType.TIMESTAMP)
     protected Date createdAt;
+    @ManyToOne
+    @JoinColumn(name = "userId")
+    private User user;
+    @ManyToOne
+    @JoinColumn(name = "policyId")
+    private Policy policy;
 
     @PrePersist
     public void prePersist() {
@@ -31,13 +37,5 @@ public class Consent {
             createdAt = new Date();
         }
     }
-
-    @ManyToOne
-    @JoinColumn(name = "userId")
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "policyId")
-    private Policy policy;
 
 }

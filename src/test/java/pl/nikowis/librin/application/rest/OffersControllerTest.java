@@ -11,11 +11,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.TestConstants;
-import pl.nikowis.librin.infrastructure.config.GlobalExceptionHandler;
-import pl.nikowis.librin.infrastructure.config.Profiles;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
 import pl.nikowis.librin.domain.user.model.User;
+import pl.nikowis.librin.infrastructure.config.GlobalExceptionHandler;
+import pl.nikowis.librin.infrastructure.config.Profiles;
 import pl.nikowis.librin.infrastructure.repository.OfferRepository;
 import pl.nikowis.librin.infrastructure.repository.UserRepository;
 
@@ -32,11 +32,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:db/testdata.sql")
 class OffersControllerTest {
 
-    private static final Long OFFER_ID = 1L;
     public static final String OFFER_TITLE = "Title";
     public static final String OFFER_AUTHOR = "Author";
     public static final long USER_ID = 1L;
-
+    private static final Long OFFER_ID = 1L;
     private MockMvc mockMvc;
 
     @Autowired

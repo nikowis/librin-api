@@ -1,4 +1,4 @@
-package pl.nikowis.librin.domain.policy.dto;
+package pl.nikowis.librin.domain.policy.exception;
 
 import pl.nikowis.librin.domain.base.BusinessException;
 import pl.nikowis.librin.domain.policy.model.Policy_;

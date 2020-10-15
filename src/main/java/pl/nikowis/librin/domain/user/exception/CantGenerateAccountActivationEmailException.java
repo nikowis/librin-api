@@ -1,9 +1,9 @@
-package pl.nikowis.librin.domain.user.dto;
+package pl.nikowis.librin.domain.user.exception;
 
 import pl.nikowis.librin.domain.base.BusinessException;
 import pl.nikowis.librin.domain.user.model.User_;
 
-public class CustomerAccountBlockedException extends BusinessException {
+public class CantGenerateAccountActivationEmailException extends BusinessException {
 
     @Override
     public String getFieldName() {

@@ -17,11 +17,11 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.TestConstants;
 import pl.nikowis.librin.domain.policy.model.PolicyType;
-import pl.nikowis.librin.domain.user.dto.ChangeUserPasswordDTO;
-import pl.nikowis.librin.domain.user.dto.GenerateResetPasswordDTO;
+import pl.nikowis.librin.domain.token.dto.ChangeUserPasswordDTO;
+import pl.nikowis.librin.domain.token.dto.GenerateResetPasswordDTO;
+import pl.nikowis.librin.domain.token.model.Token;
+import pl.nikowis.librin.domain.token.model.TokenType;
 import pl.nikowis.librin.domain.user.dto.RegisterUserDTO;
-import pl.nikowis.librin.domain.token.Token;
-import pl.nikowis.librin.domain.user.model.TokenType;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.domain.user.model.UserStatus;
 import pl.nikowis.librin.infrastructure.config.GlobalExceptionHandler;
@@ -194,7 +194,7 @@ class MainControllerTest {
                 .andExpect(status().isOk());
 
         User changedUser = userRepository.findByEmailEmail(TestConstants.EMAIL);
-        token = tokenRepository.findByIdAndType(token.getId(), TokenType.PASSWORD_RESET);
+        token = tokenRepository.findByIdAndType(token.getId(), TokenType.PASSWORD_RESET).get();
 
         Assertions.assertNotEquals(oldPassword, changedUser.getPassword());
     }

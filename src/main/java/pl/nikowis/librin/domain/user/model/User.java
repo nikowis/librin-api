@@ -4,8 +4,9 @@ import lombok.Data;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.nikowis.librin.domain.base.BaseEntity;
 import pl.nikowis.librin.domain.offer.model.Offer;
-import pl.nikowis.librin.domain.token.Token;
-import pl.nikowis.librin.domain.user.dto.InorrectUserStatusException;
+import pl.nikowis.librin.domain.offer.model.OfferStatus;
+import pl.nikowis.librin.domain.token.model.Token;
+import pl.nikowis.librin.domain.user.exception.InorrectUserStatusException;
 import pl.nikowis.librin.kernel.UserEmail;
 import pl.nikowis.librin.kernel.Username;
 
@@ -61,6 +62,11 @@ public class User extends BaseEntity {
     public void deleteUser() {
         status = UserStatus.DELETED;
         email = new UserEmail(String.valueOf(email.toString().hashCode()));
+        offers.forEach(o -> {
+            if (OfferStatus.ACTIVE.equals(o.getStatus()) || OfferStatus.INACTIVE.equals(o.getStatus())) {
+                o.setStatus(OfferStatus.DELETED);
+            }
+        });
     }
 
     public void activateAccount() {
@@ -74,6 +80,6 @@ public class User extends BaseEntity {
         if (UserStatus.DELETED.equals(status)) {
             throw new InorrectUserStatusException();
         }
-        password =  passwordEncoder.encode(newPassword);
+        password = passwordEncoder.encode(newPassword);
     }
 }

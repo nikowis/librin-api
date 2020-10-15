@@ -26,9 +26,8 @@ import java.util.Collections;
 @ControllerAdvice
 public class GlobalExceptionHandler implements WebResponseExceptionTranslator<OAuth2Exception> {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     public static final String GENERAL_FIELD = "general";
-
+    private final static Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     @Autowired
     private MessageSource messageSource;
 

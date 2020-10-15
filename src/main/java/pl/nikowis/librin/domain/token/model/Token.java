@@ -1,9 +1,8 @@
-package pl.nikowis.librin.domain.token;
+package pl.nikowis.librin.domain.token.model;
 
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
-import pl.nikowis.librin.domain.user.dto.TokenNotFoundException;
-import pl.nikowis.librin.domain.user.model.TokenType;
+import pl.nikowis.librin.domain.user.exception.TokenNotFoundException;
 import pl.nikowis.librin.domain.user.model.User;
 
 import javax.persistence.CascadeType;
@@ -17,10 +16,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.UUID;
 
 @Entity
@@ -56,9 +52,10 @@ public class Token {
         }
     }
 
-    public void validate() {
+    public void validateAndExecute() {
         if (expiresAt.isBefore(LocalDateTime.now()) || executed) {
             throw new TokenNotFoundException();
         }
+        executed = true;
     }
 }

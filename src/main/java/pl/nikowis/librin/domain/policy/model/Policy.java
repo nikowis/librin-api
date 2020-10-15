@@ -25,6 +25,12 @@ public class Policy {
 
     @Temporal(TemporalType.TIMESTAMP)
     protected Date createdAt;
+    @NotNull
+    private Integer version;
+    @NotBlank
+    private String fileName;
+    @Enumerated(EnumType.STRING)
+    private PolicyType type;
 
     @PrePersist
     public void prePersist() {
@@ -32,15 +38,6 @@ public class Policy {
             createdAt = new Date();
         }
     }
-
-    @NotNull
-    private Integer version;
-
-    @NotBlank
-    private String fileName;
-
-    @Enumerated(EnumType.STRING)
-    private PolicyType type;
 
 
 }

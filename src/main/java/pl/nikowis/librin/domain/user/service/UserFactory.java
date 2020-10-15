@@ -1,4 +1,4 @@
-package pl.nikowis.librin.domain.user;
+package pl.nikowis.librin.domain.user.service;
 
 import com.google.common.collect.Lists;
 import ma.glasnost.orika.MapperFacade;
@@ -7,10 +7,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import pl.nikowis.librin.domain.policy.model.Policy;
 import pl.nikowis.librin.domain.policy.model.PolicyType;
-import pl.nikowis.librin.domain.token.TokenFactory;
+import pl.nikowis.librin.domain.token.model.Token;
+import pl.nikowis.librin.domain.token.service.TokenFactory;
 import pl.nikowis.librin.domain.user.dto.RegisterUserDTO;
 import pl.nikowis.librin.domain.user.model.Consent;
-import pl.nikowis.librin.domain.token.Token;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.domain.user.model.UserStatus;
 import pl.nikowis.librin.infrastructure.repository.PolicyRepository;
