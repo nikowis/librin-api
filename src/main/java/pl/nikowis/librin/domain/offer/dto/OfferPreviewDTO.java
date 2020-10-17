@@ -1,11 +1,11 @@
 package pl.nikowis.librin.domain.offer.dto;
 
 import lombok.Data;
-import pl.nikowis.librin.domain.attachment.dto.AttachmentDTO;
+import pl.nikowis.librin.domain.photo.dto.PhotoDTO;
 
 @Data
 public class OfferPreviewDTO extends BaseOfferDTO {
 
-    private AttachmentDTO attachment;
+    private PhotoDTO photo;
 
 }

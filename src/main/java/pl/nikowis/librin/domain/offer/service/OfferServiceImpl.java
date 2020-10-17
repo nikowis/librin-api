@@ -8,9 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.nikowis.librin.domain.attachment.model.Attachment;
-import pl.nikowis.librin.domain.attachment.service.AttachmentService;
-import pl.nikowis.librin.domain.base.BaseEntity;
+import pl.nikowis.librin.domain.photo.model.Photo;
+import pl.nikowis.librin.domain.photo.service.PhotoFactory;
+import pl.nikowis.librin.domain.photo.service.FileStorageService;
 import pl.nikowis.librin.domain.message.service.MessageServiceImpl;
 import pl.nikowis.librin.domain.offer.dto.CreateOfferDTO;
 import pl.nikowis.librin.domain.offer.dto.OfferDetailsDTO;
@@ -23,6 +23,7 @@ import pl.nikowis.librin.domain.offer.model.OfferStatus;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.infrastructure.repository.OfferRepository;
 import pl.nikowis.librin.infrastructure.repository.OfferSpecification;
+import pl.nikowis.librin.infrastructure.repository.PhotoRepository;
 import pl.nikowis.librin.infrastructure.repository.UserRepository;
 import pl.nikowis.librin.util.SecurityUtils;
 
@@ -48,21 +49,25 @@ public class OfferServiceImpl implements OfferService {
     private MapperFacade mapperFacade;
 
     @Autowired
-    private AttachmentService attachmentService;
+    private MessageServiceImpl messageService;
 
     @Autowired
-    private MessageServiceImpl messageService;
+    private FileStorageService fileStorageService;
+
+    @Autowired
+    private PhotoFactory photoFactory;
+
+    @Autowired
+    private PhotoRepository photoRepository;
 
     @Override
     public Page<OfferPreviewDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable) {
         Page<Offer> offersPage = offerRepository.findAll(new OfferSpecification(filterDTO), pageable);
         offersPage.getContent().forEach(offer -> {
-            List<Attachment> attachments = offer.getAttachments();
-            if (attachments != null && attachments.size() > 0) {
-                Attachment mainAttachment = offer.getAttachments().stream().filter(Attachment::isMain).findFirst().orElse(null);
-                if (mainAttachment != null) {
-                    offer.setAttachment(attachmentService.fillAttachmentContent(mainAttachment));
-                }
+            List<Photo> photos = offer.getPhotos();
+            if (photos != null && photos.size() > 0) {
+                offer.getPhotos().sort(Comparator.comparing(Photo::getOrder));
+                offer.setPhoto(offer.getPhotos().get(0));
             }
         });
         return offersPage.map(o -> mapperFacade.map(o, OfferPreviewDTO.class));
@@ -74,20 +79,22 @@ public class OfferServiceImpl implements OfferService {
         User owner = userRepository.findById(currentUserId).get();
         Offer offer = offerFactory.createNewOffer(dto, owner);
         offer = offerRepository.save(offer);
-        attachmentService.addAttachmentsToOffer(offer, dto.getPhotos());
+        List<Photo> photos = photoRepository.saveAll(photoFactory.createPhotos(dto.getPhotos(), owner, offer));
+        offer.setPhotos(photos);
+        fileStorageService.storeOfferPhotos(currentUserId, offer.getId(), dto.getPhotos());
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
     @Override
     public OfferPreviewDTO updateOffer(Long offerId, CreateOfferDTO offerDTO) {
-        Offer offer = offerRepository.findByIdAndOwnerId(offerId, SecurityUtils.getCurrentUserId()).orElseThrow(OfferDoesntExistException::new);
+        Long ownerId = SecurityUtils.getCurrentUserId();
+        Offer offer = offerRepository.findByIdAndOwnerId(offerId, ownerId).orElseThrow(OfferDoesntExistException::new);
         offer.updateOffer();
         mapperFacade.map(offerDTO, offer);
-        List<Attachment> oldAtts = offer.getAttachments();
-        attachmentService.removeOfferAttachments(oldAtts);
-        offer.setAttachments(null);
+        fileStorageService.removeOfferPhotos(ownerId, offer.getId(), offer.getPhotos());
+        offer.setPhotos(photoFactory.createPhotos(offerDTO.getPhotos(), offer.getOwner(), offer));
+        fileStorageService.storeOfferPhotos(ownerId, offer.getId(), offerDTO.getPhotos());
         offer = offerRepository.save(offer);
-        attachmentService.addAttachmentsToOffer(offer, offerDTO.getPhotos());
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
@@ -122,11 +129,10 @@ public class OfferServiceImpl implements OfferService {
     public OfferDetailsDTO getOffer(Long offerId) {
         Offer offer = offerRepository.findById(offerId).orElseThrow(OfferDoesntExistException::new);
         offer.validateViewDetails();
-        List<Attachment> attachments = offer.getAttachments();
-        if (attachments != null) {
-            attachments = attachmentService.fillAttachmentContent(attachments);
-            attachments.sort(Comparator.comparing(BaseEntity::getId));
-            offer.setAttachments(attachments);
+        List<Photo> photos = offer.getPhotos();
+        if (photos != null) {
+            photos.sort(Comparator.comparing(Photo::getOrder));
+            offer.setPhotos(photos);
         }
         return mapperFacade.map(offer, OfferDetailsDTO.class);
     }
@@ -138,11 +144,6 @@ public class OfferServiceImpl implements OfferService {
         offer.sellOffer(customer);
 
         Offer saved = offerRepository.save(offer);
-        Attachment attachment = saved.getAttachment();
-        if (attachment != null) {
-            Attachment att = attachmentService.fillAttachmentContent(attachment);
-            offer.setAttachment(att);
-        }
 
         messageService.notifyAllConversationsOfferStatusChange(offerId, OfferStatus.SOLD, customerId);
 

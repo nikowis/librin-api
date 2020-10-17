@@ -1,7 +1,8 @@
 package pl.nikowis.librin.domain.offer.dto;
 
 import lombok.Data;
-import pl.nikowis.librin.domain.attachment.dto.AttachmentDTO;
+import pl.nikowis.librin.domain.offer.model.Offer;
+import pl.nikowis.librin.domain.photo.dto.PhotoDTO;
 import pl.nikowis.librin.domain.offer.model.OfferCategory;
 import pl.nikowis.librin.domain.offer.model.OfferCondition;
 
@@ -16,8 +17,6 @@ import java.util.List;
 @Data
 public class CreateOfferDTO {
 
-    private static final int MIN_PHOTOS = 1;
-    private static final int MAX_PHOTOS = 3;
     @NotNull
     protected OfferCategory category;
     @NotNull
@@ -35,6 +34,6 @@ public class CreateOfferDTO {
     @Max(999999)
     private BigDecimal price;
 
-    @Size(min = MIN_PHOTOS, max = MAX_PHOTOS)
-    private List<AttachmentDTO> photos;
+    @Size(min = Offer.MIN_PHOTOS, max = Offer.MAX_PHOTOS)
+    private List<PhotoDTO> photos;
 }

@@ -8,6 +8,8 @@ import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
 import pl.nikowis.librin.domain.user.model.User;
 
+import java.util.Collections;
+
 @Component
 public class OfferFactory {
 
@@ -19,6 +21,8 @@ public class OfferFactory {
         offer.setStatus(OfferStatus.ACTIVE);
         mapperFacade.map(dto, offer);
         offer.setOwner(owner);
+        offer.setPhotos(Collections.emptyList());
         return offer;
     }
+
 }

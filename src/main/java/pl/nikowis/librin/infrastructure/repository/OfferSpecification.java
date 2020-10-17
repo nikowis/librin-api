@@ -36,7 +36,7 @@ public class OfferSpecification implements Specification<Offer> {
         if (Long.class != query.getResultType()) {
             root.fetch(Offer_.owner, JoinType.LEFT);
             root.fetch(Offer_.buyer, JoinType.LEFT);
-            root.fetch(Offer_.attachments, JoinType.LEFT);
+            root.fetch(Offer_.photos, JoinType.LEFT);
         }
 
         if (filter.getOwner() != null) {

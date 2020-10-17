@@ -36,7 +36,7 @@ public class PolicyController {
         InputStreamResource resource = new InputStreamResource(new FileInputStream(policyFile));
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=" + policyFile.getName())
+                        "photo; filename=" + policyFile.getName())
                 .contentType(MediaType.APPLICATION_PDF).contentLength(policyFile.length())
                 .body(resource);
     }

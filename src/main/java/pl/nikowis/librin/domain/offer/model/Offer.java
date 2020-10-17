@@ -1,7 +1,7 @@
 package pl.nikowis.librin.domain.offer.model;
 
 import lombok.Data;
-import pl.nikowis.librin.domain.attachment.model.Attachment;
+import pl.nikowis.librin.domain.photo.model.Photo;
 import pl.nikowis.librin.domain.base.BaseEntity;
 import pl.nikowis.librin.domain.offer.exception.CannotBuyOwnOfferException;
 import pl.nikowis.librin.domain.offer.exception.OfferCantBeUpdatedException;
@@ -30,6 +30,9 @@ import java.util.List;
 @Data
 public class Offer extends BaseEntity {
 
+    public static final int MIN_PHOTOS = 1;
+    public static final int MAX_PHOTOS = 3;
+
     private String title;
     private String author;
     private String description;
@@ -56,11 +59,11 @@ public class Offer extends BaseEntity {
     @Enumerated(EnumType.ORDINAL)
     private OfferCondition condition;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "offer", cascade = {CascadeType.ALL})
-    private List<Attachment> attachments = new ArrayList<>();
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "offer")
+    private List<Photo> photos = new ArrayList<>();
 
     @Transient
-    private Attachment attachment;
+    private Photo photo;
 
     public void deleteOffer() {
         if (OfferStatus.SOLD.equals(status) || OfferStatus.DELETED.equals(status)) {

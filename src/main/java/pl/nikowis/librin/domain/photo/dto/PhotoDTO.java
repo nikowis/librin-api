@@ -1,4 +1,4 @@
-package pl.nikowis.librin.domain.attachment.dto;
+package pl.nikowis.librin.domain.photo.dto;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
-public class AttachmentDTO {
+public class PhotoDTO {
 
     private Long id;
 
@@ -17,6 +17,8 @@ public class AttachmentDTO {
     @NotNull
     private String content;
 
-    private boolean main;
+    private Integer order;
+
+    private String path;
 
 }
