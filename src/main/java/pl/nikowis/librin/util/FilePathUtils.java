@@ -1,6 +1,5 @@
 package pl.nikowis.librin.util;
 
-y
 public class FilePathUtils {
 
     private static final String OFFERS_DIR = "offers";

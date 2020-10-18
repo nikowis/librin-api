@@ -28,12 +28,13 @@ public class PhotoFactory {
         for (int i = 0; i < photosDTO.size(); i++) {
             PhotoDTO photoDTO = photosDTO.get(i);
             Photo photo = createPhoto(photoDTO);
-            photo.setOrder(i+1);
+            int order = i + 1;
+            photo.setOrder(order);
+            photoDTO.setOrder(order);
             photo.setSize((long) photoDTO.getContent().getBytes().length);
             photo.setOwner(owner);
             photo.setOffer(offer);
             photo.setOfferId(offer.getId());
-            photoDTO.setOrder(i);
             photos.add(photo);
         }
         return photos;
