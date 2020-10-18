@@ -9,8 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.domain.photo.model.Photo;
-import pl.nikowis.librin.domain.photo.service.PhotoFactory;
-import pl.nikowis.librin.domain.photo.service.FileStorageService;
 import pl.nikowis.librin.domain.message.service.MessageServiceImpl;
 import pl.nikowis.librin.domain.offer.dto.CreateOfferDTO;
 import pl.nikowis.librin.domain.offer.dto.OfferDetailsDTO;
@@ -20,10 +18,10 @@ import pl.nikowis.librin.domain.offer.exception.CannotUpdateOfferException;
 import pl.nikowis.librin.domain.offer.exception.OfferDoesntExistException;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
+import pl.nikowis.librin.domain.photo.service.PhotoService;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.infrastructure.repository.OfferRepository;
 import pl.nikowis.librin.infrastructure.repository.OfferSpecification;
-import pl.nikowis.librin.infrastructure.repository.PhotoRepository;
 import pl.nikowis.librin.infrastructure.repository.UserRepository;
 import pl.nikowis.librin.util.SecurityUtils;
 
@@ -51,14 +49,10 @@ public class OfferServiceImpl implements OfferService {
     @Autowired
     private MessageServiceImpl messageService;
 
-    @Autowired
-    private FileStorageService fileStorageService;
+
 
     @Autowired
-    private PhotoFactory photoFactory;
-
-    @Autowired
-    private PhotoRepository photoRepository;
+    private PhotoService photoService;
 
     @Override
     public Page<OfferPreviewDTO> getOffers(OfferFilterDTO filterDTO, Pageable pageable) {
@@ -66,7 +60,7 @@ public class OfferServiceImpl implements OfferService {
         offersPage.getContent().forEach(offer -> {
             List<Photo> photos = offer.getPhotos();
             if (photos != null && photos.size() > 0) {
-                offer.getPhotos().sort(Comparator.comparing(Photo::getOrder));
+                offer.getPhotos().sort(Comparator.comparing(Photo::getId));
                 offer.setPhoto(offer.getPhotos().get(0));
             }
         });
@@ -79,9 +73,7 @@ public class OfferServiceImpl implements OfferService {
         User owner = userRepository.findById(currentUserId).get();
         Offer offer = offerFactory.createNewOffer(dto, owner);
         offer = offerRepository.save(offer);
-        List<Photo> photos = photoRepository.saveAll(photoFactory.createPhotos(dto.getPhotos(), owner, offer));
-        offer.setPhotos(photos);
-        fileStorageService.storeOfferPhotos(currentUserId, offer.getId(), dto.getPhotos());
+        offer.setPhotos(photoService.saveAndStorePhotos(offer, owner, dto.getPhotos()));
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
 
@@ -89,11 +81,11 @@ public class OfferServiceImpl implements OfferService {
     public OfferPreviewDTO updateOffer(Long offerId, CreateOfferDTO offerDTO) {
         Long ownerId = SecurityUtils.getCurrentUserId();
         Offer offer = offerRepository.findByIdAndOwnerId(offerId, ownerId).orElseThrow(OfferDoesntExistException::new);
-        offer.updateOffer();
+        offer.validateUpdateOffer();
+        List<Photo> updatedPhotos = photoService.updatePhotos(offer, offerDTO.getPhotos());
         mapperFacade.map(offerDTO, offer);
-        fileStorageService.removeOfferPhotos(ownerId, offer.getId(), offer.getPhotos());
-        offer.setPhotos(photoFactory.createPhotos(offerDTO.getPhotos(), offer.getOwner(), offer));
-        fileStorageService.storeOfferPhotos(ownerId, offer.getId(), offerDTO.getPhotos());
+        offer.setPhotos(updatedPhotos);
+        offer.setPhoto(updatedPhotos.size() > 0 ? updatedPhotos.get(0) : null);
         offer = offerRepository.save(offer);
         return mapperFacade.map(offer, OfferPreviewDTO.class);
     }
@@ -131,7 +123,7 @@ public class OfferServiceImpl implements OfferService {
         offer.validateViewDetails();
         List<Photo> photos = offer.getPhotos();
         if (photos != null) {
-            photos.sort(Comparator.comparing(Photo::getOrder));
+            photos.sort(Comparator.comparing(Photo::getId));
             offer.setPhotos(photos);
         }
         return mapperFacade.map(offer, OfferDetailsDTO.class);

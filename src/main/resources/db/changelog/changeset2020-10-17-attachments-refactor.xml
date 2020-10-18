@@ -7,11 +7,10 @@
 
     <changeSet id="changeset2020-10-17-attachments-refactor.xml" author="nikowis">
         <sql>
-            ALTER TABLE "attachment" ADD COLUMN "order" INT NOT NULL DEFAULT 0;
             DELETE FROM "attachment";
             ALTER TABLE "attachment" DROP COLUMN "main";
-            ALTER TABLE "attachment" ADD UNIQUE ("offer_id", "order");
             ALTER TABLE "attachment" RENAME TO "photo";
+            ALTER TABLE "photo" ADD COLUMN "uuid" varchar(40);
         </sql>
     </changeSet>
 </databaseChangeLog>

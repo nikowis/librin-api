@@ -28,7 +28,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         if (photos == null)
             return;
         photos.forEach(photo -> {
-            Path resolvedFilePath = getFilePath(ownerId, offerId, photo.getOrder(), photo.getName());
+            Path resolvedFilePath = getFilePath(ownerId, offerId, photo.getUuid(), photo.getName());
             try {
                 Files.createDirectories(resolvedFilePath.getParent());
                 Files.write(resolvedFilePath, getFileBytes(photo.getContent()));
@@ -44,7 +44,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             return;
 
         photos.forEach(photo -> {
-            Path resolvedFilePath = getFilePath(ownerId, offerId, photo.getOrder(), photo.getName());
+            Path resolvedFilePath = getFilePath(ownerId, offerId, photo.getUuid(), photo.getName());
             try {
                 Files.delete(resolvedFilePath);
             } catch (IOException e) {
@@ -58,8 +58,8 @@ public class FileStorageServiceImpl implements FileStorageService {
         return Base64.getDecoder().decode(imageDataBytes.getBytes());
     }
 
-    private Path getFilePath(Long ownerId, Long offerId, Integer order, String name) {
-        String filePath = FilePathUtils.getOfferPhotoPath(ownerId, offerId, order, name);
+    private Path getFilePath(Long ownerId, Long offerId, String uuid, String fileExtension) {
+        String filePath = FilePathUtils.getOfferPhotoPath(ownerId, offerId, uuid, fileExtension);
         return Paths.get(userFilesDirectory, filePath);
     }
 }

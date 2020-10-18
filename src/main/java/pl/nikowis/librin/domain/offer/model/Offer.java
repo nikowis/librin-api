@@ -73,7 +73,7 @@ public class Offer extends BaseEntity {
     }
 
 
-    public void updateOffer() {
+    public void validateUpdateOffer() {
         if (OfferStatus.SOLD.equals(status)) {
             throw new OfferIsSoldException();
         }

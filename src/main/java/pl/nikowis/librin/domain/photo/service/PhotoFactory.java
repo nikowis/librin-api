@@ -10,6 +10,7 @@ import pl.nikowis.librin.domain.user.model.User;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class PhotoFactory {
@@ -25,16 +26,14 @@ public class PhotoFactory {
 
     public List<Photo> createPhotos(List<PhotoDTO> photosDTO, User owner, Offer offer) {
         List<Photo> photos = new LinkedList<>();
-        for (int i = 0; i < photosDTO.size(); i++) {
-            PhotoDTO photoDTO = photosDTO.get(i);
+        for (PhotoDTO photoDTO: photosDTO) {
             Photo photo = createPhoto(photoDTO);
-            int order = i + 1;
-            photo.setOrder(order);
-            photoDTO.setOrder(order);
             photo.setSize((long) photoDTO.getContent().getBytes().length);
             photo.setOwner(owner);
             photo.setOffer(offer);
-            photo.setOfferId(offer.getId());
+            String newUuid = UUID.randomUUID().toString();
+            photo.setUuid(newUuid);
+            photoDTO.setUuid(newUuid);
             photos.add(photo);
         }
         return photos;

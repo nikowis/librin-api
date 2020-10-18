@@ -17,7 +17,7 @@ public class PhotoDTO {
     @NotNull
     private String content;
 
-    private Integer order;
+    private String uuid;
 
     private String path;
 

@@ -11,8 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
@@ -33,20 +31,14 @@ public class Photo extends BaseEntity {
     @JoinColumn(name = "ownerId")
     private User owner;
 
-    @Column(name = "offerId", updatable = false, insertable = false)
-    private Long offerId;
-
     @ManyToOne
     @JoinColumn(name = "offerId")
     private Offer offer;
 
-    @Column(name="`order`")
-    @Min(Offer.MIN_PHOTOS)
-    @Max(Offer.MAX_PHOTOS)
-    private Integer order;
+    private String uuid;
 
     @Transient
     public String getPath() {
-        return FilePathUtils.getOfferPhotoPath(ownerId, offerId, order, name);
+        return FilePathUtils.getOfferPhotoPath(owner.getId(), offer.getId(), uuid, name);
     }
 }
