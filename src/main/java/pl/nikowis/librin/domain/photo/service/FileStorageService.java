@@ -1,13 +1,14 @@
 package pl.nikowis.librin.domain.photo.service;
 
-import pl.nikowis.librin.domain.photo.dto.PhotoDTO;
-import pl.nikowis.librin.domain.photo.model.Photo;
-
 import java.util.List;
+import java.util.Map;
 
 public interface FileStorageService {
+    void storeFile(String filePath, String base64Content);
 
-    void storeOfferPhotos(Long ownerId, Long offerId, List<PhotoDTO> photos);
-    void removeOfferPhotos(Long ownerId, Long offerId, List<Photo> photos);
+    void storeFiles(Map<String, String> pathToContentMap);
 
+    void removeFile(String filePath);
+
+    void removeFiles(List<String> filePaths);
 }

@@ -7,6 +7,7 @@ import pl.nikowis.librin.domain.photo.dto.PhotoDTO;
 import pl.nikowis.librin.domain.photo.model.Photo;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.infrastructure.repository.PhotoRepository;
+import pl.nikowis.librin.util.FilePathUtils;
 
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -28,7 +29,7 @@ public class PhotoServiceImpl implements PhotoService {
     @Override
     public List<Photo> saveAndStorePhotos(Offer offer, User owner, List<PhotoDTO> photosDto) {
         List<Photo> photos = photoRepository.saveAll(photoFactory.createPhotos(photosDto, owner, offer));
-        fileStorageService.storeOfferPhotos(owner.getId(), offer.getId(), photosDto);
+        storePhotos(owner.getId(), offer.getId(), photosDto);
         return photos;
     }
 
@@ -42,17 +43,24 @@ public class PhotoServiceImpl implements PhotoService {
         User owner = offer.getOwner();
         List<Photo> newSavedPhotos = photoRepository.saveAll(photoFactory.createPhotos(newPhotosToStore, owner, offer));
         photoRepository.deleteAll(oldPhotosToRemove);
-        fileStorageService.storeOfferPhotos(owner.getId(), offer.getId(), newPhotosToStore);
-        fileStorageService.removeOfferPhotos(owner.getId(), offer.getId(), oldPhotosToRemove);
+        storePhotos(owner.getId(), offer.getId(), newPhotosToStore);
+        removePhotos(owner.getId(), offer.getId(), oldPhotosToRemove);
+
         outputPhotos.addAll(oldPhotosToSave);
         outputPhotos.addAll(newSavedPhotos);
         outputPhotos.sort(Comparator.comparing(Photo::getId));
         return outputPhotos;
     }
 
+    private void storePhotos(Long ownerId, Long offerId, List<PhotoDTO> photos) {
+        fileStorageService.storeFiles(photos.stream().collect(Collectors.toMap(p -> FilePathUtils.getOfferPhotoPath(ownerId, offerId, p.getUuid(), p.getName()), PhotoDTO::getContent)));
+    }
+
+    private void removePhotos(Long ownerId, Long offerId, List<Photo> photos) {
+        fileStorageService.removeFiles(photos.stream().map(photo -> FilePathUtils.getOfferPhotoPath(ownerId, offerId, photo.getUuid(), photo.getName())).collect(Collectors.toList()));
+    }
+
     private boolean isPresentInPhotoList(List<PhotoDTO> newPhotos, Photo photo) {
         return photo.getUuid() != null && newPhotos.stream().anyMatch(pDto -> pDto.getUuid() != null && pDto.getUuid().equals(photo.getUuid()));
     }
-
-
 }
