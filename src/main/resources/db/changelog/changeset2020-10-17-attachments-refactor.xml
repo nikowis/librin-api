@@ -11,6 +11,7 @@
             ALTER TABLE "attachment" DROP COLUMN "main";
             ALTER TABLE "attachment" RENAME TO "photo";
             ALTER TABLE "photo" ADD COLUMN "uuid" varchar(40);
+            ALTER TABLE "conversation" ADD COLUMN "empty" BOOLEAN NOT NULL DEFAULT FALSE;
         </sql>
     </changeSet>
 </databaseChangeLog>

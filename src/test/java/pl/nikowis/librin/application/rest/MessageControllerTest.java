@@ -148,7 +148,8 @@ class MessageControllerTest {
         message1.setCreatedAt(new Date());
         message1.setConversationId(saved.getId());
 
-        when(messagesRepository.findByConversationId(any(Long.class))).thenReturn(Lists.newArrayList(message1));
+        when(messagesRepository.save(any(Message.class))).thenReturn(message1);
+        when(messagesRepository.findByConversationIdOrderByCreatedAt(any(Long.class))).thenReturn(Lists.newArrayList(message1));
 
         mockMvc.perform(post(MessagesController.CONVERSATION_ENDPOINT, saved.getId())
                 .contentType(APPLICATION_JSON_UTF8)
@@ -184,7 +185,7 @@ class MessageControllerTest {
         message2.setCreatedAt(new Date());
         message2.setConversationId(saved.getId());
 
-        when(messagesRepository.findByConversationId(any(Long.class))).thenReturn(Lists.newArrayList(message1, message2));
+        when(messagesRepository.findByConversationIdOrderByCreatedAt(any(Long.class))).thenReturn(Lists.newArrayList(message1, message2));
 
         messagesRepository.save(message1);
         messagesRepository.save(message2);

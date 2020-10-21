@@ -20,7 +20,7 @@ import pl.nikowis.librin.domain.message.model.Message;
 import pl.nikowis.librin.domain.offer.exception.OfferDoesntExistException;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
-import pl.nikowis.librin.domain.user.exception.CantCreateConversationOnNonActiveOfferException;
+import pl.nikowis.librin.domain.message.exception.CantCreateConversationOnNonActiveOfferException;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.infrastructure.repository.ConversationRepository;
 import pl.nikowis.librin.infrastructure.repository.ConversationSpecification;
@@ -31,7 +31,6 @@ import pl.nikowis.librin.infrastructure.security.SecurityConstants;
 import pl.nikowis.librin.infrastructure.service.WebsocketSenderService;
 import pl.nikowis.librin.util.SecurityUtils;
 
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -62,24 +61,21 @@ public class MessageServiceImpl implements MessageService {
     @Autowired
     private WebsocketSenderService websocketSenderService;
 
+    @Autowired
+    private MessageFactory messageFactory;
+
+    @Autowired
+    private ConversationFactory conversationFactory;
+
     @Override
     @Transactional
     public ConversationDTO getConversation(Long conversationId) {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         Conversation conversation = conversationRepository.findByIdAndCustomerIdOrOfferOwnerId(conversationId, currentUserId).orElseThrow(ConversationNotFoundException::new);
-        if (conversation == null) {
-            throw new ConversationNotFoundException();
-        }
-
-        if (isCustomer(conversation, currentUserId)) {
-            conversation.setCustomerRead(true);
-        } else {
-            conversation.setOfferOwnerRead(true);
-        }
+        conversation.markAsRead(currentUserId);
         Conversation saved = conversationRepository.save(conversation);
-        conversation.setMessages(messageRepository.findByConversationId(conversationId));
-        processSortUpdateMessages(currentUserId, saved);
-        setRead(saved, currentUserId);
+        saved.setMessages(messageRepository.findByConversationIdOrderByCreatedAt(conversationId));
+        setIndividualMessagesRead(currentUserId, saved);
         return mapperFacade.map(saved, ConversationDTO.class);
     }
 
@@ -87,42 +83,22 @@ public class MessageServiceImpl implements MessageService {
     public ConversationDTO sendMessage(Long conversationId, SendMessageDTO messageDTO) {
         Conversation conversation = conversationRepository.findByIdAndCustomerIdOrOfferOwnerId(conversationId, SecurityUtils.getCurrentUserId()).orElseThrow(ConversationNotFoundException::new);
         Long currentUserId = SecurityUtils.getCurrentUserId();
-        if (!isOfferOwner(conversation, currentUserId) && !isCustomer(conversation, currentUserId)) {
-            throw new ConversationNotFoundException();
-        }
-
-        String recipientEmail = null;
-        if (isCustomer(conversation, currentUserId)) {
-            conversation.setOfferOwnerRead(false);
-            conversation.setCustomerRead(true);
-            recipientEmail = conversation.getOffer().getOwner().getEmail().toString();
-        } else {
-            conversation.setOfferOwnerRead(true);
-            conversation.setCustomerRead(false);
-            recipientEmail = conversation.getCustomer().getEmail().toString();
-        }
-
-        Message newMessage = mapperFacade.map(messageDTO, Message.class);
-        newMessage.setCreatedBy(currentUserId);
-        newMessage.setConversationId(conversation.getId());
-        newMessage.setCreatedAt(new Date());
-        messageRepository.save(newMessage);
-        conversation.setUpdatedAt(new Date());
+        String recipientEmail = conversation.sendMessageToRecipient(currentUserId);
+        Message newMessage = messageRepository.save(messageFactory.createMessage(conversationId, currentUserId, messageDTO));
         Conversation saved = conversationRepository.save(conversation);
-        saved.setMessages(messageRepository.findByConversationId(conversationId));
-        processSortUpdateMessages(currentUserId, saved);
-        setRead(saved, currentUserId);
+        saved.setMessages(messageRepository.findByConversationIdOrderByCreatedAt(conversationId));
+        setIndividualMessagesRead(currentUserId, saved);
         sendWsUpdate(conversation, recipientEmail, newMessage, saved);
         return mapperFacade.map(saved, ConversationDTO.class);
     }
 
-    private void sendWsUpdate(Conversation conversation, String recipientEmail, Message newMessage, Conversation saved) {
+    private void sendWsUpdate(Conversation conversation, String recipientEmail, Message newMessage, Conversation conv) {
         Message lastSavedMessage = conversation.getMessages().get(conversation.getMessages().size() - 1);
         WsConversationUpdateDTO wsUpdate = mapperFacade.map(newMessage, WsConversationUpdateDTO.class);
         wsUpdate.setCreatedAt(lastSavedMessage.getCreatedAt());
-        wsUpdate.setConversationId(saved.getId());
+        wsUpdate.setConversationId(conv.getId());
         wsUpdate.setId(lastSavedMessage.getId());
-        websocketSenderService.sendConversationUpdate(wsUpdate, recipientEmail, saved.getId());
+        websocketSenderService.sendConversationUpdate(wsUpdate, recipientEmail, conv.getId());
     }
 
     @Override
@@ -131,33 +107,19 @@ public class MessageServiceImpl implements MessageService {
         Optional<Conversation> conv = conversationRepository.findByUserAndOfferId(createConversationDTO.getOfferId(), currentUser);
         if (conv.isPresent()) {
             Conversation conversation = conv.get();
-            List<Message> messages = messageRepository.findByConversationId(conversation.getId());
-            conversation.setMessages(messages);
+            conversation.setMessages(messageRepository.findByConversationIdOrderByCreatedAt(conversation.getId()));
             return mapperFacade.map(conversation, ConversationDTO.class);
         }
-
         Offer offer = offerRepository.findById(createConversationDTO.getOfferId()).orElseThrow(OfferDoesntExistException::new);
-        if (!OfferStatus.ACTIVE.equals(offer.getStatus())) {
-            throw new CantCreateConversationOnNonActiveOfferException();
-        }
-
-        Conversation conversation = new Conversation();
-        conversation.setCustomer(userRepository.findById(currentUser).get());
-        conversation.setOffer(offer);
-        conversation.setCustomerRead(true);
-        conversation.setOfferOwnerRead(true);
-
-        Conversation saved = conversationRepository.save(conversation);
-        setRead(saved, currentUser);
+        User customer = userRepository.findById(currentUser).get();
+        Conversation saved = conversationRepository.save(conversationFactory.createConversation(customer, offer));
         return mapperFacade.map(saved, ConversationDTO.class);
     }
 
     @Override
     public Page<ConversationWithoutMessagesDTO> getUserConversations(Pageable pageable) {
-        Long currentUserId = SecurityUtils.getCurrentUserId();
-        Page<Conversation> allByCustomerIdOrOfferOwnerId = conversationRepository.findAll(new ConversationSpecification(currentUserId), pageable);
-        allByCustomerIdOrOfferOwnerId.forEach(conv -> setRead(conv, currentUserId));
-        return allByCustomerIdOrOfferOwnerId.map(c -> mapperFacade.map(c, ConversationWithoutMessagesDTO.class));
+        Page<Conversation> allUsersConvs = conversationRepository.findAll(new ConversationSpecification(SecurityUtils.getCurrentUserId(), false), pageable);
+        return allUsersConvs.map(c -> mapperFacade.map(c, ConversationWithoutMessagesDTO.class));
     }
 
     @Override
@@ -166,37 +128,13 @@ public class MessageServiceImpl implements MessageService {
         conversationList.forEach(c -> {
             User convCust = c.getCustomer();
             User owner = c.getOffer().getOwner();
-            WsConversationUpdateDTO updateDTO = new WsConversationUpdateDTO();
-            updateDTO.setConversationId(c.getId());
-            updateDTO.setCreatedAt(new Date());
-            updateDTO.setCreatedBy(owner.getId());
-            updateDTO.setOfferStatus(status);
-            updateDTO.setSoldToMe(OfferStatus.SOLD.equals(status) && convCust.getId().equals(buyerId));
-            websocketSenderService.sendConversationUpdate(updateDTO, convCust.getEmail().toString(), c.getId());
+            websocketSenderService.sendConversationUpdate(new WsConversationUpdateDTO(c.getId(), owner.getId(), convCust.getId(), buyerId, status), convCust.getEmail().toString(), c.getId());
         });
     }
 
-    private void processSortUpdateMessages(Long currentUserId, Conversation conversation) {
-        conversation.getMessages().sort(Comparator.comparing(Message::getCreatedAt));
-        List<Message> unReadMessagse = conversation.getMessages().stream().filter(m -> !m.getCreatedBy().equals(currentUserId) && !m.isRead()).collect(Collectors.toList());
-        unReadMessagse.forEach(message -> message.setRead(true));
-        messageRepository.saveAll(unReadMessagse);
-    }
-
-    private void setRead(Conversation conversation, Long userId) {
-        if (isCustomer(conversation, userId)) {
-            conversation.setRead(conversation.isCustomerRead());
-        } else {
-            conversation.setRead(conversation.isOfferOwnerRead());
-        }
-    }
-
-    private boolean isOfferOwner(Conversation conversation, Long userId) {
-        return userId.equals(conversation.getOffer().getOwnerId());
-    }
-
-    private boolean isCustomer(Conversation conversation, Long userId) {
-        return userId.equals(conversation.getCustomer().getId());
+    private void setIndividualMessagesRead(Long currentUserId, Conversation conversation) {
+        //TODO do this directly on db side by conversationId, currentUserId
+        messageRepository.saveAll(conversation.getMessages().stream().filter(m -> !m.getCreatedBy().equals(currentUserId) && !m.isRead()).peek(Message::markAsRead).collect(Collectors.toList()));
     }
 
 }

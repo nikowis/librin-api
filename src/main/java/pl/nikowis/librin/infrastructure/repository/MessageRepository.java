@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface MessageRepository extends MongoRepository<Message, Long> {
-    List<Message> findByConversationId(Long conversationId);
+    List<Message> findByConversationIdOrderByCreatedAt(Long conversationId);
 }

@@ -21,9 +21,15 @@ import java.util.List;
 public class ConversationSpecification implements Specification<Conversation> {
 
     private Long userId;
+    private Boolean empty;
 
     public ConversationSpecification(Long userId) {
         this.userId = userId;
+    }
+
+    public ConversationSpecification(Long userId, Boolean empty) {
+        this.userId = userId;
+        this.empty = empty;
     }
 
     @Override
@@ -46,6 +52,9 @@ public class ConversationSpecification implements Specification<Conversation> {
         Predicate isCustomer = builder.equal(root.get(Conversation_.customer).get(User_.id), userId);
         Predicate isOfferOwner = builder.equal(root.get(Conversation_.offer).get(Offer_.owner).get(User_.id), userId);
         predicates.add(builder.or(isCustomer, isOfferOwner));
+        if (empty != null) {
+            predicates.add(builder.equal(root.get(Conversation_.empty), empty));
+        }
         return builder.and(predicates.toArray(new Predicate[0]));
     }
 }
