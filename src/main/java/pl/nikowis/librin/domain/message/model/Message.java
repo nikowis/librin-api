@@ -27,8 +27,4 @@ public class Message {
     @NotNull
     private Long conversationId;
 
-    public void markAsRead() {
-
-    }
-
 }

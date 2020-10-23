@@ -75,7 +75,6 @@ public class MessageServiceImpl implements MessageService {
         conversation.markAsRead(currentUserId);
         Conversation saved = conversationRepository.save(conversation);
         saved.setMessages(messageRepository.findByConversationIdOrderByCreatedAt(conversationId));
-        setIndividualMessagesRead(currentUserId, saved);
         return mapperFacade.map(saved, ConversationDTO.class);
     }
 
@@ -87,7 +86,7 @@ public class MessageServiceImpl implements MessageService {
         Message newMessage = messageRepository.save(messageFactory.createMessage(conversationId, currentUserId, messageDTO));
         Conversation saved = conversationRepository.save(conversation);
         saved.setMessages(messageRepository.findByConversationIdOrderByCreatedAt(conversationId));
-        setIndividualMessagesRead(currentUserId, saved);
+        messageRepository.markMessagesAsRead(currentUserId, conversationId);
         sendWsUpdate(conversation, recipientEmail, newMessage, saved);
         return mapperFacade.map(saved, ConversationDTO.class);
     }
@@ -130,11 +129,6 @@ public class MessageServiceImpl implements MessageService {
             User owner = c.getOffer().getOwner();
             websocketSenderService.sendConversationUpdate(new WsConversationUpdateDTO(c.getId(), owner.getId(), convCust.getId(), buyerId, status), convCust.getEmail().toString(), c.getId());
         });
-    }
-
-    private void setIndividualMessagesRead(Long currentUserId, Conversation conversation) {
-        //TODO do this directly on db side by conversationId, currentUserId
-        messageRepository.saveAll(conversation.getMessages().stream().filter(m -> !m.getCreatedBy().equals(currentUserId) && !m.isRead()).peek(Message::markAsRead).collect(Collectors.toList()));
     }
 
 }

@@ -7,6 +7,6 @@ import pl.nikowis.librin.domain.message.model.Message;
 import java.util.List;
 
 @Repository
-public interface MessageRepository extends MongoRepository<Message, Long> {
+public interface MessageRepository extends MongoRepository<Message, Long>, MessageRepositoryCustom {
     List<Message> findByConversationIdOrderByCreatedAt(Long conversationId);
 }
