@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.nikowis.librin.domain.photo.service.FileStorageService;
 import pl.nikowis.librin.domain.policy.exception.PolicyNotFoundException;
 import pl.nikowis.librin.domain.policy.model.Policy;
 import pl.nikowis.librin.domain.policy.model.PolicyType;

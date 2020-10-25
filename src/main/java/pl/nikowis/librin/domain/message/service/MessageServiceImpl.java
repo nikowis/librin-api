@@ -20,7 +20,6 @@ import pl.nikowis.librin.domain.message.model.Message;
 import pl.nikowis.librin.domain.offer.exception.OfferDoesntExistException;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
-import pl.nikowis.librin.domain.message.exception.CantCreateConversationOnNonActiveOfferException;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.infrastructure.repository.ConversationRepository;
 import pl.nikowis.librin.infrastructure.repository.ConversationSpecification;
@@ -31,10 +30,8 @@ import pl.nikowis.librin.infrastructure.security.SecurityConstants;
 import pl.nikowis.librin.infrastructure.service.WebsocketSenderService;
 import pl.nikowis.librin.util.SecurityUtils;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
