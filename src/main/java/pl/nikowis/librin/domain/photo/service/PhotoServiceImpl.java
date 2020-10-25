@@ -9,6 +9,7 @@ import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.infrastructure.repository.PhotoRepository;
 import pl.nikowis.librin.util.FilePathUtils;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,11 +36,12 @@ public class PhotoServiceImpl implements PhotoService {
 
     @Override
     public List<Photo> updatePhotos(Offer offer, List<PhotoDTO> newPhotos) {
+
         List<Photo> oldPhotos = offer.getPhotos();
         List<Photo> outputPhotos = new LinkedList<>();
         List<Photo> oldPhotosToRemove = oldPhotos.stream().filter(oldPhoto -> !isPresentInPhotoList(newPhotos, oldPhoto)).collect(Collectors.toList());
         List<Photo> oldPhotosToSave = oldPhotos.stream().filter(oldPhoto -> isPresentInPhotoList(newPhotos, oldPhoto)).collect(Collectors.toList());
-        List<PhotoDTO> newPhotosToStore = newPhotos.stream().filter(photoDTO -> photoDTO.getUuid() == null).collect(Collectors.toList());
+        List<PhotoDTO> newPhotosToStore = newPhotos == null? Collections.emptyList() : newPhotos.stream().filter(photoDTO -> photoDTO.getUuid() == null).collect(Collectors.toList());
         User owner = offer.getOwner();
         List<Photo> newSavedPhotos = photoRepository.saveAll(photoFactory.createPhotos(newPhotosToStore, owner, offer));
         photoRepository.deleteAll(oldPhotosToRemove);
@@ -53,10 +55,14 @@ public class PhotoServiceImpl implements PhotoService {
     }
 
     private void storePhotos(Long ownerId, Long offerId, List<PhotoDTO> photos) {
+        if(photos == null)
+            return;
         fileStorageService.storeFiles(photos.stream().collect(Collectors.toMap(p -> FilePathUtils.getOfferPhotoPath(ownerId, offerId, p.getUuid(), p.getName()), PhotoDTO::getContent)));
     }
 
     private void removePhotos(Long ownerId, Long offerId, List<Photo> photos) {
+        if(photos == null)
+            return;
         fileStorageService.removeFiles(photos.stream().map(photo -> FilePathUtils.getOfferPhotoPath(ownerId, offerId, photo.getUuid(), photo.getName())).collect(Collectors.toList()));
     }
 

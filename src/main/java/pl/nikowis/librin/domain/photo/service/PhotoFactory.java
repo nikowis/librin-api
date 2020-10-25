@@ -26,6 +26,9 @@ public class PhotoFactory {
 
     public List<Photo> createPhotos(List<PhotoDTO> photosDTO, User owner, Offer offer) {
         List<Photo> photos = new LinkedList<>();
+        if(photosDTO == null) {
+            return photos;
+        }
         for (PhotoDTO photoDTO: photosDTO) {
             Photo photo = createPhoto(photoDTO);
             photo.setSize((long) photoDTO.getContent().getBytes().length);
