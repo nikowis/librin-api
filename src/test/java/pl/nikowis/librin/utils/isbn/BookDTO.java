@@ -15,6 +15,7 @@ public class BookDTO {
 
     public static final String STR_SGN = "\"";
     public static final String NULL = "null";
+    public List<Contributor> contributors = new LinkedList<>();
     private String id;
     private String author;
     private String title;
@@ -22,7 +23,6 @@ public class BookDTO {
     private String language;
     private String datestamp;
     private String form; //http://www.onix-codelists.io/codelist/150
-    public List<Contributor> contributors = new LinkedList<>();
 
     public BookDTO(ISBNModel.Product product) {
         ISBNModel.DescriptiveDetail descriptiveDet = product.DescriptiveDetailObject;
@@ -34,7 +34,7 @@ public class BookDTO {
         this.datestamp = product.datestamp;
         this.form = descriptiveDet.getProductForm();
 
-        for(ISBNModel.Contributor c: isbnContribs) {
+        for (ISBNModel.Contributor c : isbnContribs) {
             contributors.add(new Contributor(c));
         }
 
@@ -46,11 +46,11 @@ public class BookDTO {
     }
 
     public String toCsvRecord() {
-        return STR_SGN + id +  STR_SGN + CSV_SEPARATOR
-                + (author != null ? STR_SGN  + author.replace("'", "''").replace("\"", "'\"") + STR_SGN : NULL) + CSV_SEPARATOR
-                + (title != null ? STR_SGN  + title.replace("'", "''").replace("\"", "'\"") + STR_SGN : NULL) + CSV_SEPARATOR
-                + (subtitle != null ? STR_SGN  + subtitle.replace("'", "''").replace("\"", "'\"") + STR_SGN : NULL) + CSV_SEPARATOR
-                + (datestamp != null ? STR_SGN  + datestamp + STR_SGN : NULL);
+        return STR_SGN + id + STR_SGN + CSV_SEPARATOR
+                + (author != null ? STR_SGN + author.replace("'", "''").replace("\"", "'\"") + STR_SGN : NULL) + CSV_SEPARATOR
+                + (title != null ? STR_SGN + title.replace("'", "''").replace("\"", "'\"") + STR_SGN : NULL) + CSV_SEPARATOR
+                + (subtitle != null ? STR_SGN + subtitle.replace("'", "''").replace("\"", "'\"") + STR_SGN : NULL) + CSV_SEPARATOR
+                + (datestamp != null ? STR_SGN + datestamp + STR_SGN : NULL);
     }
 
     @Override
@@ -84,8 +84,8 @@ public class BookDTO {
     @Data
     @NoArgsConstructor
     public static class Contributor {
-        private String name;
         public String role;
+        private String name;
 
         public Contributor(ISBNModel.Contributor c) {
             name = c.getPersonNameInverted();

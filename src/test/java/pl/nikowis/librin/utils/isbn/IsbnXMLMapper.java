@@ -1,6 +1,5 @@
 package pl.nikowis.librin.utils.isbn;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -15,10 +14,10 @@ import java.util.stream.Collectors;
 
 public class IsbnXMLMapper {
 
+    public static final List<String> FIND_AND_PRINT_FULL_TITLES = Arrays.asList();
     public String entryFilePath;
     private List<BookDTO> books;
     private List<ISBNModel.Product> products;
-    public static final List<String> FIND_AND_PRINT_FULL_TITLES = Arrays.asList();
 
 
     public IsbnXMLMapper(String entryFilePath) {
@@ -54,7 +53,7 @@ public class IsbnXMLMapper {
         if (titleDetail == null) return false;
         ISBNModel.TitleElement titleElement = titleDetail.TitleElementObject;
         if (titleElement == null) return false;
-        if (titleElement.TitleText == null) return false;
+        return titleElement.TitleText != null;
 //        if(FIND_AND_PRINT_FULL_TITLES.size() > 0 && FIND_AND_PRINT_FULL_TITLES.contains(titleElement.TitleText.toLowerCase())) {
 //            try {
 //                System.out.println( new ObjectMapper().writeValueAsString(product));
@@ -62,7 +61,5 @@ public class IsbnXMLMapper {
 //                e.printStackTrace();
 //            }
 //        }
-
-        return true;
     }
 }

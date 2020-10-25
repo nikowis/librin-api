@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changeset2020-10-17-attachments-refactor.xml" author="nikowis">
+        <sql>
+            DELETE FROM "attachment";
+            ALTER TABLE "attachment" DROP COLUMN "main";
+            ALTER TABLE "attachment" RENAME TO "photo";
+            ALTER TABLE "photo" ADD COLUMN "uuid" varchar(40);
+            ALTER TABLE "conversation" ADD COLUMN "empty" BOOLEAN NOT NULL DEFAULT FALSE;
+        </sql>
+    </changeSet>
+</databaseChangeLog>
+
+
+

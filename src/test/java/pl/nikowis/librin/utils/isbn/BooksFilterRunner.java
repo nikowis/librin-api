@@ -36,7 +36,7 @@ public class BooksFilterRunner {
             books = s.filter.run(this.books);
             ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
             writer.writeValue(new File(entryFilePath + "books-" + s.stepName + ".json"), books);
-            System.out.println("Step '"+s.stepName+"' filtered books size " + books.size());
+            System.out.println("Step '" + s.stepName + "' filtered books size " + books.size());
         }
         ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
         writer.writeValue(new File(entryFilePath + "books-final.json"), books);
@@ -48,16 +48,16 @@ public class BooksFilterRunner {
         return this;
     }
 
+    public interface LibraryFilter {
+        List<BookDTO> run(List<BookDTO> library);
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     public class Step {
         String stepName;
         LibraryFilter filter;
-    }
-
-    public interface LibraryFilter {
-        List<BookDTO> run(List<BookDTO> library);
     }
 
 

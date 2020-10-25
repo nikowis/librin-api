@@ -2,7 +2,7 @@ package pl.nikowis.librin.util;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import pl.nikowis.librin.model.UserDetailsImpl;
+import pl.nikowis.librin.domain.user.model.UserDetailsImpl;
 
 public class SecurityUtils {
 

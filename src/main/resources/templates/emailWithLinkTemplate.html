@@ -1,40 +1,40 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        .card {
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-            transition: 0.3s;
-            max-width: 50%;
-            margin: auto;
-        }
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <style>
+    .card {
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+      transition: 0.3s;
+      max-width: 50%;
+      margin: auto;
+    }
 
-        img {
-            margin: auto;
-        }
+    img {
+      margin: auto;
+    }
 
-        .card:hover {
-            box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
-        }
+    .card:hover {
+      box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
 
-        .container {
-            padding: 0;
-        }
+    .container {
+      padding: 0;
+    }
 
-    </style>
+  </style>
 </head>
 <body>
 
 <div class="card">
-    <img src="brandLogo.png" th:src="|cid:${brandLogo}|" width="300px" height="auto"/>
+  <img height="auto" src="brandLogo.png" th:src="|cid:${brandLogo}|" width="300px"/>
 
-    <h2 th:text="${title}"></h2>
-    <div class="container">
-        <h4 th:text="${info}"></h4>
-        <a th:href="${url}" th:text="${linkText}"></a>
-        <div th:text="${footer}"></div>
-    </div>
+  <h2 th:text="${title}"></h2>
+  <div class="container">
+    <h4 th:text="${info}"></h4>
+    <a th:href="${url}" th:text="${linkText}"></a>
+    <div th:text="${footer}"></div>
+  </div>
 </div>
 
 </body>

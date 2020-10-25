@@ -86,7 +86,7 @@ public class ISBNMain {
                         List<BookDTO.Contributor> contributors = b.contributors;
                         String authorName = contributors.get(0).getName();
                         b.setAuthor(normalizeName(authorName));
-                        if(InvertedNamesHelper.AUTHOR_INVERT_NAME_MAPPINGS.containsKey(b.getAuthor())) {
+                        if (InvertedNamesHelper.AUTHOR_INVERT_NAME_MAPPINGS.containsKey(b.getAuthor())) {
                             b.setAuthor(InvertedNamesHelper.AUTHOR_INVERT_NAME_MAPPINGS.get(b.getAuthor()));
                         }
                         res.add(b);

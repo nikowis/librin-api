@@ -42,7 +42,7 @@ public class TownsProcessor {
             System.out.println("Locations " + locations.size());
             FileWriter f0 = new FileWriter("C:\\Users\\nikow\\Desktop\\librin-api\\src\\main\\java\\pl\\nikowis\\librin\\util\\towns_output.csv");
             String newLine = System.getProperty("line.separator");
-            for(Location loc: locations) {
+            for (Location loc : locations) {
                 f0.write(loc.toString() + newLine);
             }
             f0.close();

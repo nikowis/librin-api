@@ -25,7 +25,7 @@ public class InvertedNamesHelper {
             String line = reader.readLine();
             while (line != null) {
                 String[] split = line.split(";");
-                if(line.trim().length() > 0 && split.length > 1) {
+                if (line.trim().length() > 0 && split.length > 1) {
                     AUTHOR_INVERT_NAME_MAPPINGS.put(split[0], split[1]);
                 }
                 line = reader.readLine();
@@ -54,7 +54,7 @@ public class InvertedNamesHelper {
                         String[] b2Split = b2Author.split(" ");
                         String match = b1Author + ";" + b2Author;
                         String invertedMatch = b2Author + ";" + b1Author;
-                        if( !exactMatches.contains(match) && isExactMatch(b1Split, b2Split)) {
+                        if (!exactMatches.contains(match) && isExactMatch(b1Split, b2Split)) {
                             exactMatches.add(match);
                             exactMatches.add(invertedMatch);
                         } else if (!exactMatches.contains(match) && !possible.contains(match)) {
@@ -97,18 +97,18 @@ public class InvertedNamesHelper {
     }
 
     private static boolean isExactMatch(String[] b1Split, String[] b2Split) {
-        if( b1Split.length != b2Split.length) {
+        if (b1Split.length != b2Split.length) {
             return false;
         }
         boolean wordFound = false;
-        for (String split1: b1Split) {
+        for (String split1 : b1Split) {
             wordFound = false;
-            for(String split2 : b2Split){
-                if(split1.equals(split2)) {
+            for (String split2 : b2Split) {
+                if (split1.equals(split2)) {
                     wordFound = true;
                 }
             }
-            if(!wordFound) {
+            if (!wordFound) {
                 return false;
             }
         }
