@@ -1,0 +1,56 @@
+version: "3.8"
+services:
+#  domainproxy:
+#    image: nginx:1.19.3-alpine
+#    volumes:
+#      - ./domainproxy.nginx.conf:/etc/nginx/nginx.conf
+#    ports:
+#      - 80:80
+#      - 443:443
+  librinapi:
+    image: openjdk:8-jdk-alpine
+    entrypoint: ["java","-jar","/app.jar"]
+    ports:
+      - 8081:8081
+    volumes:
+      - ./apilibrin.jar:/app.jar
+      - ./api:/root/
+      - ./librin:/root/librin
+    environment:
+      - SPRING_DATA_MONGODB_HOST=host.docker.internal
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/librin
+#  librinweb:
+#    image: nginx:1.19.3-alpine
+#    ports:
+#      - 3001
+#    volumes:
+#      - ./weblogs:/root/
+#      - ./librinweb.nginx.conf:/etc/nginx/nginx.conf
+#      - ./librinweb:/usr/share/nginx/html
+#  cdn:
+#    image: nginx:1.19.3-alpine
+#    volumes:
+#      - ./cdn.nginx.conf:/etc/nginx/nginx.conf
+#      - ./librin:/root/librin
+#    ports:
+#      - 80
+#      - 443
+  postgresql:
+    image: postgres:13.0-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: sa
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgvol:/var/lib/postgresql/data
+  mongo:
+    image: mongo:4.4.1-bionic
+    ports:
+      - "27017:27017"
+      - "27016:27016"
+    volumes:
+      - mongovol:/data/db
+volumes:
+  pgvol:
+  mongovol:
