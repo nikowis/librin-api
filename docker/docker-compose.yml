@@ -27,13 +27,15 @@ services:
       - ./librinweb.nginx.conf:/etc/nginx/nginx.conf
       - ./build:/usr/share/nginx/html
       - ./librinweb-nginx-logs:/root/nginx-logs
-#  cdn:
-#    image: nginx:1.19.3-alpine
-#    volumes:
-#      - ./cdn.nginx.conf:/etc/nginx/nginx.conf
-#      - ./librin:/root/librin
-#    ports:
-#      - 7000:7000
+  cdn:
+    image: nginx:1.19.3-alpine
+    volumes:
+      - ./cdn-entrypoint.sh:/root/cdn-entrypoint.sh
+      - ./cdn.nginx.conf:/etc/nginx/nginx.conf
+      - ./librin:/usr/share/nginx/librin
+      - ./cdn-nginx-logs:/root/nginx-logs
+    ports:
+      - 7000:7000
   postgresql:
     image: postgres:13.0-alpine
     environment:
