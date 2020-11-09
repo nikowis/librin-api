@@ -11,8 +11,8 @@ import org.springframework.web.filter.CorsFilter;
 import pl.nikowis.librin.infrastructure.config.Profiles;
 
 @Configuration
-@Profile(Profiles.PROD)
-public class ProdCorsConfiguration {
+@Profile(Profiles.STAGE)
+public class StageCorsConfiguration {
 
     @Bean
     public FilterRegistrationBean prodCorsFilter() {
@@ -20,8 +20,8 @@ public class ProdCorsConfiguration {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.addAllowedOrigin("http://89.65.58.225");
-        config.addAllowedOrigin("https://librin.pl");
-        config.addAllowedOrigin("https://www.librin.pl");
+        config.addAllowedOrigin("https://stage.librin.pl");
+        config.addAllowedOrigin("https://www.stage.librin.pl");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
