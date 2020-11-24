@@ -49,7 +49,6 @@ class MyOffersControllerTest {
     public static final String OFFER_AUTHOR = "Author";
     public static final OfferCategory OFFER_CATEGORY = OfferCategory.CRIME;
     public static final OfferCondition OFFER_CONDITION = OfferCondition.NEW;
-    private static final Long OFFER_ID = 1L;
     private MockMvc mockMvc;
 
     @Autowired
@@ -118,11 +117,11 @@ class MyOffersControllerTest {
         )
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].id", is(o.getId().intValue())))
-                .andExpect(jsonPath("$.content[0].createdAt", is(notNullValue())))
-                .andExpect(jsonPath("$.content[0].title", is(OFFER_TITLE)))
-                .andExpect(jsonPath("$.content[0].author", is(OFFER_AUTHOR)))
-                .andExpect(jsonPath("$.totalElements", is(1)));
+                .andExpect(jsonPath("$.content[1].id", is(o.getId().intValue())))
+                .andExpect(jsonPath("$.content[1].createdAt", is(notNullValue())))
+                .andExpect(jsonPath("$.content[1].title", is(OFFER_TITLE)))
+                .andExpect(jsonPath("$.content[1].author", is(OFFER_AUTHOR)))
+                .andExpect(jsonPath("$.totalElements", is(2)));
     }
 
 
@@ -184,7 +183,6 @@ class MyOffersControllerTest {
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);
         o.setAuthor(OFFER_AUTHOR);
-        o.setId(OFFER_ID);
         o.setOwner(testUser);
         o.setCategory(OFFER_CATEGORY);
         o.setCondition(OFFER_CONDITION);
@@ -221,7 +219,6 @@ class MyOffersControllerTest {
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);
         o.setAuthor(OFFER_AUTHOR);
-        o.setId(OFFER_ID);
         o.setOwner(testUser);
         o.setCategory(OFFER_CATEGORY);
         o.setCondition(OFFER_CONDITION);
@@ -243,7 +240,6 @@ class MyOffersControllerTest {
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);
         o.setAuthor(OFFER_AUTHOR);
-        o.setId(OFFER_ID);
         o.setOwner(testUser);
         o.setOwnerId(testUser.getId());
         o = offerRepository.save(o);

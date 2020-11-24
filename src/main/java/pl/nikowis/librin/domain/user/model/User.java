@@ -50,6 +50,9 @@ public class User extends BaseEntity {
     @NotBlank
     private String role;
 
+    private double avgRating;
+    private int ratingCount;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.ALL})
     private List<Consent> consents = new ArrayList<>();
 

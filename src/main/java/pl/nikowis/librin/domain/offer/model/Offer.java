@@ -7,6 +7,7 @@ import pl.nikowis.librin.domain.offer.exception.CannotBuyOwnOfferException;
 import pl.nikowis.librin.domain.offer.exception.OfferCantBeUpdatedException;
 import pl.nikowis.librin.domain.offer.exception.OfferDoesntExistException;
 import pl.nikowis.librin.domain.offer.exception.OfferIsSoldException;
+import pl.nikowis.librin.domain.rating.exception.UnauthorizedCreateRatingException;
 import pl.nikowis.librin.domain.user.exception.CustomerAccountBlockedException;
 import pl.nikowis.librin.domain.user.exception.CustomerAccountDeletedException;
 import pl.nikowis.librin.domain.user.model.User;
@@ -115,5 +116,15 @@ public class Offer extends BaseEntity {
 
         buyer = customer;
         status = OfferStatus.SOLD;
+    }
+
+    public void validateCanCreateRating(Long offerOwnerId, Long ratingAuthorId) {
+        if(!OfferStatus.SOLD.equals(status) || !isUserTheBuyer(ratingAuthorId) || !ownerId.equals(offerOwnerId)) {
+            throw new UnauthorizedCreateRatingException();
+        }
+    }
+
+    private boolean isUserTheBuyer(Long ratingAuthorId) {
+        return buyer != null && ratingAuthorId.equals(buyer.getId());
     }
 }

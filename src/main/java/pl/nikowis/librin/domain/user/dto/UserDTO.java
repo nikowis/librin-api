@@ -13,4 +13,6 @@ public class UserDTO {
     private String lastName;
     private UserStatus status;
     private String role;
+    private double avgRating;
+    private int ratingCount;
 }

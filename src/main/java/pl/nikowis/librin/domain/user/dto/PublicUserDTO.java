@@ -9,4 +9,6 @@ public class PublicUserDTO {
     protected Long id;
     protected String username;
     protected UserStatus status;
+    private double avgRating;
+    private int ratingCount;
 }
