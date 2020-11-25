@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.rating.dto.CreateRatingDTO;
 import pl.nikowis.librin.domain.rating.dto.RatingDTO;
@@ -42,6 +43,7 @@ public class RatingServiceImpl implements RatingService {
 
     @Override
     @Secured(SecurityConstants.ROLE_USER)
+    @Transactional
     public RatingDTO createRating(Long userId, CreateRatingDTO dto) {
         Offer offer = offerRepository.findById(dto.getOfferId()).orElseThrow(UnauthorizedCreateRatingException::new);
         Long currentUserId = SecurityUtils.getCurrentUserId();

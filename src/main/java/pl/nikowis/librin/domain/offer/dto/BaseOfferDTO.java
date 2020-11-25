@@ -4,6 +4,7 @@ import lombok.Data;
 import pl.nikowis.librin.domain.offer.model.OfferCategory;
 import pl.nikowis.librin.domain.offer.model.OfferCondition;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
+import pl.nikowis.librin.domain.rating.dto.RatingDTO;
 import pl.nikowis.librin.domain.user.dto.PublicUserDTO;
 
 import java.math.BigDecimal;
@@ -25,5 +26,6 @@ public class BaseOfferDTO {
     protected PublicUserDTO owner;
     protected Boolean soldToMe;
     protected Long buyerId;
+    protected RatingDTO rating;
 
 }

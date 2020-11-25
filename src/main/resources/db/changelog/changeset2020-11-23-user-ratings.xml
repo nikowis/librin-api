@@ -12,9 +12,10 @@
                 , value SMALLINT NOT NULL
                 , user_id BIGINT NOT NULL
                 , author_id BIGINT NOT NULL
-                , offer_id BIGINT NOT NULL
+                , offer_id BIGINT UNIQUE NOT NULL
                 , description VARCHAR(512)
                 , created_at TIMESTAMP NOT NULL
+                , updated_at TIMESTAMP
                 , FOREIGN KEY (user_id) REFERENCES "user" (id)
                 , FOREIGN KEY (offer_id) REFERENCES "offer" (id)
                 , FOREIGN KEY (author_id) REFERENCES "user" (id)
@@ -23,6 +24,8 @@
 
             ALTER TABLE "user" ADD COLUMN "avg_rating" real DEFAULT 0;
             ALTER TABLE "user" ADD COLUMN "rating_count" INT DEFAULT 0;
+            UPDATE "user" SET avg_rating=0;
+            UPDATE "user" SET rating_count=0;
         </sql>
     </changeSet>
 </databaseChangeLog>

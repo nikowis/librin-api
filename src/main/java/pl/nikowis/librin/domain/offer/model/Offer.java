@@ -8,6 +8,7 @@ import pl.nikowis.librin.domain.offer.exception.OfferCantBeUpdatedException;
 import pl.nikowis.librin.domain.offer.exception.OfferDoesntExistException;
 import pl.nikowis.librin.domain.offer.exception.OfferIsSoldException;
 import pl.nikowis.librin.domain.rating.exception.UnauthorizedCreateRatingException;
+import pl.nikowis.librin.domain.rating.model.Rating;
 import pl.nikowis.librin.domain.user.exception.CustomerAccountBlockedException;
 import pl.nikowis.librin.domain.user.exception.CustomerAccountDeletedException;
 import pl.nikowis.librin.domain.user.model.User;
@@ -22,6 +23,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -65,6 +67,9 @@ public class Offer extends BaseEntity {
 
     @Transient
     private Photo photo;
+
+    @OneToOne(mappedBy = "offer", fetch = FetchType.EAGER)
+    private Rating rating;
 
     public void deleteOffer() {
         if (OfferStatus.SOLD.equals(status) || OfferStatus.DELETED.equals(status)) {
@@ -119,7 +124,7 @@ public class Offer extends BaseEntity {
     }
 
     public void validateCanCreateRating(Long offerOwnerId, Long ratingAuthorId) {
-        if(!OfferStatus.SOLD.equals(status) || !isUserTheBuyer(ratingAuthorId) || !ownerId.equals(offerOwnerId)) {
+        if(!OfferStatus.SOLD.equals(status) || rating != null || !isUserTheBuyer(ratingAuthorId) || !ownerId.equals(offerOwnerId)) {
             throw new UnauthorizedCreateRatingException();
         }
     }
