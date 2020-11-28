@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.nikowis.librin.domain.message.model.Conversation;
+import pl.nikowis.librin.domain.conversation.model.Conversation;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.report.dto.CreateReportDTO;
 import pl.nikowis.librin.domain.report.exception.IncorrectCreateReportRquestException;

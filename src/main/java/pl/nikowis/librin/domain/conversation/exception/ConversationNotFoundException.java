@@ -1,7 +1,7 @@
-package pl.nikowis.librin.domain.message.exception;
+package pl.nikowis.librin.domain.conversation.exception;
 
 import pl.nikowis.librin.domain.base.BusinessException;
-import pl.nikowis.librin.domain.message.model.Conversation_;
+import pl.nikowis.librin.domain.conversation.model.Conversation_;
 
 public class ConversationNotFoundException extends BusinessException {
 

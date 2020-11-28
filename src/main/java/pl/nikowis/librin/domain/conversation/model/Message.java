@@ -1,4 +1,4 @@
-package pl.nikowis.librin.domain.message.model;
+package pl.nikowis.librin.domain.conversation.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

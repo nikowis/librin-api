@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
@@ -15,10 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.TestConstants;
-import pl.nikowis.librin.domain.message.dto.CreateConversationDTO;
-import pl.nikowis.librin.domain.message.dto.SendMessageDTO;
-import pl.nikowis.librin.domain.message.model.Conversation;
-import pl.nikowis.librin.domain.message.model.Message;
+import pl.nikowis.librin.domain.conversation.dto.CreateConversationDTO;
+import pl.nikowis.librin.domain.conversation.dto.SendMessageDTO;
+import pl.nikowis.librin.domain.conversation.model.Conversation;
+import pl.nikowis.librin.domain.conversation.model.Message;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
 import pl.nikowis.librin.domain.user.model.User;
@@ -46,14 +48,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @ActiveProfiles(profiles = Profiles.TEST)
 @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "classpath:db/testdata.sql")
-class MessageControllerTest {
+class ConversationsControllerTest {
 
     public static final long USER_ID = 1L;
     private static final Long OFFER_ID = 1L;
     private MockMvc mockMvc;
 
     @Autowired
-    private MessagesController messagesController;
+    private ConversationsController messagesController;
 
     @Autowired
     private UserRepository userRepository;
@@ -120,7 +122,7 @@ class MessageControllerTest {
         CreateConversationDTO createDto = new CreateConversationDTO();
         createDto.setOfferId(o.getId());
 
-        mockMvc.perform(post(MessagesController.CONVERSATIONS_ENDPOINT)
+        mockMvc.perform(post(ConversationsController.CONVERSATIONS_ENDPOINT)
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(new ObjectMapper().writeValueAsString(createDto)))
                 .andDo(print())
@@ -149,9 +151,9 @@ class MessageControllerTest {
         message1.setConversationId(saved.getId());
 
         when(messagesRepository.save(any(Message.class))).thenReturn(message1);
-        when(messagesRepository.findByConversationIdOrderByCreatedAt(any(Long.class))).thenReturn(Lists.newArrayList(message1));
+        when(messagesRepository.findByConversationIdOrderByCreatedAt(any(Long.class), any(Pageable.class))).thenReturn(new PageImpl<>(Lists.newArrayList(message1)));
 
-        mockMvc.perform(post(MessagesController.CONVERSATION_ENDPOINT, saved.getId())
+        mockMvc.perform(post(ConversationsController.CONVERSATION_ENDPOINT, saved.getId())
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(new ObjectMapper().writeValueAsString(sendMessageDTO)))
                 .andDo(print())
@@ -185,12 +187,13 @@ class MessageControllerTest {
         message2.setCreatedAt(new Date());
         message2.setConversationId(saved.getId());
 
-        when(messagesRepository.findByConversationIdOrderByCreatedAt(any(Long.class))).thenReturn(Lists.newArrayList(message1, message2));
+        when(messagesRepository.findByConversationIdOrderByCreatedAt(any(Long.class), any(Pageable.class))).thenReturn(new PageImpl<>(Lists.newArrayList(message1, message2)));
+
 
         messagesRepository.save(message1);
         messagesRepository.save(message2);
 
-        mockMvc.perform(get(MessagesController.CONVERSATION_ENDPOINT, saved.getId()))
+        mockMvc.perform(get(ConversationsController.CONVERSATION_ENDPOINT, saved.getId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(saved.getId().intValue())))
@@ -221,11 +224,9 @@ class MessageControllerTest {
         message2.setContent(messageContent2);
         message2.setCreatedBy(testUser2.getId());
 
-        conversation.getMessages().add(message1);
-        conversation.getMessages().add(message2);
         Conversation saved = conversationRepository.save(conversation);
 
-        mockMvc.perform(get(MessagesController.CONVERSATION_ENDPOINT, saved.getId()))
+        mockMvc.perform(get(ConversationsController.CONVERSATION_ENDPOINT, saved.getId()))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
@@ -249,7 +250,7 @@ class MessageControllerTest {
         conversation3.setOffer(o3);
         Conversation saved3 = conversationRepository.save(conversation3);
 
-        mockMvc.perform(get(MessagesController.CONVERSATIONS_ENDPOINT))
+        mockMvc.perform(get(ConversationsController.CONVERSATIONS_ENDPOINT))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements", is(2)))
@@ -270,7 +271,7 @@ class MessageControllerTest {
         CreateConversationDTO createDto = new CreateConversationDTO();
         createDto.setOfferId(o.getId());
 
-        mockMvc.perform(post(MessagesController.CONVERSATIONS_ENDPOINT)
+        mockMvc.perform(post(ConversationsController.CONVERSATIONS_ENDPOINT)
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(new ObjectMapper().writeValueAsString(createDto)))
                 .andDo(print())

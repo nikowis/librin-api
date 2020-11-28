@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.nikowis.librin.domain.message.dto.ConversationDTO;
-import pl.nikowis.librin.domain.message.dto.ConversationWithoutMessagesDTO;
-import pl.nikowis.librin.domain.message.dto.CreateConversationDTO;
-import pl.nikowis.librin.domain.message.dto.SendMessageDTO;
-import pl.nikowis.librin.domain.message.service.MessageService;
+import pl.nikowis.librin.domain.conversation.dto.ConversationDTO;
+import pl.nikowis.librin.domain.conversation.dto.CreateConversationDTO;
+import pl.nikowis.librin.domain.conversation.dto.MessageDTO;
+import pl.nikowis.librin.domain.conversation.dto.SendMessageDTO;
+import pl.nikowis.librin.domain.conversation.service.ConversationService;
 
 
 @RestController
-@RequestMapping(path = MessagesController.CONVERSATIONS_ENDPOINT)
-public class MessagesController {
+@RequestMapping(path = ConversationsController.CONVERSATIONS_ENDPOINT)
+public class ConversationsController {
 
     public static final String CONVERSATIONS_ENDPOINT = "/conversations";
     public static final String CONVERSATION_ID_VARIABLE = "conversationId";
@@ -31,7 +31,7 @@ public class MessagesController {
     public static final String MESSAGES_ENDPOINT = CONVERSATIONS_ENDPOINT + CONVERSATION_PATH + MESSAGES_PATH;
 
     @Autowired
-    private MessageService messageService;
+    private ConversationService messageService;
 
     @GetMapping(path = CONVERSATION_PATH)
     public ConversationDTO conversation(@PathVariable(CONVERSATION_ID_VARIABLE) Long conversationId) {
@@ -39,7 +39,7 @@ public class MessagesController {
     }
 
     @PostMapping(path = CONVERSATION_PATH)
-    public ConversationDTO sendMessage(@PathVariable(CONVERSATION_ID_VARIABLE) Long conversationId, @Validated @RequestBody SendMessageDTO messageDTO) {
+    public MessageDTO sendMessage(@PathVariable(CONVERSATION_ID_VARIABLE) Long conversationId, @Validated @RequestBody SendMessageDTO messageDTO) {
         return messageService.sendMessage(conversationId, messageDTO);
     }
 
@@ -49,7 +49,7 @@ public class MessagesController {
     }
 
     @GetMapping
-    public Page<ConversationWithoutMessagesDTO> getUserConversations(Pageable pageable) {
+    public Page<ConversationDTO> getUserConversations(Pageable pageable) {
         return messageService.getUserConversations(pageable);
     }
 
@@ -57,5 +57,11 @@ public class MessagesController {
     public ConversationDTO createConversation(@Validated @RequestBody CreateConversationDTO createConversationDTO) {
         return messageService.createConversation(createConversationDTO);
     }
+
+    @GetMapping(path = MESSAGES_PATH)
+    public Page<MessageDTO> getConversationMessages(@PathVariable(CONVERSATION_ID_VARIABLE) Long conversationId, Pageable pageable) {
+        return messageService.getConversationMessages(conversationId, pageable);
+    }
+
 
 }

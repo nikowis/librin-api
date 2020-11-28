@@ -1,10 +1,10 @@
-package pl.nikowis.librin.domain.message.service;
+package pl.nikowis.librin.domain.conversation.service;
 
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import pl.nikowis.librin.domain.message.dto.SendMessageDTO;
-import pl.nikowis.librin.domain.message.model.Message;
+import pl.nikowis.librin.domain.conversation.dto.SendMessageDTO;
+import pl.nikowis.librin.domain.conversation.model.Message;
 
 import java.util.Date;
 

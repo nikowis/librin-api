@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import pl.nikowis.librin.domain.message.dto.WsConversationUpdateDTO;
+import pl.nikowis.librin.domain.conversation.dto.WsConversationUpdateDTO;
 
 @Service
 public class WebsocketSenderServiceImpl implements WebsocketSenderService {

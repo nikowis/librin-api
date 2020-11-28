@@ -1,9 +1,10 @@
-package pl.nikowis.librin.domain.message.model;
+package pl.nikowis.librin.domain.conversation.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
+import org.springframework.data.domain.Page;
 import pl.nikowis.librin.domain.base.BaseEntity;
-import pl.nikowis.librin.domain.message.exception.ConversationNotFoundException;
+import pl.nikowis.librin.domain.conversation.exception.ConversationNotFoundException;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.user.model.User;
 
@@ -27,9 +28,6 @@ public class Conversation extends BaseEntity {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "offerId")
     private Offer offer;
-
-    @Transient
-    private List<Message> messages = new ArrayList<>();
 
     private boolean offerOwnerRead;
     private boolean customerRead;

@@ -1,7 +1,7 @@
 package pl.nikowis.librin.domain.report.model;
 
 import lombok.Data;
-import pl.nikowis.librin.domain.message.model.Conversation;
+import pl.nikowis.librin.domain.conversation.model.Conversation;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.user.model.User;
 

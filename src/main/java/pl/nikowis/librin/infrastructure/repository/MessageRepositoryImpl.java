@@ -5,7 +5,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
-import pl.nikowis.librin.domain.message.model.Message;
+import pl.nikowis.librin.domain.conversation.model.Message;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 

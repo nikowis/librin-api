@@ -2,8 +2,8 @@ package pl.nikowis.librin.infrastructure.repository;
 
 import lombok.Data;
 import org.springframework.data.jpa.domain.Specification;
-import pl.nikowis.librin.domain.message.model.Conversation;
-import pl.nikowis.librin.domain.message.model.Conversation_;
+import pl.nikowis.librin.domain.conversation.model.Conversation;
+import pl.nikowis.librin.domain.conversation.model.Conversation_;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.Offer_;
 import pl.nikowis.librin.domain.user.model.User_;

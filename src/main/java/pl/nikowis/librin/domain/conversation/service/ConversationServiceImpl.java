@@ -1,4 +1,4 @@
-package pl.nikowis.librin.domain.message.service;
+package pl.nikowis.librin.domain.conversation.service;
 
 import ma.glasnost.orika.MapperFacade;
 import org.slf4j.Logger;
@@ -9,14 +9,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.nikowis.librin.domain.message.dto.ConversationDTO;
-import pl.nikowis.librin.domain.message.dto.ConversationWithoutMessagesDTO;
-import pl.nikowis.librin.domain.message.dto.CreateConversationDTO;
-import pl.nikowis.librin.domain.message.dto.SendMessageDTO;
-import pl.nikowis.librin.domain.message.dto.WsConversationUpdateDTO;
-import pl.nikowis.librin.domain.message.exception.ConversationNotFoundException;
-import pl.nikowis.librin.domain.message.model.Conversation;
-import pl.nikowis.librin.domain.message.model.Message;
+import pl.nikowis.librin.domain.conversation.dto.ConversationDTO;
+import pl.nikowis.librin.domain.conversation.dto.CreateConversationDTO;
+import pl.nikowis.librin.domain.conversation.dto.MessageDTO;
+import pl.nikowis.librin.domain.conversation.dto.SendMessageDTO;
+import pl.nikowis.librin.domain.conversation.dto.WsConversationUpdateDTO;
+import pl.nikowis.librin.domain.conversation.exception.ConversationNotFoundException;
+import pl.nikowis.librin.domain.conversation.model.Conversation;
+import pl.nikowis.librin.domain.conversation.model.Message;
 import pl.nikowis.librin.domain.offer.exception.OfferDoesntExistException;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
@@ -36,9 +36,9 @@ import java.util.Optional;
 @Service
 @Transactional
 @Secured(SecurityConstants.ROLE_USER)
-public class MessageServiceImpl implements MessageService {
+public class ConversationServiceImpl implements ConversationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MessageServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConversationServiceImpl.class);
 
     @Autowired
     private ConversationRepository conversationRepository;
@@ -70,31 +70,27 @@ public class MessageServiceImpl implements MessageService {
         Long currentUserId = SecurityUtils.getCurrentUserId();
         Conversation conversation = conversationRepository.findByIdAndCustomerIdOrOfferOwnerId(conversationId, currentUserId).orElseThrow(ConversationNotFoundException::new);
         conversation.markAsRead(currentUserId);
-        Conversation saved = conversationRepository.save(conversation);
-        saved.setMessages(messageRepository.findByConversationIdOrderByCreatedAt(conversationId));
-        return mapperFacade.map(saved, ConversationDTO.class);
+        return mapperFacade.map(conversationRepository.save(conversation), ConversationDTO.class);
     }
 
     @Override
-    public ConversationDTO sendMessage(Long conversationId, SendMessageDTO messageDTO) {
+    public MessageDTO sendMessage(Long conversationId, SendMessageDTO messageDTO) {
         Conversation conversation = conversationRepository.findByIdAndCustomerIdOrOfferOwnerId(conversationId, SecurityUtils.getCurrentUserId()).orElseThrow(ConversationNotFoundException::new);
         Long currentUserId = SecurityUtils.getCurrentUserId();
         String recipientEmail = conversation.sendMessageToRecipient(currentUserId);
         Message newMessage = messageRepository.save(messageFactory.createMessage(conversationId, currentUserId, messageDTO));
         Conversation saved = conversationRepository.save(conversation);
-        saved.setMessages(messageRepository.findByConversationIdOrderByCreatedAt(conversationId));
         messageRepository.markMessagesAsRead(currentUserId, conversationId);
-        sendWsUpdate(conversation, recipientEmail, newMessage, saved);
-        return mapperFacade.map(saved, ConversationDTO.class);
+        sendWsUpdate(recipientEmail, newMessage, saved.getId());
+        return mapperFacade.map(newMessage, MessageDTO.class);
     }
 
-    private void sendWsUpdate(Conversation conversation, String recipientEmail, Message newMessage, Conversation conv) {
-        Message lastSavedMessage = conversation.getMessages().get(conversation.getMessages().size() - 1);
+    private void sendWsUpdate(String recipientEmail, Message newMessage, Long conversationId) {
         WsConversationUpdateDTO wsUpdate = mapperFacade.map(newMessage, WsConversationUpdateDTO.class);
-        wsUpdate.setCreatedAt(lastSavedMessage.getCreatedAt());
-        wsUpdate.setConversationId(conv.getId());
-        wsUpdate.setId(lastSavedMessage.getId());
-        websocketSenderService.sendConversationUpdate(wsUpdate, recipientEmail, conv.getId());
+        wsUpdate.setCreatedAt(newMessage.getCreatedAt());
+        wsUpdate.setConversationId(conversationId);
+        wsUpdate.setId(newMessage.getId());
+        websocketSenderService.sendConversationUpdate(wsUpdate, recipientEmail, conversationId);
     }
 
     @Override
@@ -103,7 +99,6 @@ public class MessageServiceImpl implements MessageService {
         Optional<Conversation> conv = conversationRepository.findByUserAndOfferId(createConversationDTO.getOfferId(), currentUser);
         if (conv.isPresent()) {
             Conversation conversation = conv.get();
-            conversation.setMessages(messageRepository.findByConversationIdOrderByCreatedAt(conversation.getId()));
             return mapperFacade.map(conversation, ConversationDTO.class);
         }
         Offer offer = offerRepository.findById(createConversationDTO.getOfferId()).orElseThrow(OfferDoesntExistException::new);
@@ -113,9 +108,9 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Page<ConversationWithoutMessagesDTO> getUserConversations(Pageable pageable) {
+    public Page<ConversationDTO> getUserConversations(Pageable pageable) {
         Page<Conversation> allUsersConvs = conversationRepository.findAll(new ConversationSpecification(SecurityUtils.getCurrentUserId(), false), pageable);
-        return allUsersConvs.map(c -> mapperFacade.map(c, ConversationWithoutMessagesDTO.class));
+        return allUsersConvs.map(c -> mapperFacade.map(c, ConversationDTO.class));
     }
 
     @Override
@@ -126,6 +121,11 @@ public class MessageServiceImpl implements MessageService {
             User owner = c.getOffer().getOwner();
             websocketSenderService.sendConversationUpdate(new WsConversationUpdateDTO(c.getId(), owner.getId(), convCust.getId(), buyerId, status), convCust.getEmail().toString(), c.getId());
         });
+    }
+
+    @Override
+    public Page<MessageDTO> getConversationMessages(Long conversationId, Pageable pageable) {
+        return messageRepository.findByConversationIdOrderByCreatedAt(conversationId, pageable).map(message -> mapperFacade.map(message, MessageDTO.class));
     }
 
 }

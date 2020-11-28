@@ -1,7 +1,7 @@
 package pl.nikowis.librin.domain.report.service;
 
 import org.springframework.stereotype.Component;
-import pl.nikowis.librin.domain.message.model.Conversation;
+import pl.nikowis.librin.domain.conversation.model.Conversation;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
 import pl.nikowis.librin.domain.report.exception.IncorrectCreateReportRquestException;

@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.nikowis.librin.domain.photo.model.Photo;
-import pl.nikowis.librin.domain.message.service.MessageServiceImpl;
+import pl.nikowis.librin.domain.conversation.service.ConversationServiceImpl;
 import pl.nikowis.librin.domain.offer.dto.CreateOfferDTO;
 import pl.nikowis.librin.domain.offer.dto.OfferDetailsDTO;
 import pl.nikowis.librin.domain.offer.dto.OfferFilterDTO;
@@ -47,7 +47,7 @@ public class OfferServiceImpl implements OfferService {
     private MapperFacade mapperFacade;
 
     @Autowired
-    private MessageServiceImpl messageService;
+    private ConversationServiceImpl messageService;
 
 
 

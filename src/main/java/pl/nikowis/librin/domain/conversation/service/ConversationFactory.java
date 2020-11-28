@@ -1,8 +1,8 @@
-package pl.nikowis.librin.domain.message.service;
+package pl.nikowis.librin.domain.conversation.service;
 
 import org.springframework.stereotype.Component;
-import pl.nikowis.librin.domain.message.exception.CantCreateConversationOnNonActiveOfferException;
-import pl.nikowis.librin.domain.message.model.Conversation;
+import pl.nikowis.librin.domain.conversation.exception.CantCreateConversationOnNonActiveOfferException;
+import pl.nikowis.librin.domain.conversation.model.Conversation;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
 import pl.nikowis.librin.domain.user.model.User;

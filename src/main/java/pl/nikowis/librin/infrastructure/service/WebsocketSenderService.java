@@ -1,6 +1,6 @@
 package pl.nikowis.librin.infrastructure.service;
 
-import pl.nikowis.librin.domain.message.dto.WsConversationUpdateDTO;
+import pl.nikowis.librin.domain.conversation.dto.WsConversationUpdateDTO;
 
 public interface WebsocketSenderService {
 

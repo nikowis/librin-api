@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pl.nikowis.librin.domain.message.model.Conversation;
+import pl.nikowis.librin.domain.conversation.model.Conversation;
 
 import java.util.List;
 import java.util.Optional;

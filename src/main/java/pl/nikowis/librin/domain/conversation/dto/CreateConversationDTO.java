@@ -1,4 +1,4 @@
-package pl.nikowis.librin.domain.message.dto;
+package pl.nikowis.librin.domain.conversation.dto;
 
 import lombok.Data;
 
