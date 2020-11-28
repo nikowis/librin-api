@@ -22,11 +22,13 @@ import pl.nikowis.librin.domain.message.service.MessageService;
 @RequestMapping(path = MessagesController.CONVERSATIONS_ENDPOINT)
 public class MessagesController {
 
-    public static final String CONVERSATIONS_ENDPOINT = "/messages";
+    public static final String CONVERSATIONS_ENDPOINT = "/conversations";
     public static final String CONVERSATION_ID_VARIABLE = "conversationId";
     public static final String CONVERSATION_PATH = "/{" + CONVERSATION_ID_VARIABLE + "}";
+    public static final String MESSAGES_PATH = CONVERSATION_PATH + "/messages";
     public static final String CONVERSATION_READ = CONVERSATION_PATH + "/read";
     public static final String CONVERSATION_ENDPOINT = CONVERSATIONS_ENDPOINT + CONVERSATION_PATH;
+    public static final String MESSAGES_ENDPOINT = CONVERSATIONS_ENDPOINT + CONVERSATION_PATH + MESSAGES_PATH;
 
     @Autowired
     private MessageService messageService;

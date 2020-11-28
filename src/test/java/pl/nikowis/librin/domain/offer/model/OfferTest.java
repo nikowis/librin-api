@@ -1,7 +1,6 @@
 package pl.nikowis.librin.domain.offer.model;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import pl.nikowis.librin.domain.rating.exception.UnauthorizedCreateRatingException;
 import pl.nikowis.librin.domain.user.model.User;
