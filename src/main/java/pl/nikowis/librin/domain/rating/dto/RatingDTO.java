@@ -8,6 +8,7 @@ import java.util.Date;
 @Data
 public class RatingDTO {
 
+   private Long id;
    private Short value;
    private PublicUserDTO author;
    private String description;
