@@ -158,9 +158,8 @@ class ConversationsControllerTest {
                 .content(new ObjectMapper().writeValueAsString(sendMessageDTO)))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(saved.getId().intValue())))
-                .andExpect(jsonPath("$.createdAt", is(notNullValue())))
-                .andExpect(jsonPath("$.messages[0].content", is(messageContent)));
+                .andExpect(jsonPath("$.id", is(message1.getId())))
+                .andExpect(jsonPath("$.createdAt", is(notNullValue())));
     }
 
     @Test
@@ -197,15 +196,52 @@ class ConversationsControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(saved.getId().intValue())))
-                .andExpect(jsonPath("$.messages[0].id", is(notNullValue())))
-                .andExpect(jsonPath("$.messages[0].content", is(messageContent1)))
-                .andExpect(jsonPath("$.messages[0].createdBy", is(notNullValue())))
-                .andExpect(jsonPath("$.messages[1].id", is(notNullValue())))
-                .andExpect(jsonPath("$.messages[1].content", is(messageContent2)))
-                .andExpect(jsonPath("$.messages[1].createdBy", is(notNullValue())))
                 .andExpect(jsonPath("$.offer.id", is(o.getId().intValue())))
                 .andExpect(jsonPath("$.offer.price", is(o.getPrice())));
     }
+
+    @Test
+    @WithUserDetails(TestConstants.EMAIL2)
+    public void getConversationMessages() throws Exception {
+        Conversation conversation = new Conversation();
+        conversation.setCustomer(testUser2);
+        conversation.setOffer(o);
+        Conversation saved = conversationRepository.save(conversation);
+
+        Message message1 = new Message();
+        message1.setId("1");
+        String messageContent1 = "Hello, how much?";
+        message1.setContent(messageContent1);
+        message1.setCreatedBy(testUser.getId());
+        message1.setCreatedAt(new Date());
+        message1.setConversationId(saved.getId());
+
+        Message message2 = new Message();
+        message2.setId("2");
+        String messageContent2 = "12 dollars?";
+        message2.setContent(messageContent2);
+        message2.setCreatedBy(testUser2.getId());
+        message2.setCreatedAt(new Date());
+        message2.setConversationId(saved.getId());
+
+        when(messagesRepository.findByConversationIdOrderByCreatedAt(any(Long.class), any(Pageable.class))).thenReturn(new PageImpl<>(Lists.newArrayList(message1, message2)));
+
+        messagesRepository.save(message1);
+        messagesRepository.save(message2);
+
+        mockMvc.perform(get(ConversationsController.MESSAGES_ENDPOINT, saved.getId()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].id", is(notNullValue())))
+                .andExpect(jsonPath("$.content[0].content", is(messageContent1)))
+                .andExpect(jsonPath("$.content[0].createdBy", is(notNullValue())))
+                .andExpect(jsonPath("$.content[1].id", is(notNullValue())))
+                .andExpect(jsonPath("$.content[1].content", is(messageContent2)))
+                .andExpect(jsonPath("$.content[1].createdBy", is(notNullValue())))
+                .andExpect(jsonPath("$.numberOfElements", is(2)))
+                .andExpect(jsonPath("$.totalPages", is(1)));
+    }
+
 
     @Test
     @WithUserDetails(TestConstants.EMAIL3)

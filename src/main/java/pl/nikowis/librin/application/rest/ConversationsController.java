@@ -28,7 +28,7 @@ public class ConversationsController {
     public static final String MESSAGES_PATH = CONVERSATION_PATH + "/messages";
     public static final String CONVERSATION_READ = CONVERSATION_PATH + "/read";
     public static final String CONVERSATION_ENDPOINT = CONVERSATIONS_ENDPOINT + CONVERSATION_PATH;
-    public static final String MESSAGES_ENDPOINT = CONVERSATIONS_ENDPOINT + CONVERSATION_PATH + MESSAGES_PATH;
+    public static final String MESSAGES_ENDPOINT = CONVERSATIONS_ENDPOINT + MESSAGES_PATH;
 
     @Autowired
     private ConversationService messageService;
