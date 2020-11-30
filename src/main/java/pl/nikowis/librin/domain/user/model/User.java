@@ -3,6 +3,7 @@ package pl.nikowis.librin.domain.user.model;
 import lombok.Data;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.nikowis.librin.domain.base.BaseEntity;
+import pl.nikowis.librin.domain.city.model.City;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
 import pl.nikowis.librin.domain.token.model.Token;
@@ -16,8 +17,11 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
@@ -52,6 +56,13 @@ public class User extends BaseEntity {
 
     private double avgRating;
     private int ratingCount;
+
+    private Boolean exchange;
+    private Boolean shipment;
+    private Boolean selfPickup;
+    @ManyToOne
+    @JoinColumn(name = "selfPickupCityId")
+    private City selfPickupCity;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user", cascade = {CascadeType.ALL})
     private List<Consent> consents = new ArrayList<>();

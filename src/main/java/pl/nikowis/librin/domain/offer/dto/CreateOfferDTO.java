@@ -1,6 +1,7 @@
 package pl.nikowis.librin.domain.offer.dto;
 
 import lombok.Data;
+import pl.nikowis.librin.domain.city.model.City;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.photo.dto.PhotoDTO;
 import pl.nikowis.librin.domain.offer.model.OfferCategory;
@@ -37,4 +38,12 @@ public class CreateOfferDTO {
 
     @Size(min = Offer.MIN_PHOTOS, max = Offer.MAX_PHOTOS)
     private List<PhotoDTO> photos;
+
+    @NotNull
+    private Boolean exchange;
+    @NotNull
+    private Boolean shipment;
+    @NotNull
+    private Boolean selfPickup;
+    private City selfPickupCity;
 }

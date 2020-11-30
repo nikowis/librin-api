@@ -2,18 +2,19 @@ package pl.nikowis.librin.domain.user.dto;
 
 import lombok.Data;
 import pl.nikowis.librin.domain.city.model.City;
-import pl.nikowis.librin.domain.user.model.UserStatus;
+
+import javax.validation.constraints.NotNull;
 
 @Data
-public class PublicUserDTO {
+public class UpdateUserPreferencesDTO {
 
-    protected Long id;
-    protected String username;
-    protected UserStatus status;
-    private double avgRating;
-    private int ratingCount;
+    @NotNull
     private Boolean exchange;
+    @NotNull
     private Boolean shipment;
+    @NotNull
     private Boolean selfPickup;
+
     private City selfPickupCity;
+
 }

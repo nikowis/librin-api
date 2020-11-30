@@ -5,6 +5,7 @@ import pl.nikowis.librin.domain.user.dto.DeleteUserDTO;
 import pl.nikowis.librin.domain.user.dto.PublicUserDTO;
 import pl.nikowis.librin.domain.user.dto.RegisterUserDTO;
 import pl.nikowis.librin.domain.user.dto.UpdateUserDTO;
+import pl.nikowis.librin.domain.user.dto.UpdateUserPreferencesDTO;
 import pl.nikowis.librin.domain.user.dto.UserDTO;
 import pl.nikowis.librin.domain.user.model.User;
 
@@ -23,4 +24,5 @@ public interface UserService {
 
     PublicUserDTO getPublicUserInfo(Long userId);
 
+    UserDTO updateUserPreferences(Long currentUserId, UpdateUserPreferencesDTO dto);
 }

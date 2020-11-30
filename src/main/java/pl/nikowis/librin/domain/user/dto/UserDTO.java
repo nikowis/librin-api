@@ -1,6 +1,7 @@
 package pl.nikowis.librin.domain.user.dto;
 
 import lombok.Data;
+import pl.nikowis.librin.domain.city.model.City;
 import pl.nikowis.librin.domain.user.model.UserStatus;
 
 @Data
@@ -15,4 +16,8 @@ public class UserDTO {
     private String role;
     private double avgRating;
     private int ratingCount;
+    private Boolean exchange;
+    private Boolean shipment;
+    private Boolean selfPickup;
+    private City selfPickupCity;
 }

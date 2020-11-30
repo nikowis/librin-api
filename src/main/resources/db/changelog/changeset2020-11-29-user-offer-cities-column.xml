@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="changeset2020-11-29-user-offer-cities-column.xml" author="nikowis">
+        <sql>
+            ALTER TABLE "user" ADD COLUMN "exchange" BOOLEAN;
+            ALTER TABLE "user" ADD COLUMN "shipment" BOOLEAN;
+            ALTER TABLE "user" ADD COLUMN "self_pickup" BOOLEAN;
+            ALTER TABLE "user"
+            ADD COLUMN "self_pickup_city_id" BIGINT,
+            ADD CONSTRAINT fk_user_city
+            FOREIGN KEY (self_pickup_city_id)
+            REFERENCES city (id);
+
+
+            ALTER TABLE "offer" ADD COLUMN "exchange" BOOLEAN NOT NULL DEFAULT FALSE;
+            ALTER TABLE "offer" ADD COLUMN "shipment" BOOLEAN NOT NULL DEFAULT TRUE;
+            ALTER TABLE "offer" ADD COLUMN "self_pickup" BOOLEAN NOT NULL DEFAULT FALSE;
+            ALTER TABLE "offer"
+            ADD COLUMN "self_pickup_city_id" BIGINT,
+            ADD CONSTRAINT fk_offer_city
+            FOREIGN KEY (self_pickup_city_id)
+            REFERENCES city (id);
+        </sql>
+    </changeSet>
+</databaseChangeLog>
+
+
+

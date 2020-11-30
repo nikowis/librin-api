@@ -134,6 +134,9 @@ class MyOffersControllerTest {
         o.setCategory(OFFER_CATEGORY);
         o.setCondition(OFFER_CONDITION);
         o.setPrice(BigDecimal.ZERO);
+        o.setShipment(true);
+        o.setSelfPickup(false);
+        o.setExchange(false);
 
         mockMvc.perform(post(MyOffersController.MY_OFFERS_ENDPOINT)
                 .contentType(APPLICATION_JSON_UTF8)
@@ -179,6 +182,9 @@ class MyOffersControllerTest {
         edit.setPrice(newPrice);
         edit.setCategory(OfferCategory.OTHER);
         edit.setCondition(OfferCondition.DESTROYED);
+        edit.setShipment(true);
+        edit.setSelfPickup(false);
+        edit.setExchange(false);
 
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);
@@ -215,6 +221,9 @@ class MyOffersControllerTest {
         edit.setPrice(newPrice);
         edit.setCondition(OFFER_CONDITION);
         edit.setCategory(OFFER_CATEGORY);
+        edit.setShipment(true);
+        edit.setSelfPickup(false);
+        edit.setExchange(false);
 
         Offer o = new Offer();
         o.setTitle(OFFER_TITLE);

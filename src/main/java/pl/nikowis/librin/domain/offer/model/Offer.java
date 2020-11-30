@@ -1,6 +1,7 @@
 package pl.nikowis.librin.domain.offer.model;
 
 import lombok.Data;
+import pl.nikowis.librin.domain.city.model.City;
 import pl.nikowis.librin.domain.photo.model.Photo;
 import pl.nikowis.librin.domain.base.BaseEntity;
 import pl.nikowis.librin.domain.offer.exception.CannotBuyOwnOfferException;
@@ -70,6 +71,14 @@ public class Offer extends BaseEntity {
 
     @OneToOne(mappedBy = "offer", fetch = FetchType.EAGER)
     private Rating rating;
+
+    private Boolean exchange;
+    private Boolean shipment;
+    private Boolean selfPickup;
+
+    @ManyToOne
+    @JoinColumn(name = "selfPickupCityId")
+    private City selfPickupCity;
 
     public void deleteOffer() {
         if (OfferStatus.SOLD.equals(status) || OfferStatus.DELETED.equals(status)) {

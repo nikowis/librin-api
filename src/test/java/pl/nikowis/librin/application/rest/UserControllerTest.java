@@ -17,6 +17,8 @@ import pl.nikowis.librin.TestConstants;
 import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.offer.model.OfferStatus;
 import pl.nikowis.librin.domain.user.dto.DeleteUserDTO;
+import pl.nikowis.librin.domain.user.dto.UpdateUserDTO;
+import pl.nikowis.librin.domain.user.dto.UpdateUserPreferencesDTO;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.infrastructure.config.GlobalExceptionHandler;
 import pl.nikowis.librin.infrastructure.config.Profiles;
@@ -30,10 +32,14 @@ import pl.nikowis.librin.infrastructure.security.OauthRefreshToken;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -103,6 +109,44 @@ class UserControllerTest {
         mockMvc.perform(get(ProfileController.USERS_ENDPOINT))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithUserDetails(TestConstants.EMAIL)
+    public void updateUser() throws Exception {
+        User byEmail = userRepository.findByEmailEmail(TestConstants.EMAIL);
+
+        UpdateUserDTO dto = new UpdateUserDTO();
+        dto.setFirstName("newfirstname");
+        dto.setLastName("newlastname");
+
+        mockMvc.perform(put(ProfileController.USERS_ENDPOINT)
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(new ObjectMapper().writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName", is(dto.getFirstName())))
+                .andExpect(jsonPath("$.lastName", is(dto.getLastName())));
+    }
+
+    @Test
+    @WithUserDetails(TestConstants.EMAIL)
+    public void updateUserPreferences() throws Exception {
+        User byEmail = userRepository.findByEmailEmail(TestConstants.EMAIL);
+
+        UpdateUserPreferencesDTO dto = new UpdateUserPreferencesDTO();
+        dto.setExchange(false);
+        dto.setSelfPickup(false);
+        dto.setShipment(true);
+
+        mockMvc.perform(put(ProfileController.PREFERENCES_ENDPOINT)
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(new ObjectMapper().writeValueAsString(dto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.exchange", is(dto.getExchange())))
+                .andExpect(jsonPath("$.shipment", is(dto.getShipment())))
+                .andExpect(jsonPath("$.selfPickup", is(dto.getSelfPickup())));
     }
 
     @Test

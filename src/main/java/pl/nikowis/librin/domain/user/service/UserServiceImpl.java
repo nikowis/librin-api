@@ -6,12 +6,16 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.nikowis.librin.domain.city.model.City;
 import pl.nikowis.librin.domain.notification.NotificationService;
+import pl.nikowis.librin.domain.offer.exception.IncorrectSelfPickupCityException;
+import pl.nikowis.librin.domain.offer.exception.NoShipmentMethodChosenException;
 import pl.nikowis.librin.domain.token.dto.ChangeUserPasswordDTO;
 import pl.nikowis.librin.domain.user.dto.DeleteUserDTO;
 import pl.nikowis.librin.domain.user.dto.PublicUserDTO;
 import pl.nikowis.librin.domain.user.dto.RegisterUserDTO;
 import pl.nikowis.librin.domain.user.dto.UpdateUserDTO;
+import pl.nikowis.librin.domain.user.dto.UpdateUserPreferencesDTO;
 import pl.nikowis.librin.domain.user.dto.UserDTO;
 import pl.nikowis.librin.domain.user.exception.EmailAlreadyExistsException;
 import pl.nikowis.librin.domain.user.exception.IncorrectPasswordException;
@@ -19,6 +23,7 @@ import pl.nikowis.librin.domain.user.exception.UserNotFoundException;
 import pl.nikowis.librin.domain.user.exception.UsernameAlreadyExistsException;
 import pl.nikowis.librin.domain.user.model.User;
 import pl.nikowis.librin.domain.user.model.UserStatus;
+import pl.nikowis.librin.infrastructure.repository.CityRepository;
 import pl.nikowis.librin.infrastructure.repository.OauthRefreshTokenRepository;
 import pl.nikowis.librin.infrastructure.repository.OauthTokenRepository;
 import pl.nikowis.librin.infrastructure.repository.UserRepository;
@@ -52,6 +57,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private NotificationService notificationService;
+
+    @Autowired
+    private CityRepository cityRepository;
 
     @Override
     public User findUserByEmail(String email) {
@@ -105,6 +113,29 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException();
         }
         return mapperFacade.map(user, PublicUserDTO.class);
+    }
+
+    @Override
+    public UserDTO updateUserPreferences(Long currentUserId, UpdateUserPreferencesDTO dto) {
+        User user = userRepository.findById(currentUserId).orElseThrow(UserNotFoundException::new);
+
+        mapperFacade.map(dto, user);
+
+        if(Boolean.TRUE.equals(dto.getSelfPickup())) {
+            if(dto.getSelfPickupCity() == null) {
+                throw new IncorrectSelfPickupCityException();
+            }
+            City city = cityRepository.findById(dto.getSelfPickupCity().getId()).orElseThrow(IncorrectSelfPickupCityException::new);
+            user.setSelfPickupCity(city);
+        }
+
+        if (Boolean.FALSE.equals(dto.getShipment()) && Boolean.FALSE.equals(dto.getSelfPickup())) {
+            throw new NoShipmentMethodChosenException();
+        }
+
+        User savedUser = userRepository.save(user);
+
+        return mapperFacade.map(savedUser, UserDTO.class);
     }
 
 
