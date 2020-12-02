@@ -12,6 +12,7 @@ import pl.nikowis.librin.domain.offer.exception.IncorrectSelfPickupCityException
 import pl.nikowis.librin.domain.offer.exception.NoShipmentMethodChosenException;
 import pl.nikowis.librin.domain.token.dto.ChangeUserPasswordDTO;
 import pl.nikowis.librin.domain.user.dto.DeleteUserDTO;
+import pl.nikowis.librin.domain.user.dto.CityDTO;
 import pl.nikowis.librin.domain.user.dto.PublicUserDTO;
 import pl.nikowis.librin.domain.user.dto.RegisterUserDTO;
 import pl.nikowis.librin.domain.user.dto.UpdateUserDTO;
@@ -119,14 +120,19 @@ public class UserServiceImpl implements UserService {
     public UserDTO updateUserPreferences(Long currentUserId, UpdateUserPreferencesDTO dto) {
         User user = userRepository.findById(currentUserId).orElseThrow(UserNotFoundException::new);
 
+        CityDTO dtoCity = dto.getSelfPickupCity();
+        //dont map city into user's city
+        dto.setSelfPickupCity(null);
         mapperFacade.map(dto, user);
 
         if(Boolean.TRUE.equals(dto.getSelfPickup())) {
-            if(dto.getSelfPickupCity() == null) {
+            if(dtoCity == null) {
                 throw new IncorrectSelfPickupCityException();
             }
-            City city = cityRepository.findById(dto.getSelfPickupCity().getId()).orElseThrow(IncorrectSelfPickupCityException::new);
+            City city = cityRepository.findById(dtoCity.getId()).orElseThrow(IncorrectSelfPickupCityException::new);
             user.setSelfPickupCity(city);
+        } else {
+            user.setSelfPickupCity(null);
         }
 
         if (Boolean.FALSE.equals(dto.getShipment()) && Boolean.FALSE.equals(dto.getSelfPickup())) {

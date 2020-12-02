@@ -19,5 +19,5 @@ public class UserDTO {
     private Boolean exchange;
     private Boolean shipment;
     private Boolean selfPickup;
-    private City selfPickupCity;
+    private CityDTO selfPickupCity;
 }

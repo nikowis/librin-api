@@ -6,6 +6,7 @@ import pl.nikowis.librin.domain.offer.model.Offer;
 import pl.nikowis.librin.domain.photo.dto.PhotoDTO;
 import pl.nikowis.librin.domain.offer.model.OfferCategory;
 import pl.nikowis.librin.domain.offer.model.OfferCondition;
+import pl.nikowis.librin.domain.user.dto.CityDTO;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -45,5 +46,5 @@ public class CreateOfferDTO {
     private Boolean shipment;
     @NotNull
     private Boolean selfPickup;
-    private City selfPickupCity;
+    private CityDTO selfPickupCity;
 }

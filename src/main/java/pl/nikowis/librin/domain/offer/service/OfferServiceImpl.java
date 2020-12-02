@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.nikowis.librin.domain.city.model.City;
 import pl.nikowis.librin.domain.photo.model.Photo;
 import pl.nikowis.librin.domain.conversation.service.ConversationServiceImpl;
 import pl.nikowis.librin.domain.offer.dto.CreateOfferDTO;
@@ -49,8 +50,6 @@ public class OfferServiceImpl implements OfferService {
     @Autowired
     private ConversationServiceImpl messageService;
 
-
-
     @Autowired
     private PhotoService photoService;
 
@@ -82,8 +81,10 @@ public class OfferServiceImpl implements OfferService {
         Long ownerId = SecurityUtils.getCurrentUserId();
         Offer offer = offerRepository.findByIdAndOwnerId(offerId, ownerId).orElseThrow(OfferDoesntExistException::new);
         offer.validateUpdateOffer();
+        City pickupCity = offerFactory.getPickupCity(offerDTO, offer);
         List<Photo> updatedPhotos = photoService.updatePhotos(offer, offerDTO.getPhotos());
         mapperFacade.map(offerDTO, offer);
+        offer.setSelfPickupCity(pickupCity);
         offer.setPhotos(updatedPhotos);
         offer.setPhoto(updatedPhotos.size() > 0 ? updatedPhotos.get(0) : null);
         offer = offerRepository.save(offer);
