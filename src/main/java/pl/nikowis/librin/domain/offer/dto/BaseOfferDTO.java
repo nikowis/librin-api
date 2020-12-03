@@ -29,7 +29,4 @@ public class BaseOfferDTO {
     protected Long buyerId;
     protected RatingDTO rating;
     private Boolean exchange;
-    private Boolean shipment;
-    private Boolean selfPickup;
-    private CityDTO selfPickupCity;
 }

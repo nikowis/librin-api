@@ -73,12 +73,6 @@ public class Offer extends BaseEntity {
     private Rating rating;
 
     private Boolean exchange;
-    private Boolean shipment;
-    private Boolean selfPickup;
-
-    @ManyToOne
-    @JoinColumn(name = "selfPickupCityId")
-    private City selfPickupCity;
 
     public void deleteOffer() {
         if (OfferStatus.SOLD.equals(status) || OfferStatus.DELETED.equals(status)) {

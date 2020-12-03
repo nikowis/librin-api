@@ -1,12 +1,10 @@
 package pl.nikowis.librin.domain.offer.dto;
 
 import lombok.Data;
-import pl.nikowis.librin.domain.city.model.City;
 import pl.nikowis.librin.domain.offer.model.Offer;
-import pl.nikowis.librin.domain.photo.dto.PhotoDTO;
 import pl.nikowis.librin.domain.offer.model.OfferCategory;
 import pl.nikowis.librin.domain.offer.model.OfferCondition;
-import pl.nikowis.librin.domain.user.dto.CityDTO;
+import pl.nikowis.librin.domain.photo.dto.PhotoDTO;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -14,7 +12,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -42,9 +39,4 @@ public class CreateOfferDTO {
 
     @NotNull
     private Boolean exchange;
-    @NotNull
-    private Boolean shipment;
-    @NotNull
-    private Boolean selfPickup;
-    private CityDTO selfPickupCity;
 }
